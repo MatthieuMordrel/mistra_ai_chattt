@@ -1,0 +1,16 @@
+{
+  // Associate all .css files with Tailwind CSS for better syntax highlighting and IntelliSense
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  // Set the background color for SVG previews in the editor
+  "svg.preview.background": "editor",
+  // Custom labels for different types of files in the workbench editor
+  "workbench.editor.customLabels.patterns": {
+    "**/app/**/page.tsx": "${dirname} - Page", // Label for page files
+    "**/app/**/layout.tsx": "${dirname} - Layout", // Label for layout files
+    "**/app/**/route.tsx": "${dirname} - Route" // Label for route files
+  },
+  // Specify the TypeScript SDK path
+  "typescript.tsdk": "node_modules\\typescript\\lib"
+}
