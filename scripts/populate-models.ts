@@ -61,7 +61,7 @@ async function fetchModelFromMistral(
 async function populateModels() {
   try {
     // Read models from JSON file
-    const modelsFilePath = path.join(process.cwd(), "lib", "models.json");
+    const modelsFilePath = path.join(process.cwd(), "models.json");
     const modelsData: LocalModelData[] = JSON.parse(
       fs.readFileSync(modelsFilePath, "utf-8"),
     );
