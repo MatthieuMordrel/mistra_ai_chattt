@@ -31,3 +31,19 @@ A simple chat application powered by Mistral AI that allows users to interact wi
 ### AI Integration
 
 - **Mistral AI API** - Access to various Mistral language models
+
+## Environment Variables
+
+To run this project, you'll need to set up the following environment variables. A template file `.env.example` is provided in the repository.
+
+1. Copy the `.env.example` file to a new file named `.env`:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Fill in your own values in the `.env` file:
+   - `MISTRAL_API_KEY`: Your Mistral AI API key
+   - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`: For Google OAuth authentication
+   - `AUTH_SECRET`: A secret key for authentication
+   - `DATABASE_URL`: Your Neon database connection string
