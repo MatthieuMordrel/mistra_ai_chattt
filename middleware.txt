@@ -1,0 +1,27 @@
+import { auth } from "@/lib/auth";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+
+export async function middleware(request: NextRequest) {
+  // Check if the path starts with /dashboard
+  if (request.nextUrl.pathname.startsWith("/dashboard")) {
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+
+    // Redirect to sign-in if not authenticated
+    if (!session) {
+      const signInUrl = new URL("/sign-in", request.url);
+      // You can add a redirect parameter to return to the original page after login
+      signInUrl.searchParams.set("redirect", request.nextUrl.pathname);
+      return NextResponse.redirect(signInUrl);
+    }
+  }
+
+  return NextResponse.next();
+}
+
+// Configure which paths this middleware runs on
+export const config = {
+  matcher: ["/dashboard/:path*"],
+};

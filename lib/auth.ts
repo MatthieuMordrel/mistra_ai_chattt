@@ -4,6 +4,9 @@ import { db } from "../db/database";
 import * as schema from "../db/schema/auth-schema";
 
 export const auth = betterAuth({
+  appName: "Mistral AI Chat",
+  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001",
+  basePath: "/api/auth",
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: schema,

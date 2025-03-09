@@ -4,13 +4,12 @@ import { createAuthClient } from "better-auth/client";
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001";
 
 const authClient = createAuthClient({
-    baseURL: baseUrl,
-    // sessionEndpoint: "/api/auth/use-session"
+  baseURL: baseUrl,
+  sessionEndpoint: "/api/auth/use-session",
 });
 
-export const {
-    signIn,
-    signOut,
-    signUp,
-    useSession
-} = authClient;
+// Export individual methods
+export const { signIn, signOut, signUp, useSession } = authClient;
+
+// Also export the full client if needed
+export { authClient };
