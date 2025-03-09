@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "populate-models": "tsx scripts/populate-models.ts"
   },
   "dependencies": {
     "@next/env": "^15.2.1",
@@ -35,6 +36,7 @@
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4.0.12",
+    "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   },
   "pnpm": {

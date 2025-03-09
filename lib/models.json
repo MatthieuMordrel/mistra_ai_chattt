@@ -1,0 +1,51 @@
+[
+  {
+    "id": "mistral-large-latest",
+    "name": "Mistral Large 24.11",
+    "description": "Top-tier reasoning for high-complexity tasks and sophisticated problems.",
+    "inputPricePerToken": 2,
+    "outputPricePerToken": 6
+  },
+  {
+    "id": "pixtral-large-latest",
+    "name": "Pixtral Large",
+    "description": "Vision-capable large model with frontier reasoning capabilities.",
+    "inputPricePerToken": 2,
+    "outputPricePerToken": 6
+  },
+  {
+    "id": "mistral-small-latest",
+    "name": "Mistral Small 25.01",
+    "description": "Cost-efficient, fast, and reliable option for use cases such as translation, summarization, and sentiment analysis.",
+    "inputPricePerToken": 0.1,
+    "outputPricePerToken": 0.3
+  },
+  {
+    "id": "mistral-saba-latest",
+    "name": "Mistral Saba",
+    "description": "Custom-trained model to serve specific geographies, markets, and customers.",
+    "inputPricePerToken": 0.2,
+    "outputPricePerToken": 0.6
+  },
+  {
+    "id": "codestral-latest",
+    "name": "Codestral",
+    "description": "State-of-the-art Mistral model trained specifically for code tasks.",
+    "inputPricePerToken": 0.3,
+    "outputPricePerToken": 0.9
+  },
+  {
+    "id": "ministral-8b-latest",
+    "name": "Ministral 8B 24.10",
+    "description": "Powerful model for on-device use cases.",
+    "inputPricePerToken": 0.1,
+    "outputPricePerToken": 0.1
+  },
+  {
+    "id": "ministral-3b-latest",
+    "name": "Ministral 3B 24.10",
+    "description": "Most efficient edge model.",
+    "inputPricePerToken": 0.04,
+    "outputPricePerToken": 0.04
+  }
+]
