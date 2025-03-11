@@ -44,9 +44,7 @@ const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
     setInput("");
 
     // Refocus the input after sending
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 0);
+    inputRef.current?.focus();
   };
 
   return (

@@ -1,3 +1,6 @@
+/**
+ * Chat service for sending messages to the API
+ */
 import { sendMessage } from "@/services/chatService";
 import { ChatMessage } from "@/types/types";
 import { create } from "zustand";
@@ -7,21 +10,48 @@ import { persist } from "zustand/middleware";
  * Interface defining the chat store state
  */
 interface ChatState {
-  // State
+  /** Array of chat messages in the current conversation */
   messages: ChatMessage[];
+  /** Flag indicating if a message is currently being processed */
   isLoading: boolean;
+  /** Unique identifier for the current conversation */
   conversationId: string | null;
+  /** Title of the current conversation */
   conversationTitle: string;
 
-  // Actions
+  /**
+   * Sends a user message to the chat API and handles the response
+   * @param message - The message text to send
+   * @returns A promise that resolves when the message has been processed
+   */
   sendChatMessage: (message: string) => Promise<void>;
+
+  /**
+   * Updates the title of the current conversation
+   * @param title - The new title to set
+   */
   setConversationTitle: (title: string) => void;
+
+  /**
+   * Clears all messages and resets the conversation state
+   */
   clearConversation: () => void;
+
+  /**
+   * Loads an existing conversation into the store
+   * @param conversationId - The ID of the conversation to load
+   * @param messages - The messages in the conversation
+   * @param title - The title of the conversation
+   */
   loadConversation: (
     conversationId: string,
     messages: ChatMessage[],
     title: string,
   ) => void;
+
+  /**
+   * Automatically generates a title based on the first user message
+   */
   generateTitleFromFirstMessage: () => void;
 }
 
@@ -38,10 +68,10 @@ export const useChatStore = create<ChatState>()(
       conversationId: null,
       conversationTitle: "New Conversation",
 
-      // Actions
       sendChatMessage: async (message: string) => {
         const { messages, isLoading } = get();
 
+        // Don't process empty messages or when already loading
         if (!message.trim() || isLoading) return;
 
         // Check if this is the first message before adding the new one
@@ -89,6 +119,11 @@ export const useChatStore = create<ChatState>()(
           await sendMessage({
             currentMessages: updatedMessages,
             userMessage,
+            /**
+             * Callback for handling token updates during streaming
+             * @param _ - Unused parameter
+             * @param token - The new token to append to the message
+             */
             onTokenUpdate: (_, token) => {
               // Update the assistant message with each token
               set((state) => {
@@ -102,6 +137,10 @@ export const useChatStore = create<ChatState>()(
                 return { messages: updated };
               });
             },
+            /**
+             * Callback for when the message stream is complete
+             * @param _ - Unused parameter
+             */
             onComplete: (_) => {
               // Mark streaming as complete
               set((state) => {
@@ -117,6 +156,11 @@ export const useChatStore = create<ChatState>()(
 
               // We no longer need to generate the title here since we do it immediately after the first message
             },
+            /**
+             * Callback for handling errors during message processing
+             * @param _ - Unused parameter
+             * @param errorMessage - The error message to display
+             */
             onError: (_, errorMessage) => {
               set((state) => {
                 const updated = [...state.messages];
@@ -173,10 +217,6 @@ export const useChatStore = create<ChatState>()(
         });
       },
 
-      /**
-       * Generate a title based on the first user message
-       * This is a simple implementation that extracts the first few words
-       */
       generateTitleFromFirstMessage: () => {
         const { messages, conversationTitle } = get();
         console.log("Generating title from messages:", messages);
@@ -226,6 +266,11 @@ export const useChatStore = create<ChatState>()(
     }),
     {
       name: "chat-storage", // name for the localStorage key
+      /**
+       * Controls which parts of the state are persisted to storage
+       * @param state - The current state
+       * @returns The subset of state to persist
+       */
       partialize: (state) => ({
         // Only persist these fields to localStorage
         messages: state.messages,
