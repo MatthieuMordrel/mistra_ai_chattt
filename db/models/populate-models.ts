@@ -2,9 +2,9 @@ import { loadEnvConfig } from "@next/env";
 import { eq } from "drizzle-orm";
 import fs from "fs";
 import path from "path";
-import { db } from "../db/database";
-import { model } from "../db/schema/chat-schema";
-import { components } from "../types/mistral";
+import { components } from "../../types/mistral";
+import { db } from "../database";
+import { model } from "../schema/chat-schema";
 
 const { combinedEnv } = loadEnvConfig(process.cwd());
 

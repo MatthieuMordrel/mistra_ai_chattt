@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "populate-models": "tsx scripts/populate-models.ts"
+    "populate-models": "tsx db/models/populate-models.ts"
   },
   "dependencies": {
     "@next/env": "^15.2.1",

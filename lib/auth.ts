@@ -6,7 +6,7 @@ import * as schema from "../db/schema/auth-schema";
 
 export const auth = betterAuth({
   appName: "Mistral AI Chat",
-  baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001",
+  baseUrl: process.env.BETTER_AUTH_URL,
   basePath: "/api/auth",
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -16,7 +16,7 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      redirectUri: "http://localhost:3001/api/auth/callback/google",
+      redirectUri: process.env.BETTER_AUTH_URL + "/api/auth/callback/google",
     },
   },
   plugins: [nextCookies()],
