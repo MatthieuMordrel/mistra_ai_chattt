@@ -1,19 +1,33 @@
+import { useChatStore } from "@/store/chatStore";
+import { Button } from "../ui/button";
+
 /**
  * Props for the ChatHeader component
  */
 interface ChatHeaderProps {
-  /** Callback function when the back button is clicked */
-  onBackClick: () => void;
+  /** Title of the conversation */
+  conversationTitle: string;
 }
 
 /**
  * Header component for the chat interface
- * Displays the title and back button
+ * Displays the conversation title and provides a button to clear the conversation
  */
-const ChatHeader = ({ onBackClick }: ChatHeaderProps) => {
+const ChatHeader = ({ conversationTitle }: ChatHeaderProps) => {
+  const clearConversation = useChatStore((state) => state.clearConversation);
+
   return (
-    <div className="mb-4 flex items-center justify-between">
-      <h1 className="text-2xl font-bold">New Conversation</h1>
+    <div className="mb-4 flex items-center justify-between border-b pb-2">
+      <h1 className="text-xl font-bold">{conversationTitle}</h1>
+      <div className="flex gap-2">
+        <Button
+          variant="ghost"
+          onClick={clearConversation}
+          title="Clear conversation"
+        >
+          Clear Chat
+        </Button>
+      </div>
     </div>
   );
 };

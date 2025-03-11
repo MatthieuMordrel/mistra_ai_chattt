@@ -5,5 +5,6 @@ export const db = drizzle({
   connection: {
     url: combinedEnv.DATABASE_URL,
     ssl: true,
+    // max: 10, // max number of connections
   },
 });
