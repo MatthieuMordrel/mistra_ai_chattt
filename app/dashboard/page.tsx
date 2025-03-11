@@ -1,18 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/auth"; // Import your auth instance
-import { headers } from "next/headers";
+import { validateServerSession } from "@/lib/validateSessionServer";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  // Redirect if not authenticated
-  if (!session || session.session.expiresAt < new Date()) {
-    redirect("/sign-in");
-  }
+  // Validate session and redirect if invalid, make the page dynamic
+  await validateServerSession();
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-8">

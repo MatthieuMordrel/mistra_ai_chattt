@@ -1,90 +1,197 @@
-import { sendMessage } from "@/services/chatService";
+"use client";
+
+import { useAuthStore } from "@/store/authStore";
+import { useChatStore } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
-import { useEffect, useRef, useState } from "react";
+import { sendMessage } from "@/utils/api";
+import { useConversationMutations } from "./useConversationQueries";
 
 /**
- * Custom hook for managing chat state and logic
+ * Custom hook for chat message handling
+ * Handles sending messages, generating titles, and saving to the database
  */
-export function useChat() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+export function useChat(conversationId: string | undefined) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  // Scroll to bottom of chat when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  // Chat store state and actions
+  const {
+    messages,
+    isLoading,
+    conversationTitle,
+    addUserMessage,
+    addAssistantMessage,
+    updateAssistantMessage,
+    setLoading,
+    setStreaming,
+    setConversationTitle,
+  } = useChatStore();
+
+  // TanStack Query mutations
+  const { createConversation, saveMessages, updateTitle } =
+    useConversationMutations();
 
   /**
-   * Send a new message in the chat
+   * Generates a title from the first user message
+   * @param message The first user message
+   * @returns The generated title or null if no valid title could be generated
+   */
+  const generateTitle = (message: string): string | null => {
+    // Extract title from first message
+    const words = message.split(" ").filter((word) => word.trim());
+    let title = words.slice(0, 5).join(" ");
+
+    // Truncate if too long and add ellipsis
+    if (title.length > 30) {
+      title = title.substring(0, 30).trim() + "...";
+    } else if (words.length > 5) {
+      title += "...";
+    }
+
+    if (title && title.trim() !== "") {
+      return title;
+    }
+
+    return null;
+  };
+
+  /**
+   * Saves the conversation to the database
+   * @param userMessage The user message
+   * @param assistantMessage The assistant message
+   * @param newTitle Optional new title
+   */
+  const saveConversationToDb = async (
+    userMessage: ChatMessage,
+    assistantMessage: ChatMessage,
+    newTitle?: string,
+  ) => {
+    if (!isAuthenticated) return;
+
+    try {
+      if (conversationId) {
+        // Save messages to existing conversation
+        await saveMessages({
+          id: conversationId,
+          messages: [...messages, userMessage, assistantMessage],
+        });
+
+        // Update title if provided
+        if (newTitle) {
+          await updateTitle({
+            id: conversationId,
+            title: newTitle,
+          });
+        }
+      } else {
+        // Create new conversation
+        const title = newTitle || conversationTitle;
+
+        // Create the conversation
+        createConversation({
+          title,
+          messages: [...messages, userMessage, assistantMessage],
+        });
+      }
+    } catch (error) {
+      console.error("Error saving conversation:", error);
+    }
+  };
+
+  /**
+   * Sends a message to the chat API
+   * @param message The message to send
    */
   const sendChatMessage = async (message: string) => {
+    // Don't process empty messages or when already loading
     if (!message.trim() || isLoading) return;
 
     // Add user message to chat
-    const userMessage: ChatMessage = { role: "user", content: message };
-    setMessages((prev) => [...prev, userMessage]);
+    addUserMessage(message);
+
+    // Check if this is the first message
+    const shouldGenerateTitle =
+      messages.length === 0 && conversationTitle === "New Conversation";
 
     // Add placeholder for assistant message
-    setMessages((prev) => [
-      ...prev,
-      { role: "assistant", content: "", isStreaming: true },
-    ]);
+    addAssistantMessage("", true);
+    setLoading(true);
+    setStreaming(true);
 
-    setIsLoading(true);
+    const userMessage: ChatMessage = { role: "user", content: message };
 
-    // Send message to API using our service
-    await sendMessage({
-      currentMessages: messages,
-      userMessage,
-      onTokenUpdate: (assistantMessageIndex, token) => {
-        // Update the assistant message with each token
-        setMessages((prev) => {
-          const updated = [...prev];
-          if (updated[assistantMessageIndex]) {
-            updated[assistantMessageIndex] = {
-              ...updated[assistantMessageIndex],
-              content: updated[assistantMessageIndex].content + token,
-            };
+    try {
+      // Send message to API
+      await sendMessage({
+        currentMessages: [...messages, userMessage],
+        userMessage,
+        onTokenUpdate: (fullMessage: string, token: string) => {
+          // Update the assistant message with each token
+          updateAssistantMessage(fullMessage);
+        },
+        onComplete: async (response) => {
+          // Mark streaming as complete
+          setLoading(false);
+          setStreaming(false);
+
+          // Generate title if needed
+          let newTitle = null;
+          if (shouldGenerateTitle) {
+            newTitle = generateTitle(message);
+            if (newTitle) {
+              setConversationTitle(newTitle);
+            }
           }
-          return updated;
+
+          // Save to database if authenticated
+          await saveConversationToDb(
+            userMessage,
+            response,
+            newTitle || undefined,
+          );
+        },
+        onError: (error: Error, errorMessage: string) => {
+          // Handle API errors
+          updateAssistantMessage(errorMessage);
+          setLoading(false);
+          setStreaming(false);
+        },
+      });
+    } catch (error) {
+      console.error("Error in sendChatMessage:", error);
+      // Handle unexpected errors
+      updateAssistantMessage(
+        "Sorry, there was an error generating a response. Please try again.",
+      );
+      setLoading(false);
+      setStreaming(false);
+    }
+  };
+
+  /**
+   * Updates the conversation title
+   * @param newTitle The new title
+   */
+  const updateConversationTitle = async (newTitle: string) => {
+    setConversationTitle(newTitle);
+
+    // Save title to database if authenticated and we have a conversation ID
+    if (isAuthenticated && conversationId) {
+      try {
+        await updateTitle({
+          id: conversationId,
+          title: newTitle,
         });
-      },
-      onComplete: (assistantMessageIndex) => {
-        // Mark streaming as complete
-        setMessages((prev) => {
-          const updated = [...prev];
-          if (updated[assistantMessageIndex]) {
-            updated[assistantMessageIndex] = {
-              ...updated[assistantMessageIndex],
-              isStreaming: false,
-            };
-          }
-          return updated;
-        });
-        setIsLoading(false);
-      },
-      onError: (assistantMessageIndex, errorMessage) => {
-        setMessages((prev) => {
-          const updated = [...prev];
-          if (updated[assistantMessageIndex]) {
-            updated[assistantMessageIndex] = {
-              role: "assistant",
-              content: errorMessage,
-              isStreaming: false,
-            };
-          }
-          return updated;
-        });
-        setIsLoading(false);
-      },
-    });
+      } catch (error) {
+        console.error("Error updating title:", error);
+      }
+    }
   };
 
   return {
     messages,
     isLoading,
-    messagesEndRef,
+    conversationTitle,
     sendChatMessage,
+    updateConversationTitle,
   };
 }

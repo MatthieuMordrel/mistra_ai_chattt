@@ -1,4 +1,5 @@
 import NavBar from "@/components/NavBar";
+import { QueryProvider } from "@/providers/QueryProvider";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -28,8 +29,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <NavBar />
-        {children}
+        <QueryProvider>
+          <NavBar />
+          {children}
+        </QueryProvider>
       </body>
     </html>
   );

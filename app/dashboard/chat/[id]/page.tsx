@@ -12,15 +12,21 @@ function AuthSync() {
   return null;
 }
 
+interface ConversationPageProps {
+  params: {
+    id: string;
+  };
+}
+
 /**
- * Chat page component for new conversations
+ * Chat page component for existing conversations
  * Uses the ChatContainer component for the UI
  */
-export default function ChatPage() {
+export default function ConversationPage({ params }: ConversationPageProps) {
   return (
     <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-4xl flex-col p-4">
       <AuthSync />
-      <ChatContainer />
+      <ChatContainer conversationId={params.id} />
     </div>
   );
 }
