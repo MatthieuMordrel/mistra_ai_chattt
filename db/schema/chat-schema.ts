@@ -18,8 +18,6 @@ export const conversation = pgTable("conversation", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   title: text("title").notNull().default("New Conversation"),
-  modelId: text("model_id").notNull().default("mistral-small"),
-  usedTokens: integer("used_tokens").default(0), // Track tokens used in this conversation
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

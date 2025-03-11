@@ -3,6 +3,7 @@
 import ChatHeader from "@/components/chat/ChatHeader";
 import ChatInput from "@/components/chat/ChatInput";
 import ChatMessageList from "@/components/chat/ChatMessageList";
+import { useSession } from "@/lib/auth-client";
 import { useChatStore } from "@/store/chatStore";
 import { useEffect, useRef } from "react";
 
@@ -11,14 +12,36 @@ import { useEffect, useRef } from "react";
  * Uses Zustand store for state management
  */
 export default function ChatPage() {
+  // Get authentication session
+  const { data: sessionData } = useSession();
+  const userId = sessionData?.user?.id;
+
   // Get state and actions from the Zustand store
   const messages = useChatStore((state) => state.messages);
   const isLoading = useChatStore((state) => state.isLoading);
   const conversationTitle = useChatStore((state) => state.conversationTitle);
   const sendChatMessage = useChatStore((state) => state.sendChatMessage);
+  const setUserId = useChatStore((state) => state.setUserId);
+  const saveConversation = useChatStore((state) => state.saveConversation);
 
   // Create a ref for scrolling to the bottom of the chat
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Set the user ID in the store when it changes
+  useEffect(() => {
+    if (userId) {
+      setUserId(userId);
+    }
+  }, [userId, setUserId]);
+
+  // Save the conversation when the component unmounts
+  useEffect(() => {
+    return () => {
+      if (messages.length > 0) {
+        saveConversation();
+      }
+    };
+  }, [messages, saveConversation]);
 
   // Scroll to bottom of chat when messages change
   useEffect(() => {

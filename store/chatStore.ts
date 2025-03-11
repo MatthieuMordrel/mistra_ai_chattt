@@ -1,6 +1,11 @@
 /**
  * Chat service for sending messages to the API
  */
+import {
+  createConversation,
+  saveMessages,
+  updateConversationTitle,
+} from "@/app/actions/conversation-actions";
 import { sendMessage } from "@/services/chatService";
 import { ChatMessage } from "@/types/types";
 import { create } from "zustand";
@@ -18,6 +23,16 @@ interface ChatState {
   conversationId: string | null;
   /** Title of the current conversation */
   conversationTitle: string;
+  /** Flag indicating if changes need to be saved to the database */
+  isDirty: boolean;
+  /** Current user ID (needed for database operations) */
+  userId: string | null;
+
+  /**
+   * Sets the current user ID
+   * @param userId - The user ID to set
+   */
+  setUserId: (userId: string) => void;
 
   /**
    * Sends a user message to the chat API and handles the response
@@ -53,6 +68,12 @@ interface ChatState {
    * Automatically generates a title based on the first user message
    */
   generateTitleFromFirstMessage: () => void;
+
+  /**
+   * Saves the current conversation to the database
+   * Creates a new conversation if one doesn't exist
+   */
+  saveConversation: () => Promise<void>;
 }
 
 /**
@@ -67,9 +88,16 @@ export const useChatStore = create<ChatState>()(
       isLoading: false,
       conversationId: null,
       conversationTitle: "New Conversation",
+      isDirty: false,
+      userId: null,
+
+      // Set the current user ID
+      setUserId: (userId: string) => {
+        set({ userId });
+      },
 
       sendChatMessage: async (message: string) => {
-        const { messages, isLoading } = get();
+        const { messages, isLoading, userId } = get();
 
         // Don't process empty messages or when already loading
         if (!message.trim() || isLoading) return;
@@ -87,12 +115,13 @@ export const useChatStore = create<ChatState>()(
         const userMessage: ChatMessage = { role: "user", content: message };
         set((state) => ({
           messages: [...state.messages, userMessage],
+          isDirty: true,
         }));
 
         // Generate title immediately if this is the first message
         if (shouldGenerateTitle) {
           console.log("Generating title immediately after first message");
-          // We need to wait for the state to update before generating the title, because thate state update is async
+          // We need to wait for the state to update before generating the title
           setTimeout(() => {
             get().generateTitleFromFirstMessage();
           }, 0);
@@ -119,11 +148,6 @@ export const useChatStore = create<ChatState>()(
           await sendMessage({
             currentMessages: updatedMessages,
             userMessage,
-            /**
-             * Callback for handling token updates during streaming
-             * @param _ - Unused parameter
-             * @param token - The new token to append to the message
-             */
             onTokenUpdate: (_, token) => {
               // Update the assistant message with each token
               set((state) => {
@@ -137,10 +161,6 @@ export const useChatStore = create<ChatState>()(
                 return { messages: updated };
               });
             },
-            /**
-             * Callback for when the message stream is complete
-             * @param _ - Unused parameter
-             */
             onComplete: (_) => {
               // Mark streaming as complete
               set((state) => {
@@ -151,16 +171,14 @@ export const useChatStore = create<ChatState>()(
                     isStreaming: false,
                   };
                 }
-                return { messages: updated, isLoading: false };
+                return { messages: updated, isLoading: false, isDirty: true };
               });
 
-              // We no longer need to generate the title here since we do it immediately after the first message
+              // Save the conversation to the database if we have a user ID
+              if (userId) {
+                get().saveConversation();
+              }
             },
-            /**
-             * Callback for handling errors during message processing
-             * @param _ - Unused parameter
-             * @param errorMessage - The error message to display
-             */
             onError: (_, errorMessage) => {
               set((state) => {
                 const updated = [...state.messages];
@@ -171,7 +189,7 @@ export const useChatStore = create<ChatState>()(
                     isStreaming: false,
                   };
                 }
-                return { messages: updated, isLoading: false };
+                return { messages: updated, isLoading: false, isDirty: true };
               });
             },
           });
@@ -188,13 +206,22 @@ export const useChatStore = create<ChatState>()(
                 isStreaming: false,
               };
             }
-            return { messages: updated, isLoading: false };
+            return { messages: updated, isLoading: false, isDirty: true };
           });
         }
       },
 
       setConversationTitle: (title: string) => {
-        set({ conversationTitle: title });
+        const { conversationId, userId } = get();
+
+        set({ conversationTitle: title, isDirty: true });
+
+        // Update the title in the database if we have a conversation ID and user ID
+        if (conversationId && userId) {
+          updateConversationTitle(conversationId, title).catch((error) => {
+            console.error("Error updating conversation title:", error);
+          });
+        }
       },
 
       clearConversation: () => {
@@ -202,6 +229,7 @@ export const useChatStore = create<ChatState>()(
           messages: [],
           conversationId: null,
           conversationTitle: "New Conversation",
+          isDirty: false,
         });
       },
 
@@ -214,6 +242,7 @@ export const useChatStore = create<ChatState>()(
           conversationId,
           messages,
           conversationTitle: title,
+          isDirty: false,
         });
       },
 
@@ -258,24 +287,58 @@ export const useChatStore = create<ChatState>()(
           }
 
           console.log("Generated title:", title);
-          set({ conversationTitle: title });
+          set({ conversationTitle: title, isDirty: true });
         } else {
           console.log("No valid user message found for title generation");
+        }
+      },
+
+      saveConversation: async () => {
+        const { conversationId, messages, conversationTitle, userId, isDirty } =
+          get();
+
+        // Don't save if there's nothing to save or no user ID
+        if (!isDirty || !userId || messages.length === 0) {
+          return;
+        }
+
+        try {
+          // If we don't have a conversation ID, create a new conversation
+          let currentConversationId = conversationId;
+          if (!currentConversationId) {
+            const result = await createConversation(
+              conversationTitle,
+              messages,
+            );
+            currentConversationId = result.id;
+            set({ conversationId: currentConversationId, isDirty: false });
+          } else {
+            // Otherwise, save the messages to the existing conversation
+            await saveMessages(currentConversationId, messages);
+
+            // Update the title if it's not the default
+            if (conversationTitle !== "New Conversation") {
+              await updateConversationTitle(
+                currentConversationId,
+                conversationTitle,
+              );
+            }
+
+            set({ isDirty: false });
+          }
+        } catch (error) {
+          console.error("Error saving conversation:", error);
         }
       },
     }),
     {
       name: "chat-storage", // name for the localStorage key
-      /**
-       * Controls which parts of the state are persisted to storage
-       * @param state - The current state
-       * @returns The subset of state to persist
-       */
       partialize: (state) => ({
         // Only persist these fields to localStorage
         messages: state.messages,
         conversationId: state.conversationId,
         conversationTitle: state.conversationTitle,
+        userId: state.userId,
       }),
     },
   ),
