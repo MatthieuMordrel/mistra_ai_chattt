@@ -18,10 +18,10 @@ export default function NavBar() {
   return (
     <nav className="flex items-center justify-between p-4">
       <div className="flex items-center gap-4">
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full" asChild>
           <Link href="/">Home</Link>
         </Button>
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full" asChild>
           <Link href="/dashboard">Dashboard</Link>
         </Button>
       </div>
@@ -30,7 +30,7 @@ export default function NavBar() {
           {!isPending && (
             <>
               {!session && (
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" asChild>
                   <Link
                     href="/sign-in"
                     className="w-full rounded bg-blue-500 px-4 py-2 text-center text-white transition-colors hover:bg-blue-600"
