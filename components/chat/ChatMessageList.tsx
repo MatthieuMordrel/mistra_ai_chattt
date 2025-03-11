@@ -1,25 +1,18 @@
-import { ChatMessage } from "@/types/types";
-import { RefObject } from "react";
+"use client";
+
+import { useAutoScroll } from "@/hooks/useAutoScroll";
+import { useChatStore } from "@/store/chatStore";
 import ChatMessageItem from "./ChatMessageItem";
-
-/**
- * Props for the ChatMessageList component
- */
-interface ChatMessageListProps {
-  /** Array of chat messages to display */
-  messages: ChatMessage[];
-  /** Ref to scroll to the end of the messages */
-  messagesEndRef: RefObject<HTMLDivElement | null>;
-}
-
 /**
  * Component for displaying a list of chat messages
  * Handles empty state and message rendering
  */
-const ChatMessageList = ({
-  messages,
-  messagesEndRef,
-}: ChatMessageListProps) => {
+const ChatMessageList = () => {
+  const messages = useChatStore((state) => state.messages);
+
+  // Use the auto-scroll hook directly in this component
+  const messagesEndRef = useAutoScroll(messages);
+
   return (
     <div className="flex-1 overflow-y-auto rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-800">
       {messages.length === 0 ? (

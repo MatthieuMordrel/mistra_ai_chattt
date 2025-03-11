@@ -3,8 +3,8 @@
 import { useAuthStore } from "@/store/authStore";
 import { useChatStore } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
-import { sendMessage } from "@/utils/api";
 import { useConversationMutations } from "./useConversationQueries";
+import { streamMistralClient } from "@/lib/mistral-client";
 
 /**
  * Custom hook for chat message handling
@@ -121,14 +121,13 @@ export function useChat(conversationId: string | undefined) {
 
     try {
       // Send message to API
-      await sendMessage({
-        currentMessages: [...messages, userMessage],
-        userMessage,
+      await streamMistralClient({
+        messages: [...messages, userMessage],
         onTokenUpdate: (fullMessage: string, token: string) => {
           // Update the assistant message with each token
           updateAssistantMessage(fullMessage);
         },
-        onComplete: async (response) => {
+        onComplete: async (response: string) => {
           // Mark streaming as complete
           setLoading(false);
           setStreaming(false);
@@ -145,13 +144,13 @@ export function useChat(conversationId: string | undefined) {
           // Save to database if authenticated
           await saveConversationToDb(
             userMessage,
-            response,
+            { role: "assistant", content: response },
             newTitle || undefined,
           );
         },
-        onError: (error: Error, errorMessage: string) => {
+        onError: (error: Error) => {
           // Handle API errors
-          updateAssistantMessage(errorMessage);
+          updateAssistantMessage(error.message);
           setLoading(false);
           setStreaming(false);
         },

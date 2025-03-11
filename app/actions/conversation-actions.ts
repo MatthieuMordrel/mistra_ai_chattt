@@ -23,7 +23,7 @@ export async function createConversation(
 
   try {
     // Create a new conversation
-    const conversationId = await ConversationService.createConversation(
+    const conversationId = await ConversationService.createConversationInDB(
       session.user.id,
       title,
     );
@@ -34,7 +34,7 @@ export async function createConversation(
     }
 
     // Revalidate the conversations path to update the UI
-    revalidatePath("/dashboard/chat");
+    // revalidatePath("/dashboard/chat");
 
     return { id: conversationId };
   } catch (error) {

@@ -1,23 +1,16 @@
+"use client";
 import { useChatStore } from "@/store/chatStore";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-
-/**
- * Props for the ChatHeader component
- */
-interface ChatHeaderProps {
-  /** Title of the conversation */
-  conversationTitle: string;
-  /** Callback for when the title is updated */
-  onUpdateTitle?: (title: string) => void;
-}
-
 /**
  * Header component for the chat interface
  * Displays the conversation title and provides a button to clear the conversation
  */
-const ChatHeader = ({ conversationTitle, onUpdateTitle }: ChatHeaderProps) => {
+const ChatHeader = () => {
+  const conversationId = useChatStore((state) => state.conversationId);
+  // const { updateConversationTitle } = useChat(conversationId || undefined);
+  const conversationTitle = useChatStore((state) => state.conversationTitle);
   const clearConversation = useChatStore((state) => state.clearConversation);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(conversationTitle);
@@ -32,16 +25,16 @@ const ChatHeader = ({ conversationTitle, onUpdateTitle }: ChatHeaderProps) => {
     setEditedTitle(conversationTitle);
   };
 
-  const handleSaveTitle = () => {
-    if (editedTitle.trim() && onUpdateTitle) {
-      onUpdateTitle(editedTitle);
-    }
-    setIsEditing(false);
-  };
+  // const handleSaveTitle = () => {
+  //   if (editedTitle.trim() && updateConversationTitle) {
+  //     updateConversationTitle(editedTitle);
+  //   }
+  //   setIsEditing(false);
+  // };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      handleSaveTitle();
+      // handleSaveTitle();
     } else if (e.key === "Escape") {
       setIsEditing(false);
       setEditedTitle(conversationTitle);
@@ -54,7 +47,7 @@ const ChatHeader = ({ conversationTitle, onUpdateTitle }: ChatHeaderProps) => {
         <Input
           value={editedTitle}
           onChange={(e) => setEditedTitle(e.target.value)}
-          onBlur={handleSaveTitle}
+          // onBlur={handleSaveTitle}
           onKeyDown={handleKeyDown}
           className="text-xl font-bold"
           autoFocus

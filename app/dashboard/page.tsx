@@ -1,11 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { validateServerSession } from "@/lib/validateSessionServer";
 import Link from "next/link";
 
 export default async function DashboardPage() {
-  // Validate session and redirect if invalid, make the page dynamic
-  await validateServerSession();
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="w-full max-w-4xl space-y-8 text-center">

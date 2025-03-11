@@ -13,7 +13,7 @@ export class ConversationService {
    * @param title The title of the conversation
    * @returns The ID of the newly created conversation
    */
-  static async createConversation(
+  static async createConversationInDB(
     userId: string,
     title: string = "New Conversation",
   ): Promise<string> {
@@ -89,7 +89,7 @@ export class ConversationService {
         conversationId,
         msg.role,
         msg.content,
-        undefined, // We don't have token counts in the ChatMessage type
+        undefined, // We don't have token counts in the ChatMessage type, we'll need to calculate this at some point
       );
       messageIds.push(id);
     }

@@ -1,22 +1,16 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useChatStore } from "@/store/chatStore";
 import { useEffect, useRef, useState } from "react";
-
-/**
- * Props for the ChatInput component
- */
-interface ChatInputProps {
-  /** Callback function when a message is sent */
-  onSendMessage: (message: string) => void;
-  /** Whether the chat is currently loading/processing a message */
-  isLoading: boolean;
-}
 
 /**
  * Component for the chat input form
  * Handles user input and message submission
  */
-const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
+const ChatInput = () => {
+  const isLoading = useChatStore((state) => state.isLoading);
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -40,7 +34,7 @@ const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
 
     if (!input.trim() || isLoading) return;
 
-    onSendMessage(input);
+    // sendChatMessage(input);
     setInput("");
 
     // Refocus the input after sending

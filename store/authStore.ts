@@ -46,25 +46,3 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
-
-/**
- * Hook to sync the auth store with the session
- * Call this in a layout or high-level component
- */
-export function useSyncAuthStore() {
-  const { data: sessionData } = useSession();
-  const setUser = useAuthStore((state) => state.setUser);
-  const clearUser = useAuthStore((state) => state.clearUser);
-
-  // Update auth store when session changes
-  useEffect(() => {
-    if (sessionData?.user?.id) {
-      setUser(sessionData.user.id);
-    } else if (sessionData === null) {
-      // Only clear if we know the session is null (not undefined/loading)
-      clearUser();
-    }
-  }, [sessionData, setUser, clearUser]);
-
-  return null;
-}
