@@ -1,8 +1,14 @@
 "use client";
 
+import {
+  createConversation,
+  saveMessages,
+} from "@/app/actions/conversation-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { streamMistralClient } from "@/lib/mistral-client";
 import { useChatStore } from "@/store/chatStore";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -10,9 +16,21 @@ import { useEffect, useRef, useState } from "react";
  * Handles user input and message submission
  */
 const ChatInput = () => {
+  const messages = useChatStore((state) => state.messages);
+  const addUserMessage = useChatStore((state) => state.addUserMessage);
+  const setConversationId = useChatStore((state) => state.setConversationId);
+  const addAssistantMessage = useChatStore(
+    (state) => state.addAssistantMessage,
+  );
+  const updateAssistantMessage = useChatStore(
+    (state) => state.updateAssistantMessage,
+  );
+  const setLoading = useChatStore((state) => state.setLoading);
+  const setStreaming = useChatStore((state) => state.setStreaming);
   const isLoading = useChatStore((state) => state.isLoading);
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   // Focus input on component mount
   useEffect(() => {
@@ -29,16 +47,92 @@ const ChatInput = () => {
   /**
    * Handle form submission
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!input.trim() || isLoading) return;
-
-    // sendChatMessage(input);
-    setInput("");
-
     // Refocus the input after sending
     inputRef.current?.focus();
+    if (!input.trim() || isLoading) return;
+
+    // Create a new messages array that includes the current user input
+    const currentUserMessage = {
+      role: "user" as const,
+      content: input,
+      isStreaming: false,
+      id: "",
+      createdAt: new Date(),
+      conversationId: "",
+      tokens: null,
+    };
+
+    //Create conversation in db if there is no messages
+    if (messages.length === 0) {
+      const conversationId = await createConversation(input);
+      //Update conversation id in the client store
+      setConversationId(conversationId.id);
+      await saveMessages(conversationId.id, [
+        {
+          role: "user",
+          content: input,
+        },
+      ]);
+      router.push(`/dashboard/chat/${conversationId.id}`);
+    }
+
+    // Add messages to the client store (this happens asynchronously)
+    addUserMessage(input);
+    addAssistantMessage("", true);
+    setLoading(true);
+    setStreaming(true);
+
+    // IMPORTANT: We need to create a separate array with the current messages plus the new user message
+    // because React state updates (addUserMessage, addAssistantMessage) are asynchronous and won't be
+    // reflected immediately in the 'messages' array from the store
+    const messagesToSend = [...messages, currentUserMessage];
+
+    console.log("Sending messages to the API", messagesToSend);
+
+    // Initialize a variable to accumulate the streaming content
+    let accumulatedContent = "";
+
+    // Send messages to the API with streaming
+    try {
+      await streamMistralClient({
+        messages: messagesToSend,
+        onToken: (token) => {
+          // Make sure streaming flag is set to true during token streaming
+          if (!useChatStore.getState().isStreaming) {
+            setStreaming(true);
+          }
+
+          // Accumulate the content and update the UI with each token
+          accumulatedContent += token;
+          updateAssistantMessage(accumulatedContent);
+        },
+        onComplete: (fullContent) => {
+          // Final update with the complete content
+          updateAssistantMessage(fullContent);
+          setLoading(false);
+          setStreaming(false);
+        },
+        onError: (error) => {
+          console.error("Error streaming response:", error);
+          updateAssistantMessage(
+            "Sorry, there was an error generating a response. Please try again.",
+          );
+          setLoading(false);
+          setStreaming(false);
+        },
+      });
+    } catch (error) {
+      console.error("Error in streamMistralClient:", error);
+      updateAssistantMessage(
+        "Sorry, there was an error generating a response. Please try again.",
+      );
+      setLoading(false);
+      setStreaming(false);
+    }
+
+    setInput("");
   };
 
   return (

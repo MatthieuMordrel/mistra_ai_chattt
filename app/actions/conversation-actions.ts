@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
 /**
- * Creates a new conversation
+ * Creates a new conversation and returns the conversation id
  */
 export async function createConversation(
   title: string,

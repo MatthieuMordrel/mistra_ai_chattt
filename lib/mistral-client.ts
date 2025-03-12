@@ -10,13 +10,54 @@ export type MistralMessage =
   | components["schemas"]["ToolMessage"];
 
 /**
+ * Basic message interface that can be converted to Mistral API format
+ */
+export interface BasicMessage {
+  role: string; // Accept any string for role to be compatible with database Message type
+  content: string;
+  [key: string]: any; // Allow for additional properties
+}
+
+/**
+ * Sanitize messages to ensure they conform to Mistral API requirements
+ * This handles proper formatting based on message role
+ */
+export function sanitizeMessages(messages: BasicMessage[]): MistralMessage[] {
+  return messages.map((message) => {
+    if (message.role === "assistant") {
+      return {
+        role: "assistant" as const,
+        content: message.content,
+        prefix: false, // Only include prefix for assistant messages
+      };
+    } else if (message.role === "user") {
+      return {
+        role: "user" as const,
+        content: message.content,
+      };
+    } else if (message.role === "system") {
+      return {
+        role: "system" as const,
+        content: message.content,
+      };
+    } else {
+      // Default to user message for any unknown roles
+      return {
+        role: "user" as const,
+        content: message.content,
+      };
+    }
+  });
+}
+
+/**
  * Options for the streamMistralClient function
  */
 export interface StreamMistralClientOptions {
   /** The model ID to use (defaults to mistral-small-latest) */
   model?: string;
   /** Array of messages for the conversation */
-  messages: MistralMessage[];
+  messages: BasicMessage[];
   /** Temperature for generation (0.0-1.0) */
   temperature?: number;
   /** Maximum tokens to generate */
@@ -54,6 +95,9 @@ export async function streamMistralClient({
   onError = (error: Error) => console.error(error),
 }: StreamMistralClientOptions): Promise<string> {
   try {
+    // Sanitize messages to ensure they conform to Mistral API requirements
+    const sanitizedMessages = sanitizeMessages(messages);
+
     // Call our protected API endpoint
     const response = await fetch("/api/mistral/stream", {
       method: "POST",
@@ -62,7 +106,7 @@ export async function streamMistralClient({
       },
       body: JSON.stringify({
         model,
-        messages,
+        messages: sanitizedMessages,
         temperature,
         maxTokens,
         responseFormat,

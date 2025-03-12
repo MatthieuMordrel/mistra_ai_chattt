@@ -1,9 +1,9 @@
 "use client";
 
 import { useAutoScroll } from "@/hooks/useAutoScroll";
+import { useChatStore } from "@/store/chatStore";
 import { MessageWithIsStreaming } from "@/types/db";
 import ChatMessageItem from "./ChatMessageItem";
-import { useChatStore } from "@/store/chatStore";
 /**
  * @param messages - The messages to display in the chat message list
  * @returns A list of chat messages
@@ -13,7 +13,6 @@ const ChatMessageList = ({
 }: {
   messages?: MessageWithIsStreaming[];
 }) => {
-  const setMessages = useChatStore((state) => state.setMessages);
   const messagesClient = useChatStore((state) => state.messages);
   // Use the auto-scroll hook with UI messages
   const messagesEndRef = useAutoScroll(messages);

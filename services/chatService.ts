@@ -1,4 +1,4 @@
-import { MistralMessage, streamMistralClient } from "@/lib/mistral-client";
+import { streamMistralClient } from "@/lib/mistral-client";
 import { ChatMessage } from "@/types/types";
 
 /**
@@ -18,33 +18,6 @@ interface SendMessageOptions {
 }
 
 /**
- * Convert chat messages to Mistral API format
- */
-const convertToMistralMessages = (
-  messages: ChatMessage[],
-): MistralMessage[] => {
-  return messages.map(({ role, content }) => {
-    if (role === "user") {
-      return {
-        role: "user" as const,
-        content,
-      };
-    } else if (role === "assistant") {
-      return {
-        role: "assistant" as const,
-        content,
-        prefix: false,
-      };
-    } else {
-      return {
-        role: "system" as const,
-        content,
-      };
-    }
-  });
-};
-
-/**
  * Send a message to the Mistral AI API
  */
 export const sendMessage = async ({
@@ -58,12 +31,9 @@ export const sendMessage = async ({
   const allMessages = [...currentMessages, userMessage];
 
   try {
-    // Convert chat messages to Mistral API format
-    const mistralMessages = convertToMistralMessages(allMessages);
-
     // Stream the response using our protected API client
     await streamMistralClient({
-      messages: mistralMessages,
+      messages: allMessages,
       onToken: (token) => {
         onTokenUpdate(assistantMessageIndex, token);
       },

@@ -1,7 +1,7 @@
 /**
  * Chat service for sending messages to the API
  */
-import { ChatMessage } from "@/types/types";
+import { MessageWithIsStreaming } from "@/types/db";
 import { create } from "zustand";
 
 /**
@@ -9,11 +9,9 @@ import { create } from "zustand";
  */
 interface ChatState {
   /** Array of chat messages in the current conversation */
-  messages: ChatMessage[];
+  messages: MessageWithIsStreaming[];
   /** Flag indicating if a message is currently being processed */
   isLoading: boolean;
-  /** Current conversation title */
-  conversationTitle: string;
   /** Flag indicating if the current message is streaming */
   isStreaming: boolean;
   /** Current conversation ID */
@@ -23,7 +21,7 @@ interface ChatState {
    * Sets all messages at once
    * @param messages - The messages to set
    */
-  setMessages: (messages: ChatMessage[]) => void;
+  setMessages: (messages: MessageWithIsStreaming[]) => void;
 
   /**
    * Adds a user message to the chat
@@ -55,13 +53,6 @@ interface ChatState {
    * @param isStreaming - The streaming state to set
    */
   setStreaming: (isStreaming: boolean) => void;
-
-  /**
-   * Updates the title of the current conversation
-   * @param title - The new title to set
-   */
-  setConversationTitle: (title: string) => void;
-
   /**
    * Sets the conversation ID
    * @param id - The conversation ID to set
@@ -79,14 +70,19 @@ export const useChatStore = create<ChatState>((set) => ({
   isStreaming: false,
   conversationId: null,
 
-  setMessages: (messages: ChatMessage[]) => {
+  setMessages: (messages: MessageWithIsStreaming[]) => {
     set({ messages });
   },
 
   addUserMessage: (message: string) => {
-    const userMessage: ChatMessage = {
+    const userMessage: MessageWithIsStreaming = {
       role: "user",
       content: message,
+      isStreaming: false,
+      id: "",
+      createdAt: new Date(),
+      conversationId: "",
+      tokens: null,
     };
 
     set((state) => ({
@@ -95,10 +91,14 @@ export const useChatStore = create<ChatState>((set) => ({
   },
 
   addAssistantMessage: (message: string, isStreaming = false) => {
-    const assistantMessage: ChatMessage = {
+    const assistantMessage: MessageWithIsStreaming = {
       role: "assistant",
       content: message,
       isStreaming,
+      id: "",
+      createdAt: new Date(),
+      conversationId: "",
+      tokens: null,
     };
 
     set((state) => ({
@@ -115,7 +115,7 @@ export const useChatStore = create<ChatState>((set) => ({
       // Only update if the last message is from the assistant
       if (lastIndex >= 0 && messages[lastIndex]?.role === "assistant") {
         messages[lastIndex] = {
-          role: "assistant",
+          ...messages[lastIndex],
           content: message,
           isStreaming: state.isStreaming,
         };
@@ -148,10 +148,6 @@ export const useChatStore = create<ChatState>((set) => ({
         return { messages };
       });
     }
-  },
-
-  setConversationTitle: (title: string) => {
-    set({ conversationTitle: title });
   },
 
   setConversationId: (id: string | null) => {

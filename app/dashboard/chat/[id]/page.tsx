@@ -9,9 +9,9 @@ import { headers } from "next/headers";
 export default async function ConversationPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = await params;
   const session = await auth.api.getSession({ headers: await headers() });
   //Fetch the messages using the conversation id on the server
   const conversation = await ConversationService.getConversation(

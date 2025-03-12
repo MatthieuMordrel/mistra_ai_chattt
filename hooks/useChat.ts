@@ -1,10 +1,10 @@
 "use client";
 
+import { streamMistralClient } from "@/lib/mistral-client";
 import { useAuthStore } from "@/store/authStore";
 import { useChatStore } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
 import { useConversationMutations } from "./useConversationQueries";
-import { streamMistralClient } from "@/lib/mistral-client";
 
 /**
  * Custom hook for chat message handling

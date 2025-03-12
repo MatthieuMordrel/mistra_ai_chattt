@@ -4,12 +4,7 @@ import { MessageWithIsStreaming } from "@/types/db";
  * Component for rendering a single chat message
  * Handles different styling based on message role and streaming state
  */
-const ChatMessageItem = ({
-  message,
-}: {
-  message: Pick<MessageWithIsStreaming, "role" | "content" | "isStreaming"> &
-    Partial<Omit<MessageWithIsStreaming, "role" | "content" | "isStreaming">>;
-}) => {
+const ChatMessageItem = ({ message }: { message: MessageWithIsStreaming }) => {
   return (
     <div
       className={`flex ${
