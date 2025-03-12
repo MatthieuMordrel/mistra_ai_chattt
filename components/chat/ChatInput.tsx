@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { streamAssistantMessageAndSaveToDb } from "@/services/chatService";
 import { useChatStore } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -24,7 +23,6 @@ const ChatInput = () => {
   const setConversationId = useChatStore((state) => state.setConversationId);
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   // Focus input on component mount
   useEffect(() => {
@@ -82,8 +80,9 @@ const ChatInput = () => {
         // Create the conversation in the DB
         const result = await createConversationAction(input);
 
-        // Navigate to the conversation page
-        router.replace(`/dashboard/chat/${result.id}`);
+        // TO DO: Find a way to navigate to the conversation page without causing the page to relaoad or the component to rerender/unmount/remount
+        // This would help to allow the user to refresh the page and still have the conversation loaded
+        // navigateToConversationAction(result.id);
 
         // Update the conversation ID in the store
         setConversationId(result.id);
@@ -101,9 +100,6 @@ const ChatInput = () => {
         console.error("Error creating conversation:", error);
       }
     } else {
-      // For existing conversations, we've already updated the UI with updateUIState
-
-      // Then save the message and send it
       if (conversationId) {
         try {
           await saveMessagesAction(conversationId, [userMessage]);

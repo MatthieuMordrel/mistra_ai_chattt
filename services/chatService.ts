@@ -31,47 +31,11 @@ interface SendMessageOptions {
  * @param currentMessages - Current messages in the conversation
  * @param userMessage - The user message being sent
  */
-const prepareUIState = (
-  currentMessages: ChatMessage[],
-  userMessage: ChatMessage,
-): void => {
-  // Add user message to the store if not already added by the component
-  // This is a safety measure in case the component doesn't add the message
-  const lastMessage = currentMessages[currentMessages.length - 1];
-  if (
-    !lastMessage ||
-    lastMessage.role !== "user" ||
-    lastMessage.content !== userMessage.content
-  ) {
-    useChatStore.getState().addUserMessage(userMessage.content);
-  }
-
+const prepareUIState = (): void => {
   // Add empty assistant message and set loading state
   useChatStore.getState().addAssistantMessage("", true);
   useChatStore.getState().setLoading(true);
   useChatStore.getState().setStreaming(true);
-};
-
-/**
- * Prepares messages for sending to the API
- *
- * @param currentMessages - Current messages in the conversation
- * @param userMessage - The user message being sent
- * @param conversationId - Optional conversation ID
- * @returns Array of messages ready to send to the API
- */
-const prepareMessagesForAPI = (
-  currentMessages: ChatMessage[],
-  userMessage: ChatMessage,
-): ChatMessage[] => {
-  return [
-    ...currentMessages,
-    {
-      role: userMessage.role,
-      content: userMessage.content,
-      isStreaming: false,
-    },
-  ];
 };
 
 /**
@@ -173,10 +137,7 @@ export const streamAssistantMessageAndSaveToDb = async ({
   callbacks?.onStart?.();
 
   // Prepare UI state
-  prepareUIState(currentMessages, userMessage);
-
-  // Prepare messages for API
-  const messagesToSend = prepareMessagesForAPI(currentMessages, userMessage);
+  prepareUIState();
 
   // Initialize a variable to accumulate the streaming content
   let accumulatedContent = "";
@@ -184,7 +145,7 @@ export const streamAssistantMessageAndSaveToDb = async ({
   try {
     // Stream the response using our protected API client
     await streamMessageToAPI(
-      messagesToSend,
+      currentMessages,
       // Token callback
       (token) => {
         // Make sure streaming flag is set to true during token streaming
@@ -198,14 +159,12 @@ export const streamAssistantMessageAndSaveToDb = async ({
       },
       // Complete callback
       async (fullContent) => {
-        // Save the assistant message to the database if we have a conversation ID
-        await saveAssistantMessageToDb(fullContent, conversationId);
-
         // Update UI state
         updateUIAfterStreaming(fullContent);
-
         // Call the completion callback if provided
         callbacks?.onComplete?.(fullContent);
+        // Save the assistant message to the database
+        await saveAssistantMessageToDb(fullContent, conversationId);
       },
       // Error callback
       (error) => handleStreamingError(error, callbacks?.onError),
