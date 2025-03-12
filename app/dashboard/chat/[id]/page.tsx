@@ -12,12 +12,14 @@ export default async function ConversationPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  console.log("id", id);
   const session = await auth.api.getSession({ headers: await headers() });
   //Fetch the messages using the conversation id on the server
   const conversation = await ConversationService.getConversation(
     id,
     session?.user.id ?? "",
   );
+  console.log("conversation", conversation);
   return (
     <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-4xl flex-col p-4">
       <ChatContainer conversation={conversation} />
