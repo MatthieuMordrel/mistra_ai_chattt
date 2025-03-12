@@ -1,10 +1,10 @@
-import { MessageWithIsStreaming } from "@/types/db";
+import { ChatMessage } from "@/types/types";
 
 /**
  * Component for rendering a single chat message
  * Handles different styling based on message role and streaming state
  */
-const ChatMessageItem = ({ message }: { message: MessageWithIsStreaming }) => {
+const ChatMessageItem = ({ message }: { message: ChatMessage }) => {
   return (
     <div
       className={`flex ${

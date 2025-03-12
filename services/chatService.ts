@@ -1,7 +1,6 @@
 import { saveMessagesAction } from "@/app/actions/conversation-actions";
 import { streamMistralClient } from "@/lib/mistral-client";
 import { useChatStore } from "@/store/chatStore";
-import { MessageWithIsStreaming } from "@/types/db";
 import { ChatMessage } from "@/types/types";
 
 /**
@@ -9,11 +8,11 @@ import { ChatMessage } from "@/types/types";
  */
 interface SendMessageOptions {
   /** The current messages in the conversation */
-  currentMessages: MessageWithIsStreaming[];
+  currentMessages: ChatMessage[];
   /** The new user message to send */
   userMessage: ChatMessage;
   /** The conversation ID to save messages to (if available) */
-  conversationId?: string | null;
+  conversationId: string;
   /** Optional callbacks for custom handling */
   callbacks?: {
     /** Called before sending the message */
@@ -26,22 +25,16 @@ interface SendMessageOptions {
 }
 
 /**
- * Send a message to the Mistral AI API and handle streaming response
- * This function encapsulates all the logic for sending messages and processing responses
- * including state management through the chatStore
+ * Prepares the UI state before sending a message
+ * Sets up the chat store with appropriate states
  *
- * @param options - The options for sending a message
- * @returns A promise that resolves when the message is sent and the response is processed
+ * @param currentMessages - Current messages in the conversation
+ * @param userMessage - The user message being sent
  */
-export const streamAssistantMessageAndSaveToDb = async ({
-  currentMessages,
-  userMessage,
-  conversationId,
-  callbacks,
-}: SendMessageOptions): Promise<void> => {
-  // Call the onStart callback if provided
-  callbacks?.onStart?.();
-
+const prepareUIState = (
+  currentMessages: ChatMessage[],
+  userMessage: ChatMessage,
+): void => {
   // Add user message to the store if not already added by the component
   // This is a safety measure in case the component doesn't add the message
   const lastMessage = currentMessages[currentMessages.length - 1];
@@ -57,29 +50,143 @@ export const streamAssistantMessageAndSaveToDb = async ({
   useChatStore.getState().addAssistantMessage("", true);
   useChatStore.getState().setLoading(true);
   useChatStore.getState().setStreaming(true);
+};
 
-  // Create a messages array for the API
-  const messagesToSend = [
+/**
+ * Prepares messages for sending to the API
+ *
+ * @param currentMessages - Current messages in the conversation
+ * @param userMessage - The user message being sent
+ * @param conversationId - Optional conversation ID
+ * @returns Array of messages ready to send to the API
+ */
+const prepareMessagesForAPI = (
+  currentMessages: ChatMessage[],
+  userMessage: ChatMessage,
+): ChatMessage[] => {
+  return [
     ...currentMessages,
     {
       role: userMessage.role,
       content: userMessage.content,
       isStreaming: false,
-      id: "",
-      createdAt: new Date(),
-      conversationId: conversationId || "",
-      tokens: null,
     },
   ];
+};
+
+/**
+ * Saves an assistant message to the database
+ *
+ * @param conversationId - The ID of the conversation
+ * @param content - The content of the message
+ * @returns A promise that resolves when the message is saved
+ */
+const saveAssistantMessageToDb = async (
+  content: string,
+  conversationId: string,
+): Promise<void> => {
+  try {
+    await saveMessagesAction(conversationId, [
+      {
+        role: "assistant",
+        content,
+      },
+    ]);
+  } catch (error) {
+    console.error("Error saving assistant message to database:", error);
+    // Continue even if saving fails - the UI will still show the message
+  }
+};
+
+/**
+ * Updates the UI state after streaming is complete
+ *
+ * @param content - The final content of the assistant message
+ */
+const updateUIAfterStreaming = (content: string): void => {
+  useChatStore.getState().updateAssistantMessage(content);
+  useChatStore.getState().setLoading(false);
+  useChatStore.getState().setStreaming(false);
+};
+
+/**
+ * Handles errors during message streaming
+ *
+ * @param error - The error that occurred
+ * @param errorCallback - Optional callback for custom error handling
+ * @returns An error message
+ */
+const handleStreamingError = (
+  error: unknown,
+  errorCallback?: (errorMessage: string) => void,
+): string => {
+  console.error("Error streaming response:", error);
+  const errorMessage =
+    "Sorry, there was an error generating a response. Please try again.";
+
+  // Update UI with error
+  updateUIAfterStreaming(errorMessage);
+
+  // Call the error callback if provided
+  errorCallback?.(errorMessage);
+
+  return errorMessage;
+};
+
+/**
+ * Streams a message to the Mistral AI API and processes the response
+ *
+ * @param messagesToSend - Messages to send to the API
+ * @param onToken - Callback for each token received
+ * @param onComplete - Callback when streaming is complete
+ * @param onError - Callback when an error occurs
+ * @returns A promise that resolves when streaming is complete
+ */
+const streamMessageToAPI = async (
+  messagesToSend: ChatMessage[],
+  onToken: (token: string) => void,
+  onComplete: (fullContent: string) => void,
+  onError: (error: Error) => void,
+): Promise<void> => {
+  await streamMistralClient({
+    messages: messagesToSend,
+    onToken,
+    onComplete,
+    onError,
+  });
+};
+
+/**
+ * Send a message to the Mistral AI API and handle streaming response
+ * This function orchestrates the message sending process by calling more specialized functions
+ *
+ * @param options - The options for sending a message
+ * @returns A promise that resolves when the message is sent and the response is processed
+ */
+export const streamAssistantMessageAndSaveToDb = async ({
+  currentMessages,
+  userMessage,
+  conversationId,
+  callbacks,
+}: SendMessageOptions): Promise<void> => {
+  // Call the onStart callback if provided
+  callbacks?.onStart?.();
+
+  // Prepare UI state
+  prepareUIState(currentMessages, userMessage);
+
+  // Prepare messages for API
+  const messagesToSend = prepareMessagesForAPI(currentMessages, userMessage);
 
   // Initialize a variable to accumulate the streaming content
   let accumulatedContent = "";
 
   try {
     // Stream the response using our protected API client
-    await streamMistralClient({
-      messages: messagesToSend,
-      onToken: (token) => {
+    await streamMessageToAPI(
+      messagesToSend,
+      // Token callback
+      (token) => {
         // Make sure streaming flag is set to true during token streaming
         if (!useChatStore.getState().isStreaming) {
           useChatStore.getState().setStreaming(true);
@@ -89,55 +196,21 @@ export const streamAssistantMessageAndSaveToDb = async ({
         accumulatedContent += token;
         useChatStore.getState().updateAssistantMessage(accumulatedContent);
       },
-      onComplete: async (fullContent) => {
+      // Complete callback
+      async (fullContent) => {
         // Save the assistant message to the database if we have a conversation ID
-        if (conversationId) {
-          try {
-            await saveMessagesAction(conversationId, [
-              {
-                role: "assistant",
-                content: fullContent,
-              },
-            ]);
-          } catch (error) {
-            console.error("Error saving assistant message to database:", error);
-            // Continue even if saving fails - the UI will still show the message
-          }
-        }
+        await saveAssistantMessageToDb(fullContent, conversationId);
 
         // Update UI state
-        useChatStore.getState().updateAssistantMessage(fullContent);
-        useChatStore.getState().setLoading(false);
-        useChatStore.getState().setStreaming(false);
+        updateUIAfterStreaming(fullContent);
 
         // Call the completion callback if provided
         callbacks?.onComplete?.(fullContent);
       },
-      onError: (error) => {
-        console.error("Error streaming response:", error);
-        const errorMessage =
-          "Sorry, there was an error generating a response. Please try again.";
-
-        // Update UI with error
-        useChatStore.getState().updateAssistantMessage(errorMessage);
-        useChatStore.getState().setLoading(false);
-        useChatStore.getState().setStreaming(false);
-
-        // Call the error callback if provided
-        callbacks?.onError?.(errorMessage);
-      },
-    });
+      // Error callback
+      (error) => handleStreamingError(error, callbacks?.onError),
+    );
   } catch (error) {
-    console.error("Error sending message:", error);
-    const errorMessage =
-      "Sorry, there was an error generating a response. Please try again.";
-
-    // Update UI with error
-    useChatStore.getState().updateAssistantMessage(errorMessage);
-    useChatStore.getState().setLoading(false);
-    useChatStore.getState().setStreaming(false);
-
-    // Call the error callback if provided
-    callbacks?.onError?.(errorMessage);
+    handleStreamingError(error, callbacks?.onError);
   }
 };

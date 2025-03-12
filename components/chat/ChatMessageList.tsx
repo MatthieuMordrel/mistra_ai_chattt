@@ -1,7 +1,7 @@
 "use client";
 
 import { useChatStore } from "@/store/chatStore";
-import { MessageWithIsStreaming } from "@/types/db";
+import { ChatMessage } from "@/types/types";
 import { useEffect } from "react";
 import ChatMessageItem from "./ChatMessageItem";
 
@@ -12,11 +12,7 @@ import ChatMessageItem from "./ChatMessageItem";
  * @param messages - The messages to display in the chat message list
  * @returns A list of chat messages
  */
-const ChatMessageList = ({
-  messages = [],
-}: {
-  messages?: MessageWithIsStreaming[];
-}) => {
+const ChatMessageList = ({ messages = [] }: { messages?: ChatMessage[] }) => {
   const setMessages = useChatStore((state) => state.setMessages);
   const messagesClient = useChatStore((state) => state.messages);
 
@@ -26,7 +22,7 @@ const ChatMessageList = ({
 
   return (
     <div className="absolute inset-0 overflow-x-hidden overflow-y-auto rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-800">
-      {messages.length === 0 ? (
+      {messagesClient.length === 0 ? (
         <div className="flex h-full items-center justify-center text-center">
           <div className="max-w-md space-y-2">
             <h2 className="text-2xl font-bold">Welcome to Mistral AI Chat</h2>

@@ -1,7 +1,7 @@
 /**
  * Chat service for sending messages to the API
  */
-import { MessageWithIsStreaming } from "@/types/db";
+import { ChatMessage } from "@/types/types";
 import { create } from "zustand";
 
 /**
@@ -9,7 +9,7 @@ import { create } from "zustand";
  */
 interface ChatState {
   /** Array of chat messages in the current conversation */
-  messages: MessageWithIsStreaming[];
+  messages: ChatMessage[];
   /** Flag indicating if a message is currently being processed */
   isLoading: boolean;
   /** Flag indicating if the current message is streaming */
@@ -23,7 +23,7 @@ interface ChatState {
    * Sets all messages at once
    * @param messages - The messages to set
    */
-  setMessages: (messages: MessageWithIsStreaming[]) => void;
+  setMessages: (messages: ChatMessage[]) => void;
 
   /**
    * Adds a user message to the chat
@@ -80,14 +80,10 @@ const createMessage = (
   role: "user" | "assistant" | "system",
   content: string,
   isStreaming: boolean = false,
-): MessageWithIsStreaming => ({
+): ChatMessage => ({
   role,
   content,
   isStreaming,
-  id: "",
-  createdAt: new Date(),
-  conversationId: "",
-  tokens: null,
 });
 
 /**
@@ -100,7 +96,7 @@ export const useChatStore = create<ChatState>((set) => ({
   isStreaming: false,
   conversationId: null,
 
-  setMessages: (messages: MessageWithIsStreaming[]) => {
+  setMessages: (messages: ChatMessage[]) => {
     set({ messages });
   },
 

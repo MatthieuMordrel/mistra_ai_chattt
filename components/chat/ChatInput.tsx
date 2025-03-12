@@ -18,6 +18,7 @@ import { useEffect, useRef, useState } from "react";
  */
 const ChatInput = () => {
   const messages = useChatStore((state) => state.messages);
+  const setMessages = useChatStore((state) => state.setMessages);
   const conversationId = useChatStore((state) => state.conversationId);
   const isLoading = useChatStore((state) => state.isLoading);
   const setConversationId = useChatStore((state) => state.setConversationId);
@@ -55,31 +56,54 @@ const ChatInput = () => {
     // Clear input field immediately for better UX
     setInput("");
 
+    /**
+     * Update UI state immediately before any async operations
+     * This ensures the message appears in the UI right away
+     */
+    const updateUIState = (newMessage: ChatMessage) => {
+      if (messages.length === 0) {
+        setMessages([newMessage]);
+      } else {
+        const updatedMessages = [...messages, newMessage];
+        setMessages(updatedMessages);
+      }
+      // Force a UI update by setting loading state
+      useChatStore.getState().setLoading(true);
+    };
+
+    // Update UI immediately
+    updateUIState(userMessage);
+
     // Handle first message - create conversation in DB
     if (messages.length === 0) {
       try {
-        //Create the conversation in the DB
+        console.log("user message added to store");
+
+        // Create the conversation in the DB
         const result = await createConversationAction(input);
 
         // Navigate to the conversation page
-        router.push(`/dashboard/chat/${result.id}`);
-        // Save the user message to the database
-        await saveMessagesAction(result.id, [userMessage]);
+        router.replace(`/dashboard/chat/${result.id}`);
 
         // Update the conversation ID in the store
         setConversationId(result.id);
 
-        // Send message to the API using the chat service
-        await streamAssistantMessageAndSaveToDb({
-          currentMessages: messages,
-          userMessage,
-          conversationId: result.id,
-        });
+        // Save the user message to the database
+        await Promise.all([
+          saveMessagesAction(result.id, [userMessage]),
+          streamAssistantMessageAndSaveToDb({
+            currentMessages: [userMessage], // Use array with user message
+            userMessage,
+            conversationId: result.id,
+          }),
+        ]);
       } catch (error) {
         console.error("Error creating conversation:", error);
       }
     } else {
-      // For existing conversations, just save the message and send it
+      // For existing conversations, we've already updated the UI with updateUIState
+
+      // Then save the message and send it
       if (conversationId) {
         try {
           await saveMessagesAction(conversationId, [userMessage]);
@@ -88,11 +112,15 @@ const ChatInput = () => {
           // Continue even if saving fails - the UI will still show the message
         }
       }
+      if (!conversationId) {
+        console.error("No conversation ID found");
+        return;
+      }
       // Send message to the API using the chat service
       await streamAssistantMessageAndSaveToDb({
-        currentMessages: messages,
+        currentMessages: [...messages, userMessage], // Include the new user message
         userMessage,
-        conversationId,
+        conversationId: conversationId,
       });
     }
   };

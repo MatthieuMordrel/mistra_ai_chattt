@@ -12,11 +12,18 @@ export default function ChatContainer({
 }: {
   conversation?: ConversationWithMessages;
 }) {
+  //convert the messages to ChatMessage type by removing the token, conversationId, and createdAt
+  const messages = conversation?.messages.map((message) => ({
+    role: message.role as "user" | "assistant" | "system",
+    content: message.content,
+    isStreaming: message.isStreaming,
+  }));
+
   return (
     <div className="flex h-full flex-col">
       <ChatHeader title={conversation?.title} />
       <div className="relative flex-1 overflow-hidden">
-        <ChatMessageList messages={conversation?.messages} />
+        <ChatMessageList messages={messages} />
       </div>
       <ChatInput />
     </div>
