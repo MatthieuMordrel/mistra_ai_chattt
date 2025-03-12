@@ -5,7 +5,7 @@ import { MessageWithIsStreaming } from "@/types/db";
 import { create } from "zustand";
 
 /**
- * Interface for the minimal chat UI state
+ * Interface for the chat UI state
  */
 interface ChatState {
   /** Array of chat messages in the current conversation */
@@ -16,6 +16,8 @@ interface ChatState {
   isStreaming: boolean;
   /** Current conversation ID */
   conversationId: string | null;
+  /** Current conversation title */
+  conversationTitle: string;
 
   /**
    * Sets all messages at once
@@ -53,12 +55,40 @@ interface ChatState {
    * @param isStreaming - The streaming state to set
    */
   setStreaming: (isStreaming: boolean) => void;
+
   /**
    * Sets the conversation ID
    * @param id - The conversation ID to set
    */
   setConversationId: (id: string | null) => void;
+
+  /**
+   * Sets the conversation title
+   * @param title - The title to set
+   */
+  setConversationTitle: (title: string) => void;
 }
+
+/**
+ * Create a new message object
+ * @param role - The role of the message sender
+ * @param content - The content of the message
+ * @param isStreaming - Whether the message is streaming
+ * @returns A new message object
+ */
+const createMessage = (
+  role: "user" | "assistant" | "system",
+  content: string,
+  isStreaming: boolean = false,
+): MessageWithIsStreaming => ({
+  role,
+  content,
+  isStreaming,
+  id: "",
+  createdAt: new Date(),
+  conversationId: "",
+  tokens: null,
+});
 
 /**
  * Zustand store for managing chat UI state
@@ -75,34 +105,17 @@ export const useChatStore = create<ChatState>((set) => ({
   },
 
   addUserMessage: (message: string) => {
-    const userMessage: MessageWithIsStreaming = {
-      role: "user",
-      content: message,
-      isStreaming: false,
-      id: "",
-      createdAt: new Date(),
-      conversationId: "",
-      tokens: null,
-    };
-
     set((state) => ({
-      messages: [...state.messages, userMessage],
+      messages: [...state.messages, createMessage("user", message, false)],
     }));
   },
 
   addAssistantMessage: (message: string, isStreaming = false) => {
-    const assistantMessage: MessageWithIsStreaming = {
-      role: "assistant",
-      content: message,
-      isStreaming,
-      id: "",
-      createdAt: new Date(),
-      conversationId: "",
-      tokens: null,
-    };
-
     set((state) => ({
-      messages: [...state.messages, assistantMessage],
+      messages: [
+        ...state.messages,
+        createMessage("assistant", message, isStreaming),
+      ],
       isStreaming,
     }));
   },
@@ -152,5 +165,9 @@ export const useChatStore = create<ChatState>((set) => ({
 
   setConversationId: (id: string | null) => {
     set({ conversationId: id });
+  },
+
+  setConversationTitle: (title: string) => {
+    set({ conversationTitle: title });
   },
 }));

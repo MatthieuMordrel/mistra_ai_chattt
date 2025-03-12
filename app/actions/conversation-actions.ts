@@ -78,8 +78,9 @@ export async function updateConversationTitle(
 
 /**
  * Saves messages to a conversation
+ * This function can handle both user and assistant messages
  */
-export async function saveMessages(
+export async function saveMessagesAction(
   conversationId: string,
   messages: ChatMessage[],
 ) {
@@ -105,6 +106,9 @@ export async function saveMessages(
 
     // Save the messages
     await ConversationService.saveMessages(conversationId, messages);
+
+    // Revalidate the conversation path to update the UI if needed
+    // revalidatePath(`/dashboard/chat/${conversationId}`);
 
     return { success: true };
   } catch (error) {
