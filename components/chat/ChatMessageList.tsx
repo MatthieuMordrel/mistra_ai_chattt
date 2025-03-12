@@ -1,11 +1,14 @@
 "use client";
 
-import { useAutoScroll } from "@/hooks/useAutoScroll";
 import { useChatStore } from "@/store/chatStore";
 import { MessageWithIsStreaming } from "@/types/db";
 import { useEffect } from "react";
 import ChatMessageItem from "./ChatMessageItem";
+
 /**
+ * Component that displays a list of chat messages
+ * Provides scrollable container for messages
+ *
  * @param messages - The messages to display in the chat message list
  * @returns A list of chat messages
  */
@@ -16,15 +19,13 @@ const ChatMessageList = ({
 }) => {
   const setMessages = useChatStore((state) => state.setMessages);
   const messagesClient = useChatStore((state) => state.messages);
-  // Use the auto-scroll hook with UI messages
-  const messagesEndRef = useAutoScroll(messages);
 
   useEffect(() => {
     setMessages(messages);
-  }, [messages]);
+  }, []);
 
   return (
-    <div className="flex-1 overflow-y-auto rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-800">
+    <div className="absolute inset-0 overflow-x-hidden overflow-y-auto rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-800">
       {messages.length === 0 ? (
         <div className="flex h-full items-center justify-center text-center">
           <div className="max-w-md space-y-2">
@@ -35,11 +36,10 @@ const ChatMessageList = ({
           </div>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 pb-2">
           {messagesClient.map((message, index) => (
             <ChatMessageItem key={index} message={message} />
           ))}
-          <div ref={messagesEndRef} />
         </div>
       )}
     </div>

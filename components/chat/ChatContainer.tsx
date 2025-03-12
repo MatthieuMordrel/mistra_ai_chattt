@@ -15,7 +15,7 @@ export default function ChatContainer({
   return (
     <div className="flex h-full flex-col">
       <ChatHeader title={conversation?.title} />
-      <div className="flex-1 overflow-hidden">
+      <div className="relative flex-1 overflow-hidden">
         <ChatMessageList messages={conversation?.messages} />
       </div>
       <ChatInput />
