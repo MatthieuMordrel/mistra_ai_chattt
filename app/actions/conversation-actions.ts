@@ -6,9 +6,9 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
 /**
- * Creates a new conversation and returns the conversation id
+ * Creates a new conversation in the database and returns the conversation id
  */
-export async function createConversation(
+export async function createConversationAction(
   title: string,
   messages: ChatMessage[] = [],
 ) {
@@ -44,7 +44,7 @@ export async function createConversation(
 }
 
 /**
- * Updates a conversation's title
+ * Updates a conversation's title in the database
  */
 export async function updateConversationTitle(
   conversationId: string,
@@ -77,7 +77,7 @@ export async function updateConversationTitle(
 }
 
 /**
- * Saves messages to a conversation
+ * Saves messages to a conversation in the database
  * This function can handle both user and assistant messages
  */
 export async function saveMessagesAction(
@@ -118,7 +118,7 @@ export async function saveMessagesAction(
 }
 
 /**
- * Deletes a conversation
+ * Deletes a conversation in the database and returns a sucess boolean or throws an error
  */
 export async function deleteConversation(conversationId: string) {
   // Get the session using cookies

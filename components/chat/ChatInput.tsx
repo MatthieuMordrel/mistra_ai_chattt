@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  createConversation,
+  createConversationAction,
   saveMessagesAction,
 } from "@/app/actions/conversation-actions";
 import { Button } from "@/components/ui/button";
@@ -58,7 +58,7 @@ const ChatInput = () => {
     // Handle first message - create conversation in DB
     if (messages.length === 0) {
       try {
-        const result = await createConversation(input);
+        const result = await createConversationAction(input);
         setConversationId(result.id);
 
         // Save the user message to the database
