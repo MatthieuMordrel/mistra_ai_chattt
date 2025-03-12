@@ -58,14 +58,16 @@ const ChatInput = () => {
     // Handle first message - create conversation in DB
     if (messages.length === 0) {
       try {
+        //Create the conversation in the DB
         const result = await createConversationAction(input);
-        setConversationId(result.id);
-
-        // Save the user message to the database
-        await saveMessagesAction(result.id, [userMessage]);
 
         // Navigate to the conversation page
         router.push(`/dashboard/chat/${result.id}`);
+        // Save the user message to the database
+        await saveMessagesAction(result.id, [userMessage]);
+
+        // Update the conversation ID in the store
+        setConversationId(result.id);
 
         // Send message to the API using the chat service
         await streamAssistantMessageAndSaveToDb({

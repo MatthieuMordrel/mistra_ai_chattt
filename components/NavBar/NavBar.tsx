@@ -1,10 +1,12 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Button } from "../ui/button";
 import SignOutButton from "./SignOut";
 
 export default async function NavBar() {
+  //this makes the pages dynamic
   const session = await auth.api.getSession({ headers: await headers() });
 
   return (
@@ -30,7 +32,11 @@ export default async function NavBar() {
                 </Link>
               </Button>
             )}
-            {session && <SignOutButton />}
+            {session && (
+              <Suspense fallback={<div> </div>}>
+                <SignOutButton />
+              </Suspense>
+            )}
           </>
         </div>
       </div>
