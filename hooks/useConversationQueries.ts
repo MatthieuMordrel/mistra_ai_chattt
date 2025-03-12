@@ -6,9 +6,8 @@ import {
   saveMessages,
   updateConversationTitle,
 } from "@/app/actions/conversation-actions";
-import { useAuthStore } from "@/store/authStore";
 import { ChatMessage } from "@/types/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 /**
  * Type for conversation data returned from the API
@@ -18,17 +17,6 @@ export interface ConversationData {
   title: string;
   createdAt: Date;
   updatedAt: Date;
-}
-
-/**
- * Type for conversation with messages
- */
-export interface ConversationWithMessages {
-  id: string;
-  title: string;
-  createdAt: Date;
-  updatedAt: Date;
-  messages: ChatMessage[];
 }
 
 /**

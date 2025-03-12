@@ -67,11 +67,6 @@ interface ChatState {
    * @param id - The conversation ID to set
    */
   setConversationId: (id: string | null) => void;
-
-  /**
-   * Clears all messages and resets the conversation state
-   */
-  clearConversation: () => void;
 }
 
 /**
@@ -161,15 +156,5 @@ export const useChatStore = create<ChatState>((set) => ({
 
   setConversationId: (id: string | null) => {
     set({ conversationId: id });
-  },
-
-  clearConversation: () => {
-    set({
-      messages: [],
-      conversationTitle: "New Conversation",
-      isLoading: false,
-      isStreaming: false,
-      conversationId: null,
-    });
   },
 }));

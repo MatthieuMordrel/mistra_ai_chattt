@@ -98,7 +98,7 @@ export class ConversationService {
   }
 
   /**
-   * Get a conversation by ID
+   * Get a conversation by ID including messages and set isStreaming to false
    * @param conversationId The ID of the conversation to get
    * @param userId The ID of the user who owns the conversation
    * @returns The conversation and its messages
@@ -129,8 +129,8 @@ export class ConversationService {
     return {
       ...conversationData,
       messages: messages.map((msg) => ({
-        role: msg.role as "user" | "assistant" | "system",
-        content: msg.content,
+        ...msg,
+        isStreaming: false,
       })),
     };
   }

@@ -1,16 +1,21 @@
 "use client";
 
 import { useAutoScroll } from "@/hooks/useAutoScroll";
-import { useChatStore } from "@/store/chatStore";
+import { MessageWithIsStreaming } from "@/types/db";
 import ChatMessageItem from "./ChatMessageItem";
+import { useChatStore } from "@/store/chatStore";
 /**
- * Component for displaying a list of chat messages
- * Handles empty state and message rendering
+ * @param messages - The messages to display in the chat message list
+ * @returns A list of chat messages
  */
-const ChatMessageList = () => {
-  const messages = useChatStore((state) => state.messages);
-
-  // Use the auto-scroll hook directly in this component
+const ChatMessageList = ({
+  messages = [],
+}: {
+  messages?: MessageWithIsStreaming[];
+}) => {
+  const setMessages = useChatStore((state) => state.setMessages);
+  const messagesClient = useChatStore((state) => state.messages);
+  // Use the auto-scroll hook with UI messages
   const messagesEndRef = useAutoScroll(messages);
 
   return (
@@ -26,7 +31,7 @@ const ChatMessageList = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {messages.map((message, index) => (
+          {messagesClient.map((message, index) => (
             <ChatMessageItem key={index} message={message} />
           ))}
           <div ref={messagesEndRef} />

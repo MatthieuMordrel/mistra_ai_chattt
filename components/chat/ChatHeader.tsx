@@ -1,74 +1,21 @@
 "use client";
-import { useChatStore } from "@/store/chatStore";
-import { useState } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 /**
  * Header component for the chat interface
  * Displays the conversation title and provides a button to clear the conversation
  */
-const ChatHeader = () => {
-  const conversationId = useChatStore((state) => state.conversationId);
-  // const { updateConversationTitle } = useChat(conversationId || undefined);
-  const conversationTitle = useChatStore((state) => state.conversationTitle);
-  const clearConversation = useChatStore((state) => state.clearConversation);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedTitle, setEditedTitle] = useState(conversationTitle);
-
-  // Update local state when prop changes
-  if (conversationTitle !== editedTitle && !isEditing) {
-    setEditedTitle(conversationTitle);
-  }
-
-  const handleStartEditing = () => {
-    setIsEditing(true);
-    setEditedTitle(conversationTitle);
-  };
-
-  // const handleSaveTitle = () => {
-  //   if (editedTitle.trim() && updateConversationTitle) {
-  //     updateConversationTitle(editedTitle);
-  //   }
-  //   setIsEditing(false);
-  // };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      // handleSaveTitle();
-    } else if (e.key === "Escape") {
-      setIsEditing(false);
-      setEditedTitle(conversationTitle);
-    }
-  };
-
+const ChatHeader = ({ title = "New Conversation" }: { title?: string }) => {
   return (
     <div className="mb-4 flex items-center justify-between border-b pb-2">
-      {isEditing ? (
-        <Input
-          value={editedTitle}
-          onChange={(e) => setEditedTitle(e.target.value)}
-          // onBlur={handleSaveTitle}
-          onKeyDown={handleKeyDown}
-          className="text-xl font-bold"
-          autoFocus
-        />
-      ) : (
-        <h1
-          className="cursor-pointer text-xl font-bold hover:text-blue-500"
-          onClick={handleStartEditing}
-          title="Click to edit title"
-        >
-          {conversationTitle}
-        </h1>
-      )}
+      <h1 className="text-xl font-bold">{title}</h1>
       <div className="flex gap-2">
-        <Button
+        {/* TO DO: Handle creating new conversations */}
+        {/* <Button
           variant="ghost"
           onClick={clearConversation}
-          title="Clear conversation"
+          title="Start a new conversation"
         >
           Clear Chat
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
