@@ -2,6 +2,7 @@ import { ConversationList } from "@/components/chat/ConversationList";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
 import NavBar from "@/components/navbar/NavBar";
 import { validateServerSession } from "@/lib/validateSession";
+
 export default async function DashboardLayout({
   children,
 }: {

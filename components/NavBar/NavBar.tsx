@@ -2,8 +2,8 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
+import SignOutButton from "../navbar/SignOut";
 import { Button } from "../ui/button";
-import SignOutButton from "./SignOut";
 
 export default async function NavBar() {
   //this makes the pages dynamic

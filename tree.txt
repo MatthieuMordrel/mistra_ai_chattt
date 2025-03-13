@@ -1,0 +1,124 @@
+.
+├── .env
+├── .env.example
+├── .gitignore
+├── .prettierrc
+├── .vscode
+│   └── settings.json
+├── app
+│   ├── actions
+│   │   ├── conversation-actions.ts
+│   │   └── utils-actions.ts
+│   ├── api
+│   │   ├── auth
+│   │   │   └── [...all]
+│   │   │       └── route.ts
+│   │   ├── conversations
+│   │   │   ├── [id]
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── mistral
+│   │   │   └── stream
+│   │   │       └── route.ts
+│   │   └── testauth
+│   │       └── route.ts
+│   ├── dashboard
+│   │   ├── chat
+│   │   │   ├── [id]
+│   │   │   │   ├── loading.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── loading.tsx
+│   │   │   └── page.tsx
+│   │   ├── layout.tsx
+│   │   ├── loading.tsx
+│   │   └── page.tsx
+│   ├── favicon.ico
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── sign-in
+│       └── page.tsx
+├── ARCHITECTURE.md
+├── components
+│   ├── chat
+│   │   ├── ChatContainer.tsx
+│   │   ├── ChatHeader.tsx
+│   │   ├── ChatInput.tsx
+│   │   ├── ChatMessageItem.tsx
+│   │   ├── ChatMessageList.tsx
+│   │   ├── ClientConversationList.tsx
+│   │   ├── ConversationList.tsx
+│   │   ├── ConversationSidebar.tsx
+│   │   └── ConversationSidebarSkeleton.tsx
+│   ├── dashboard
+│   │   └── DashboardLayoutClient.tsx
+│   ├── navbar
+│   │   ├── NavBar.tsx
+│   │   └── SignOut.tsx
+│   ├── sign-in.tsx
+│   └── ui
+│       ├── button.tsx
+│       ├── card.tsx
+│       ├── input.tsx
+│       ├── separator.tsx
+│       ├── sheet.tsx
+│       ├── sidebar.tsx
+│       ├── skeleton.tsx
+│       └── tooltip.tsx
+├── components.json
+├── db
+│   ├── database.ts
+│   ├── models
+│   │   ├── models.json
+│   │   └── populate-models.ts
+│   ├── schema
+│   │   ├── auth-schema.ts
+│   │   └── chat-schema.ts
+│   └── services
+│       └── conversation-service.ts
+├── drizzle.config.ts
+├── envConfig.ts
+├── hooks
+│   ├── use-mobile.ts
+│   ├── useAutoScroll.ts
+│   └── useConversations.ts
+├── lib
+│   ├── auth-client.ts
+│   ├── auth.ts
+│   ├── fetchClient
+│   │   └── fetchConversations.ts
+│   ├── mistral-client.ts
+│   ├── utils.ts
+│   └── validateSession.ts
+├── next-env.d.ts
+├── next.config.ts
+├── package.json
+├── pnpm-lock.yaml
+├── postcss.config.mjs
+├── providers
+│   └── QueryProvider.tsx
+├── public
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── README.md
+├── scripts
+│   └── Streaming (Depreciated)
+│       ├── getSSErawOutput.ts
+│       ├── mistral.ts
+│       ├── mistralExample.ts
+│       └── testStream.ts
+├── services
+│   └── chatService.ts
+├── store
+│   ├── authStore.ts
+│   └── chatStore.ts
+├── styles
+│   └── globals.css
+├── tree.txt
+├── tsconfig.json
+└── types
+    ├── db.ts
+    ├── mistral.ts
+    └── types.ts
