@@ -1,18 +1,9 @@
 import { ConversationService } from "@/db/services/conversation-service";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { validateServerSession } from "@/lib/validateSessionServer";
 import { redirect } from "next/navigation";
 
 export default async function NewChatPage() {
-  // Get the session from auth
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  // If no session, redirect to sign-in
-  if (!session) {
-    redirect("/sign-in");
-  }
+  const session = await validateServerSession();
 
   // Create a new conversation
   const conversationId = await ConversationService.createConversationInDB(

@@ -10,7 +10,7 @@ export default async function NavBar() {
   const session = await auth.api.getSession({ headers: await headers() });
 
   return (
-    <nav className="flex items-center justify-between p-4">
+    <nav className="flex w-full shrink-0 items-center justify-between p-4">
       <div className="flex items-center gap-4">
         <Button variant="outline" className="w-full" asChild>
           <Link href="/">Home</Link>

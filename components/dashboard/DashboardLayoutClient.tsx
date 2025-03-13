@@ -12,7 +12,7 @@ export function DashboardLayoutClient({
 }: DashboardLayoutClientProps) {
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex h-screen">{children}</div>
+      <div className="flex h-screen w-full overflow-hidden">{children}</div>
     </SidebarProvider>
   );
 }

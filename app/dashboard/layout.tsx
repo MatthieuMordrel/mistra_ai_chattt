@@ -1,5 +1,6 @@
 import { ConversationList } from "@/components/chat/ConversationList";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
+import NavBar from "@/components/NavBar/NavBar";
 import { validateServerSession } from "@/lib/validateSessionServer";
 
 export default async function DashboardLayout({
@@ -13,8 +14,17 @@ export default async function DashboardLayout({
 
   return (
     <DashboardLayoutClient>
+      {/* Sidebar component */}
       <ConversationList userId={userId} />
-      <main className="flex-1 overflow-auto">{children}</main>
+
+      {/* Main content area */}
+      <div className="flex w-full flex-1 flex-col">
+        <div className="flex h-16 items-center px-4">
+          {/* <SidebarTrigger /> */}
+          <NavBar />
+        </div>
+        <main className="flex-1 overflow-auto p-4">{children}</main>
+      </div>
     </DashboardLayoutClient>
   );
 }
