@@ -1,3 +1,5 @@
+import { ConversationList } from "@/components/chat/ConversationList";
+import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
 import { validateServerSession } from "@/lib/validateSessionServer";
 
 export default async function DashboardLayout({
@@ -6,7 +8,13 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   // Validate session and redirect if invalid for the whole dashboard
-  await validateServerSession();
+  const session = await validateServerSession();
+  const userId = session?.user.id;
 
-  return <>{children}</>;
+  return (
+    <DashboardLayoutClient>
+      <ConversationList userId={userId} />
+      <main className="flex-1 overflow-auto">{children}</main>
+    </DashboardLayoutClient>
+  );
 }

@@ -1,40 +1,30 @@
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { ConversationService } from "@/db/services/conversation-service";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-8">
-      <div className="w-full max-w-4xl space-y-8 text-center">
-        <h1 className="text-4xl font-bold tracking-tight">
-          Welcome to Mistral AI Chat
-        </h1>
+  // Get the session from auth
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-        <p className="text-xl text-gray-600 dark:text-gray-400">
-          Your intelligent AI assistant powered by Mistral models
-        </p>
+  // If no session, redirect to sign-in (this should be handled by validateServerSession in layout)
+  if (!session) {
+    redirect("/sign-in");
+  }
 
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
-          <div className="rounded-lg border p-6 shadow-sm transition-shadow hover:shadow-md">
-            <h2 className="mb-3 text-2xl font-semibold">Start a New Chat</h2>
-            <p className="mb-4">
-              Begin a conversation with one of our AI models
-            </p>
-            <Link href="/dashboard/chat" className="inline-block">
-              <Button className="bg-foreground text-background hover:bg-opacity-90 rounded-full px-4 py-2 transition-colors">
-                New Conversation
-              </Button>
-            </Link>
-          </div>
+  // Get user ID from session
+  const userId = session.user.id;
 
-          <div className="rounded-lg border p-6 shadow-sm transition-shadow hover:shadow-md">
-            <h2 className="mb-3 text-2xl font-semibold">View History</h2>
-            <p className="mb-4">Access your previous conversations</p>
-            <Button className="bg-foreground text-background hover:bg-opacity-90 rounded-full px-4 py-2 transition-colors">
-              Chat History
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  // Fetch conversations for the user
+  const conversations = await ConversationService.getUserConversations(userId);
+
+  // If there are conversations, redirect to the most recent one
+  if (conversations && conversations.length > 0 && conversations[0]?.id) {
+    redirect(`/dashboard/chat/${conversations[0].id}`);
+  }
+
+  // If no conversations, redirect to create a new one
+  redirect("/dashboard/chat/new");
 }
