@@ -21,7 +21,7 @@ export default async function DashboardLayout({
       <div className="flex w-full flex-1 flex-col">
         <div className="flex h-16 items-center px-4">
           {/* <SidebarTrigger /> */}
-          <NavBar />
+          <NavBar signIn={false} />
         </div>
         <main className="flex-1 overflow-auto p-4">{children}</main>
       </div>

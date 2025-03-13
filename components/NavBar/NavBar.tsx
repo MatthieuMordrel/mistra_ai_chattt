@@ -1,14 +1,9 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
 import SignOutButton from "../navbar/SignOut";
 import { Button } from "../ui/button";
 
-export default async function NavBar() {
-  //this makes the pages dynamic
-  const session = await auth.api.getSession({ headers: await headers() });
-
+export default async function NavBar({ signIn }: { signIn: boolean }) {
   return (
     <nav className="flex w-full shrink-0 items-center justify-between p-4">
       <div className="flex items-center gap-4">
@@ -22,7 +17,7 @@ export default async function NavBar() {
       <div className="flex items-center gap-4">
         <div className="flex h-10 w-24 items-center justify-center">
           <>
-            {!session && (
+            {signIn ? (
               <Button variant="outline" className="w-full" asChild>
                 <Link
                   href="/sign-in"
@@ -31,8 +26,7 @@ export default async function NavBar() {
                   Sign In
                 </Link>
               </Button>
-            )}
-            {session && (
+            ) : (
               <Suspense fallback={<div> </div>}>
                 <SignOutButton />
               </Suspense>
