@@ -10,8 +10,15 @@ import {
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRef } from "react";
+
+// Define fixed widths for skeletons to avoid hydration errors
+const SKELETON_WIDTHS = ["70%", "75%", "80%", "65%", "72%"];
 
 export function ConversationSidebarSkeleton() {
+  // Use refs to store the fixed widths
+  const widthsRef = useRef(SKELETON_WIDTHS);
+
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="px-4 py-3">
@@ -19,8 +26,16 @@ export function ConversationSidebarSkeleton() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <SidebarMenuSkeleton key={i} />
+          {widthsRef.current.map((_, i) => (
+            <SidebarMenuSkeleton
+              key={i}
+              // Override the random width with our fixed width
+              style={
+                {
+                  "--skeleton-width": widthsRef.current[i],
+                } as React.CSSProperties
+              }
+            />
           ))}
         </SidebarMenu>
       </SidebarContent>

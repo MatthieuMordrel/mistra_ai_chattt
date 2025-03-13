@@ -1,11 +1,9 @@
 "use client";
 
-import {
-  createConversationAction,
-  saveMessagesAction,
-} from "@/app/actions/conversation-actions";
+import { saveMessagesAction } from "@/app/actions/conversation-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useConversations } from "@/hooks/useConversations";
 import { formatConversationTitle } from "@/lib/utils";
 import { streamAssistantMessageAndSaveToDb } from "@/services/chatService";
 import { useChatStore } from "@/store/chatStore";
@@ -27,6 +25,9 @@ const ChatInput = () => {
   );
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Use the conversations hook for creating conversations
+  const { createConversation } = useConversations();
 
   // Focus input on component mount
   useEffect(() => {
@@ -83,25 +84,22 @@ const ChatInput = () => {
         // Update the title using zustand, should update the ui instantly
         setConversationTitle(formattedTitle);
 
-        // Create the conversation in the DB
-        const result = await createConversationAction(formattedTitle);
-
-        // TO DO: Find a way to navigate to the conversation page without causing the page to relaoad or the component to rerender/unmount/remount
-        // This would help to allow the user to refresh the page and still have the conversation loaded
-        // navigateToConversationAction(result.id);
+        // Create the conversation in the DB using TanStack Query mutation
+        // This will optimistically update the conversation list in the sidebar
+        const result = await createConversation({
+          title: formattedTitle,
+          messages: [userMessage],
+        });
 
         // Update the conversation ID in the store
         setConversationId(result.id);
 
-        // Save the user message to the database
-        await Promise.all([
-          saveMessagesAction(result.id, [userMessage]),
-          streamAssistantMessageAndSaveToDb({
-            currentMessages: [userMessage], // Use array with user message
-            userMessage,
-            conversationId: result.id,
-          }),
-        ]);
+        // Stream the assistant message and save to DB
+        await streamAssistantMessageAndSaveToDb({
+          currentMessages: [userMessage], // Use array with user message
+          userMessage,
+          conversationId: result.id,
+        });
       } catch (error) {
         console.error("Error creating conversation:", error);
       }

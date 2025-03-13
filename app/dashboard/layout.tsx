@@ -14,7 +14,7 @@ export default async function DashboardLayout({
 
   return (
     <DashboardLayoutClient>
-      {/* Sidebar component */}
+      {/* Sidebar component - now client-side with TanStack Query */}
       <ConversationList userId={userId} />
 
       {/* Main content area */}
