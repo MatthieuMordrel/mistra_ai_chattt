@@ -75,8 +75,6 @@ const ChatInput = () => {
     // Handle first message - create conversation in DB
     if (messages.length === 0) {
       try {
-        console.log("user message added to store");
-
         // Create the conversation in the DB
         const result = await createConversationAction(input);
 

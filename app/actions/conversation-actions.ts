@@ -2,7 +2,6 @@
 import { ConversationService } from "@/db/services/conversation-service";
 import { auth } from "@/lib/auth";
 import { ChatMessage } from "@/types/types";
-import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
 /**
@@ -67,7 +66,7 @@ export async function updateConversationTitle(
     );
 
     // Revalidate the conversations path to update the UI
-    revalidatePath("/dashboard/chat");
+    // revalidatePath("/dashboard/chat");
 
     return { success: true };
   } catch (error) {
@@ -137,7 +136,7 @@ export async function deleteConversation(conversationId: string) {
     );
 
     // Revalidate the conversations path to update the UI
-    revalidatePath("/dashboard/chat");
+    // revalidatePath("/dashboard/chat");
 
     return { success: true };
   } catch (error) {
