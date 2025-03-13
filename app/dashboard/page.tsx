@@ -13,7 +13,7 @@ export default async function DashboardPage() {
           Your intelligent AI assistant powered by Mistral models
         </p>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
+        <div className="mt-10 grid gap-6 md:grid-cols-1">
           <div className="rounded-lg border p-6 shadow-sm transition-shadow hover:shadow-md">
             <h2 className="mb-3 text-2xl font-semibold">Start a New Chat</h2>
             <p className="mb-4">
@@ -24,14 +24,6 @@ export default async function DashboardPage() {
                 New Conversation
               </Button>
             </Link>
-          </div>
-
-          <div className="rounded-lg border p-6 shadow-sm transition-shadow hover:shadow-md">
-            <h2 className="mb-3 text-2xl font-semibold">View History</h2>
-            <p className="mb-4">Access your previous conversations</p>
-            <Button className="bg-foreground text-background hover:bg-opacity-90 rounded-full px-4 py-2 transition-colors">
-              Chat History
-            </Button>
           </div>
         </div>
       </div>
