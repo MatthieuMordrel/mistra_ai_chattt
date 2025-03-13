@@ -1,6 +1,6 @@
 "use client";
 
-import { Message } from "@/types/db";
+import { MessageDB } from "@/types/db";
 import { useEffect, useRef } from "react";
 
 /**
@@ -10,7 +10,7 @@ import { useEffect, useRef } from "react";
  * @param messages - The messages to watch for changes
  * @param dependencies - Optional additional dependencies to trigger scrolling
  */
-export function useAutoScroll(messages: Message[], dependencies: any[] = []) {
+export function useAutoScroll(messages: MessageDB[], dependencies: any[] = []) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom when messages change or when any dependency changes

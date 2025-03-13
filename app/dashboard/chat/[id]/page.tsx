@@ -1,7 +1,6 @@
 import ChatContainer from "@/components/chat/ChatContainer";
 import { ConversationService } from "@/db/services/conversation-service";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { validateServerSession } from "@/lib/validateSession";
 /**
  * Chat page component for existing conversations
  * Uses the ChatContainer component for the UI
@@ -12,11 +11,11 @@ export default async function ConversationPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const session = await auth.api.getSession({ headers: await headers() });
+  const user = await validateServerSession();
   //Fetch the messages using the conversation id on the server
   const conversation = await ConversationService.getConversation(
     id,
-    session?.user.id ?? "",
+    user.user.id,
   );
   return (
     <div className="mx-auto flex h-[calc(100vh-6rem)] max-w-4xl flex-col p-4">

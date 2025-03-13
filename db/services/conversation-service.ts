@@ -104,27 +104,29 @@ export class ConversationService {
    * @returns The conversation and its messages
    */
   static async getConversation(conversationId: string, userId: string) {
-    // Get the conversation
-    const [conversationData] = await db
-      .select()
-      .from(conversation)
-      .where(
-        and(
-          eq(conversation.id, conversationId),
-          eq(conversation.userId, userId),
+    // Fetch conversation and messages in parallel
+    const [conversationResult, messages] = await Promise.all([
+      db
+        .select()
+        .from(conversation)
+        .where(
+          and(
+            eq(conversation.id, conversationId),
+            eq(conversation.userId, userId),
+          ),
         ),
-      );
+      db
+        .select()
+        .from(message)
+        .where(eq(message.conversationId, conversationId))
+        .orderBy(message.createdAt),
+    ]);
+
+    const [conversationData] = conversationResult;
 
     if (!conversationData) {
       throw new Error("Conversation not found");
     }
-
-    // Get the messages for this conversation
-    const messages = await db
-      .select()
-      .from(message)
-      .where(eq(message.conversationId, conversationId))
-      .orderBy(message.createdAt);
 
     return {
       ...conversationData,
