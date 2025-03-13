@@ -1,8 +1,7 @@
 import { ConversationList } from "@/components/chat/ConversationList";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
-import NavBar from "@/components/NavBar/NavBar";
-import { validateServerSession } from "@/lib/validateSessionServer";
-
+import NavBar from "@/components/navbar/NavBar";
+import { validateServerSession } from "@/lib/validateSession";
 export default async function DashboardLayout({
   children,
 }: {
@@ -10,7 +9,7 @@ export default async function DashboardLayout({
 }) {
   // Validate session and redirect if invalid for the whole dashboard
   const session = await validateServerSession();
-  const userId = session?.user.id;
+  const userId = session.user.id;
 
   return (
     <DashboardLayoutClient>

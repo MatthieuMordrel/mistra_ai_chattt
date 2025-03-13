@@ -4,11 +4,11 @@ import { InferSelectModel } from "drizzle-orm";
 /**
  * Inferred types from Drizzle schema
  */
-export type Conversation = InferSelectModel<typeof conversation>;
-export type Message = InferSelectModel<typeof message>;
-export type Model = InferSelectModel<typeof model>;
+export type ConversationDB = InferSelectModel<typeof conversation>;
+export type MessageDB = InferSelectModel<typeof message>;
+export type ModelDB = InferSelectModel<typeof model>;
 
-export type MessageWithIsStreaming = Message & { isStreaming: boolean };
+export type MessageWithIsStreaming = MessageDB & { isStreaming: boolean };
 
 /**
  * Type for conversation with messages

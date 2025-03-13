@@ -1,26 +1,14 @@
 import { createConversationAction } from "@/app/actions/conversation-actions";
+import {
+  Conversation,
+  fetchConversations,
+} from "@/lib/fetchClient/fetchConversations";
 import { ChatMessage } from "@/types/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-// Define the conversation type
-interface Conversation {
-  id: string;
-  title: string;
-  updatedAt: string;
-}
 
 // Define the return type of createConversationAction
 interface CreateConversationResult {
   id: string;
-}
-
-// API function to fetch conversations
-async function fetchConversations() {
-  const response = await fetch("/api/conversations");
-  if (!response.ok) {
-    throw new Error("Failed to fetch conversations");
-  }
-  return response.json() as Promise<Conversation[]>;
 }
 
 export function useConversations() {
