@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import SignOutButton from "../navbar/SignOut";
 import { Button } from "../ui/button";
 
-export default async function NavBar({ signIn }: { signIn: boolean }) {
+export default function NavBar({ signIn }: { signIn: boolean }) {
   return (
     <nav className="flex w-full shrink-0 items-center justify-between p-4">
       <div className="flex items-center gap-4">
@@ -27,9 +26,7 @@ export default async function NavBar({ signIn }: { signIn: boolean }) {
                 </Link>
               </Button>
             ) : (
-              <Suspense fallback={<div> </div>}>
-                <SignOutButton />
-              </Suspense>
+              <SignOutButton />
             )}
           </>
         </div>

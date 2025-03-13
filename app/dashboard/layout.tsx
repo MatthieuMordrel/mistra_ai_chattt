@@ -1,4 +1,4 @@
-import { ConversationList } from "@/components/chat/ConversationList";
+import { ConversationsSidebar } from "@/components/chat/ConversationList";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
 import NavBar from "@/components/navbar/NavBar";
 import { validateServerSession } from "@/lib/validateSession";
@@ -9,13 +9,13 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   // Validate session and redirect if invalid for the whole dashboard
-  const session = await validateServerSession();
-  const userId = session.user.id;
+  const { user } = await validateServerSession();
+  const userId = user.id;
 
   return (
     <DashboardLayoutClient>
       {/* Sidebar component - now client-side with TanStack Query */}
-      <ConversationList userId={userId} />
+      <ConversationsSidebar userId={userId} />
 
       {/* Main content area */}
       <div className="flex w-full flex-1 flex-col">

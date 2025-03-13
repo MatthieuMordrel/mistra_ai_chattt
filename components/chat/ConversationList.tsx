@@ -1,7 +1,7 @@
 import { ConversationService } from "@/db/services/conversation-service";
 import { ClientConversationList } from "./ClientConversationList";
 
-export async function ConversationList({ userId }: { userId: string }) {
+export async function ConversationsSidebar({ userId }: { userId: string }) {
   // If no session, return empty sidebar
   if (!userId) {
     return null;

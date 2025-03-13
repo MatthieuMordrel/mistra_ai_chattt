@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export default async function DashboardPage() {
+export default function DashboardPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="w-full max-w-4xl space-y-8 text-center">
@@ -21,7 +21,7 @@ export default async function DashboardPage() {
             </p>
             <Link href="/dashboard/chat" className="inline-block">
               <Button className="bg-foreground text-background hover:bg-opacity-90 rounded-full px-4 py-2 transition-colors">
-                New Conversation
+                New Conversation fefezfef
               </Button>
             </Link>
           </div>

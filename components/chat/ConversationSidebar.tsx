@@ -13,7 +13,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-
+import { useChatStore } from "@/store/chatStore";
 interface Conversation {
   id: string;
   title: string;
@@ -28,6 +28,7 @@ export function ConversationSidebar({
   conversations,
 }: ConversationSidebarProps) {
   const pathname = usePathname();
+  const setMessages = useChatStore((state) => state.setMessages);
 
   return (
     <Sidebar className="border-r">
@@ -69,7 +70,12 @@ export function ConversationSidebar({
       </SidebarContent>
       <SidebarFooter className="p-4">
         <Link href="/dashboard/chat" className="w-full">
-          <Button className="w-full">
+          <Button
+            onClick={() => {
+              setMessages([]);
+            }}
+            className="w-full"
+          >
             <PlusIcon className="mr-2 h-4 w-4" />
             New Conversation
           </Button>
