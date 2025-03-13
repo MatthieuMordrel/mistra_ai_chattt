@@ -12,3 +12,51 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+/**
+ * Formats a conversation title to ensure it's not too long and is properly formatted
+ *
+ * @param title - The original title text, typically from the first user message
+ * @param options - Configuration options for formatting
+ * @returns A properly formatted and truncated title
+ */
+export function formatConversationTitle(
+  title: string,
+  options: {
+    maxLength?: number;
+    ellipsis?: string;
+    removeNewlines?: boolean;
+    trim?: boolean;
+  } = {},
+): string {
+  const {
+    maxLength = 30,
+    ellipsis = "...",
+    removeNewlines = true,
+    trim = true,
+  } = options;
+
+  // Handle empty or undefined titles
+  if (!title) {
+    return "New Conversation";
+  }
+
+  let formattedTitle = title;
+
+  // Remove newlines if specified
+  if (removeNewlines) {
+    formattedTitle = formattedTitle.replace(/\n/g, " ");
+  }
+
+  // Trim whitespace if specified
+  if (trim) {
+    formattedTitle = formattedTitle.trim();
+  }
+
+  // Truncate if longer than maxLength
+  if (formattedTitle.length > maxLength) {
+    formattedTitle = formattedTitle.substring(0, maxLength) + ellipsis;
+  }
+
+  return formattedTitle;
+}

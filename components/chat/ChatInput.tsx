@@ -6,6 +6,7 @@ import {
 } from "@/app/actions/conversation-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { formatConversationTitle } from "@/lib/utils";
 import { streamAssistantMessageAndSaveToDb } from "@/services/chatService";
 import { useChatStore } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
@@ -21,6 +22,9 @@ const ChatInput = () => {
   const conversationId = useChatStore((state) => state.conversationId);
   const isLoading = useChatStore((state) => state.isLoading);
   const setConversationId = useChatStore((state) => state.setConversationId);
+  const setConversationTitle = useChatStore(
+    (state) => state.setConversationTitle,
+  );
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -65,8 +69,6 @@ const ChatInput = () => {
         const updatedMessages = [...messages, newMessage];
         setMessages(updatedMessages);
       }
-      // Force a UI update by setting loading state
-      useChatStore.getState().setLoading(true);
     };
 
     // Update UI immediately
@@ -75,8 +77,14 @@ const ChatInput = () => {
     // Handle first message - create conversation in DB
     if (messages.length === 0) {
       try {
+        // Format the title using our utility function
+        const formattedTitle = formatConversationTitle(input);
+
+        // Update the title using zustand, should update the ui instantly
+        setConversationTitle(formattedTitle);
+
         // Create the conversation in the DB
-        const result = await createConversationAction(input);
+        const result = await createConversationAction(formattedTitle);
 
         // TO DO: Find a way to navigate to the conversation page without causing the page to relaoad or the component to rerender/unmount/remount
         // This would help to allow the user to refresh the page and still have the conversation loaded
