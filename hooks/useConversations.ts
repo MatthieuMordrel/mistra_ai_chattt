@@ -1,4 +1,4 @@
-import { createConversationAction } from "@/app/actions/conversation-actions";
+import { createConversationAction } from "@/actions/conversation-actions";
 import {
   Conversation,
   fetchConversations,

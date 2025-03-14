@@ -1,6 +1,6 @@
 "use client";
 
-import { saveMessagesAction } from "@/app/actions/conversation-actions";
+import { saveMessagesAction } from "@/actions/conversation-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useConversations } from "@/hooks/useConversations";

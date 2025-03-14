@@ -5,10 +5,10 @@
 ├── .prettierrc
 ├── .vscode
 │   └── settings.json
+├── actions
+│   ├── conversation-actions.ts
+│   └── utils-actions.ts
 ├── app
-│   ├── actions
-│   │   ├── conversation-actions.ts
-│   │   └── utils-actions.ts
 │   ├── api
 │   │   ├── auth
 │   │   │   └── [...all]

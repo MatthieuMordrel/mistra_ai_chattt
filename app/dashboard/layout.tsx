@@ -17,7 +17,7 @@ export default async function DashboardLayout({
     <DashboardLayoutClient>
       {/* Sidebar component - now client-side with TanStack Query */}
       <Suspense fallback={<ConversationSidebarSkeleton />}>
-        <ConversationsSidebar userId={userId} />  
+        <ConversationsSidebar userId={userId} />
       </Suspense>
 
       {/* Main content area */}

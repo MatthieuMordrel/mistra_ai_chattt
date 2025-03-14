@@ -1,4 +1,4 @@
-import { saveMessagesAction } from "@/app/actions/conversation-actions";
+import { saveMessagesAction } from "@/actions/conversation-actions";
 import { streamMistralClient } from "@/lib/mistral-client";
 import { useChatStore } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
