@@ -2,7 +2,7 @@
 
 import { useChatStore } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ChatMessageItem from "./ChatMessageItem";
 
 /**
@@ -19,14 +19,15 @@ const ChatMessageList = ({ messages = [] }: { messages?: ChatMessage[] }) => {
   const setMessages = useChatStore((state) => state.setMessages);
   const messagesFromStore = useChatStore((state) => state.messages);
 
-  // Initialize the store synchronously before first render
-  if (!isInitialized && messages) {
-    setMessages(messages);
-    setIsInitialized(true);
-  }
+  useEffect(() => {
+    if (!isInitialized && messages) {
+      setMessages(messages);
+      setIsInitialized(true);
+    }
+  }, [isInitialized, messages, setMessages]);
 
   // Use the messages from props if available, otherwise fall back to store
-  const displayMessages = messages ? messages : messagesFromStore;
+  const displayMessages = isInitialized ? messagesFromStore : messages;
 
   return (
     <div className="absolute inset-0 overflow-x-hidden overflow-y-auto rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-800">

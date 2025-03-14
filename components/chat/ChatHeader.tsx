@@ -1,6 +1,6 @@
 "use client";
 import { useChatStore } from "@/store/chatStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Header component for the chat interface
@@ -15,10 +15,12 @@ const ChatHeader = ({ title }: { title?: string }) => {
   );
 
   // Initialize the store synchronously before first render
-  if (!isInitialized && title) {
-    setConversationTitle(title);
-    setIsInitialized(true);
-  }
+  useEffect(() => {
+    if (!isInitialized && title) {
+      setConversationTitle(title);
+      setIsInitialized(true);
+    }
+  }, [isInitialized, title, setConversationTitle]);
 
   return (
     <div className="mb-4 flex items-center justify-between border-b pb-2">
