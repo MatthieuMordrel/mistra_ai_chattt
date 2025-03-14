@@ -1,5 +1,5 @@
 import Link from "next/link";
-import SignOutButton from "../navbar/SignOut";
+import SignOutButton from "../navbar_/SignOut";
 import { Button } from "../ui/button";
 
 export default function NavBar({
