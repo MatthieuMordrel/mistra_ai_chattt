@@ -71,12 +71,7 @@ export function ConversationSidebar({
       </SidebarContent>
       <SidebarFooter className="p-4">
         <Link href="/dashboard/chat" className="w-full">
-          <Button
-            onClick={() => {
-              setMessages([]);
-            }}
-            className="w-full"
-          >
+          <Button className="w-full">
             <PlusIcon className="mr-2 h-4 w-4" />
             New Conversation
           </Button>

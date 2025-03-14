@@ -8,6 +8,7 @@ import { formatConversationTitle } from "@/lib/utils";
 import { streamAssistantMessageAndSaveToDb } from "@/services/chatService";
 import { useChatStore } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -33,6 +34,8 @@ const ChatInput = ({
 
   // Use the conversations hook for creating conversations
   const { createConversation } = useConversations();
+  const router = useRouter();
+
   useEffect(() => {
     if (!isInitialized && conversationIdServer) {
       setConversationId(conversationIdServer);
@@ -40,9 +43,9 @@ const ChatInput = ({
     }
   }, [isInitialized, conversationIdServer, setConversationId]);
 
-  const conversationId = isInitialized
-    ? conversationIdStore
-    : conversationIdServer;
+  const conversationId = conversationIdServer
+    ? conversationIdServer
+    : conversationIdStore;
 
   // Focus input on component mount
   useEffect(() => {
@@ -108,13 +111,14 @@ const ChatInput = ({
 
         // Update the conversation ID in the store
         setConversationId(result.id);
-
         // Stream the assistant message and save to DB
         await streamAssistantMessageAndSaveToDb({
           currentMessages: [userMessage], // Use array with user message
           userMessage,
           conversationId: result.id,
         });
+        //TO DO: Redirect the user to the conversation page after streaming is complete and ensure no flash or lost of state
+        // router.replace(`/dashboard/chat/${result.id}`);
       } catch (error) {
         console.error("Error creating conversation:", error);
       }
@@ -127,11 +131,13 @@ const ChatInput = ({
         try {
           console.log("Saving user message: conversationId", conversationId);
           await saveMessagesAction(conversationId, [userMessage]);
+          console.log("User message saved");
         } catch (error) {
           console.error("Error saving user message:", error);
           // Continue even if saving fails - the UI will still show the message
         }
       }
+      console.log("Streaming assistant message");
       // Send message to the API using the chat service
       await streamAssistantMessageAndSaveToDb({
         currentMessages: [...messages, userMessage], // Include the new user message

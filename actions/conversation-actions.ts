@@ -2,7 +2,6 @@
 import { ConversationService } from "@/db/services/conversation-service";
 import { auth } from "@/lib/auth";
 import { ChatMessage } from "@/types/types";
-import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
 /**
@@ -108,7 +107,7 @@ export async function saveMessagesAction(
     await ConversationService.saveMessages(conversationId, messages);
 
     // Revalidate the conversation path to update the UI if needed
-    revalidatePath(`/dashboard/chat/${conversationId}`);
+    // revalidatePath(`/dashboard/chat/${conversationId}`);
 
     return { success: true };
   } catch (error) {
