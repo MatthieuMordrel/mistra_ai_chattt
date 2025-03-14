@@ -25,7 +25,7 @@ export default function ChatContainer({
       <div className="relative flex-1 overflow-hidden">
         <ChatMessageList messages={messages} />
       </div>
-      <ChatInput />
+      <ChatInput conversationIdServer={conversation?.id} />
     </div>
   );
 }

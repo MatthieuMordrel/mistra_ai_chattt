@@ -13,8 +13,7 @@ const ChatHeader = ({ title }: { title?: string }) => {
   const setConversationTitle = useChatStore(
     (state) => state.setConversationTitle,
   );
-
-  // Initialize the store synchronously before first render
+  
   useEffect(() => {
     if (!isInitialized && title) {
       setConversationTitle(title);

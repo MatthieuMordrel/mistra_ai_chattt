@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
       hmrRefreshes: true,
     },
   },
+  // experimental: {
+  //   staleTimes: {
+  //     dynamic: 300,
+  //     static: 300,
+  //   },
+  // },
   reactStrictMode: false,
 };
 

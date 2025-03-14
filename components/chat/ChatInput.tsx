@@ -14,10 +14,15 @@ import { useEffect, useRef, useState } from "react";
  * Component for the chat input form
  * Handles user input and message submission
  */
-const ChatInput = () => {
+const ChatInput = ({
+  conversationIdServer,
+}: {
+  conversationIdServer?: string;
+}) => {
+  const [isInitialized, setIsInitialized] = useState(false);
   const messages = useChatStore((state) => state.messages);
   const setMessages = useChatStore((state) => state.setMessages);
-  const conversationId = useChatStore((state) => state.conversationId);
+  const conversationIdStore = useChatStore((state) => state.conversationId);
   const isLoading = useChatStore((state) => state.isLoading);
   const setConversationId = useChatStore((state) => state.setConversationId);
   const setConversationTitle = useChatStore(
@@ -28,6 +33,16 @@ const ChatInput = () => {
 
   // Use the conversations hook for creating conversations
   const { createConversation } = useConversations();
+  useEffect(() => {
+    if (!isInitialized && conversationIdServer) {
+      setConversationId(conversationIdServer);
+      setIsInitialized(true);
+    }
+  }, [isInitialized, conversationIdServer, setConversationId]);
+
+  const conversationId = isInitialized
+    ? conversationIdStore
+    : conversationIdServer;
 
   // Focus input on component mount
   useEffect(() => {
@@ -104,17 +119,18 @@ const ChatInput = () => {
         console.error("Error creating conversation:", error);
       }
     } else {
+      if (!conversationId) {
+        console.error("No conversation ID found");
+        return;
+      }
       if (conversationId) {
         try {
+          console.log("Saving user message: conversationId", conversationId);
           await saveMessagesAction(conversationId, [userMessage]);
         } catch (error) {
           console.error("Error saving user message:", error);
           // Continue even if saving fails - the UI will still show the message
         }
-      }
-      if (!conversationId) {
-        console.error("No conversation ID found");
-        return;
       }
       // Send message to the API using the chat service
       await streamAssistantMessageAndSaveToDb({

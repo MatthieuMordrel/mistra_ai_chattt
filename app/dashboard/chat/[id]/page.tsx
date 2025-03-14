@@ -17,6 +17,7 @@ export default async function ConversationPage({
     id,
     user.user.id,
   );
+  console.log("conversation", conversation);
   return (
     <div className="mx-auto flex h-[calc(100vh-6rem)] max-w-4xl flex-col p-4">
       <ChatContainer conversation={conversation} />
