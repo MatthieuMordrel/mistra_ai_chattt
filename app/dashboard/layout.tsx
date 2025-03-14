@@ -1,8 +1,9 @@
 import { ConversationsSidebar } from "@/components/chat/ConversationList";
+import { ConversationSidebarSkeleton } from "@/components/chat/ConversationSidebarSkeleton";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
 import NavBar from "@/components/navbar/NavBar";
 import { validateServerSession } from "@/lib/validateSession";
-
+import { Suspense } from "react";
 export default async function DashboardLayout({
   children,
 }: {
@@ -15,7 +16,9 @@ export default async function DashboardLayout({
   return (
     <DashboardLayoutClient>
       {/* Sidebar component - now client-side with TanStack Query */}
-      <ConversationsSidebar userId={userId} />
+      <Suspense fallback={<ConversationSidebarSkeleton />}>
+        <ConversationsSidebar userId={userId} />  
+      </Suspense>
 
       {/* Main content area */}
       <div className="flex w-full flex-1 flex-col">

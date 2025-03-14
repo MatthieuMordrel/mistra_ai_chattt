@@ -13,7 +13,7 @@ import ChatMessageItem from "./ChatMessageItem";
  * @param messages - The messages to display in the chat message list
  * @returns A list of chat messages
  */
-const ChatMessageList = ({ messages }: { messages?: ChatMessage[] }) => {
+const ChatMessageList = ({ messages = [] }: { messages?: ChatMessage[] }) => {
   // State to track if we've initialized the store
   const [isInitialized, setIsInitialized] = useState(false);
   const setMessages = useChatStore((state) => state.setMessages);

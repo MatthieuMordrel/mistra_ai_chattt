@@ -56,6 +56,7 @@ To run this project, you'll need to set up the following environment variables. 
 - Conversations titles are fetched twice on initial load
 - `dashboard/page.tsx` is displayed when loading `id/page`
 - Conversations messages are not cached (and so dynamic chat routes are not cached and needs to be fetched from the server on every load)
+- Previous messages apears when navigating to convefsation and starting new conversation from dashboard
 
 ### Improvements:
 
