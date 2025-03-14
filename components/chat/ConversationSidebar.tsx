@@ -55,6 +55,7 @@ export function ConversationSidebar({
                   key={conversation.id}
                   href={`/dashboard/chat/${conversation.id}`}
                   className="w-full"
+                  prefetch={true}
                 >
                   <SidebarMenuButton
                     isActive={isActive}
