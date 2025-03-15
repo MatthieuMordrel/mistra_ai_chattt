@@ -67,6 +67,12 @@ interface ChatState {
    * @param title - The title to set
    */
   setConversationTitle: (title: string) => void;
+
+  /**
+   * Resets the store for a new conversation
+   * Sets title to "New Conversation", clears ID and messages
+   */
+  resetForNewConversation: () => void;
 }
 
 /**
@@ -165,5 +171,13 @@ export const useChatStore = create<ChatState>((set) => ({
 
   setConversationTitle: (title: string) => {
     set({ conversationTitle: title });
+  },
+
+  resetForNewConversation: () => {
+    set({
+      conversationTitle: "New Conversation",
+      conversationId: null,
+      messages: [],
+    });
   },
 }));
