@@ -10,12 +10,12 @@ export default async function ConversationPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
+  const { id: conversationId } = await params;
   const user = await validateServerSession();
   //Fetch the messages using the conversation id on the server
   const conversation = await ConversationService.getConversation(
-    id,
-    user.user.id,
+    conversationId,
+    user?.user.id!,
   );
   return (
     <div className="mx-auto flex h-[calc(100vh-6rem)] max-w-4xl flex-col p-4">

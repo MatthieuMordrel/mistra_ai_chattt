@@ -3,6 +3,7 @@
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +28,16 @@ export function ConversationSidebar({
   conversations,
 }: ConversationSidebarProps) {
   const pathname = usePathname();
+  // Track hydration state
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Ensure conversations is always an array to prevent hydration mismatches
+  const conversationList = Array.isArray(conversations) ? conversations : [];
+
+  // After hydration is complete, update the state
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   return (
     <Sidebar className="border-r">
@@ -34,17 +45,21 @@ export function ConversationSidebar({
         <h2 className="text-lg font-semibold">Conversations</h2>
       </SidebarHeader>
       <SidebarContent>
-        {conversations.length === 0 ? (
-          <div className="text-muted-foreground flex h-40 flex-col items-center justify-center px-4 text-center">
-            <MessageSquareIcon className="mb-2 h-8 w-8 opacity-50" />
-            <p>No conversations yet</p>
-            <p className="text-sm">
-              Start a new conversation to begin chatting
-            </p>
-          </div>
-        ) : (
-          <SidebarMenu>
-            {conversations.map((conversation) => {
+        <SidebarMenu>
+          {/* 
+            During the first render, always show the empty state to match server rendering
+            After hydration, render based on the actual data
+          */}
+          {!isHydrated || conversationList.length === 0 ? (
+            <div className="text-muted-foreground flex h-40 flex-col items-center justify-center px-4 text-center">
+              <MessageSquareIcon className="mb-2 h-8 w-8 opacity-50" />
+              <p>No conversations yet</p>
+              <p className="text-sm">
+                Start a new conversation to begin chatting
+              </p>
+            </div>
+          ) : (
+            conversationList.map((conversation) => {
               const isActive =
                 pathname === `/dashboard/chat/${conversation.id}`;
 
@@ -63,9 +78,9 @@ export function ConversationSidebar({
                   </SidebarMenuButton>
                 </Link>
               );
-            })}
-          </SidebarMenu>
-        )}
+            })
+          )}
+        </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-4">
         <Link href="/dashboard/chat" className="w-full">

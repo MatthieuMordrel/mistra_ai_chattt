@@ -2,20 +2,10 @@
 
 import { useConversations } from "@/hooks/useConversations";
 import { ConversationSidebar } from "./ConversationSidebar";
-import { ConversationSidebarSkeleton } from "./ConversationSidebarSkeleton";
 
 export function ClientConversationList() {
-  // Use a separate state for client-side loading
-  const {
-    conversations: conversationClient,
-    isLoading,
-    isError,
-  } = useConversations();
-  // Always show skeleton on first render to avoid hydration mismatch
-  // Then use client-side state for subsequent renders
-  if (isLoading) {
-    return <ConversationSidebarSkeleton />;
-  }
+  // Use the hook to get conversations
+  const { conversations: conversationClient, isError } = useConversations();
 
   // Show error state
   if (isError) {
@@ -26,6 +16,7 @@ export function ClientConversationList() {
     );
   }
 
-  // Render the conversation sidebar with the fetched conversations
-  return <ConversationSidebar conversations={conversationClient!} />;
+  // Always pass an empty array during loading to match server-side behavior
+  // This ensures consistent rendering between server and client
+  return <ConversationSidebar conversations={conversationClient || []} />;
 }

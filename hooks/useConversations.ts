@@ -3,8 +3,9 @@ import {
   Conversation,
   fetchConversations,
 } from "@/lib/fetchClient/fetchConversations";
+import { getQueryClient } from "@/providers/QueryProvider";
 import { ChatMessage } from "@/types/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 // Define the return type of createConversationAction
 interface CreateConversationResult {
@@ -12,14 +13,15 @@ interface CreateConversationResult {
 }
 
 export function useConversations() {
-  const queryClient = useQueryClient();
+  const queryClient = getQueryClient();
 
-  // Query for fetching conversations with better initial loading state handling
   const conversationsQuery = useQuery({
     queryKey: ["conversations"],
     queryFn: fetchConversations,
-    // Disable automatic refetching on window focus to avoid hydration issues
     refetchOnWindowFocus: false,
+    // Set initial data to an empty array to ensure consistent state
+    // This prevents hydration mismatches by ensuring we never have undefined
+    initialData: [],
   });
 
   // Mutation for creating a new conversation with optimistic updates

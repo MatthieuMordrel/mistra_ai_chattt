@@ -10,11 +10,15 @@ export async function ConversationsSidebar({ userId }: { userId: string }) {
   }
   const queryClient = getQueryClient();
 
+  // Prefetch the conversations data on the server
+  const conversations = await ConversationService.getUserConversations(userId);
+
   await queryClient.prefetchQuery({
     queryKey: ["conversations"],
-    queryFn: () => ConversationService.getUserConversations(userId),
+    queryFn: () => conversations,
   });
-  // Return the client-side wrapper
+
+  // Return the client-side wrapper with the dehydrated state
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <ClientConversationList />

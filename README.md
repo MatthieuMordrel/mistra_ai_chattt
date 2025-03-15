@@ -51,6 +51,9 @@ To run this project, you'll need to set up the following environment variables. 
 
 ## TO DO:
 
+- Add models selection
+- Handle markdown in the chat
+
 ### Issues:
 
 ### Improvements:
