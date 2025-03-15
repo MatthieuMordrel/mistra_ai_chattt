@@ -20,6 +20,8 @@
 │   │   ├── mistral
 │   │   │   └── stream
 │   │   │       └── route.ts
+│   │   ├── models
+│   │   │   └── models.ts
 │   │   └── testauth
 │   │       └── route.ts
 │   ├── dashboard
@@ -48,7 +50,8 @@
 │   │   ├── ClientConversationList.tsx
 │   │   ├── ConversationList.tsx
 │   │   ├── ConversationSidebar.tsx
-│   │   └── ConversationSidebarSkeleton.tsx
+│   │   ├── ConversationSidebarSkeleton.tsx
+│   │   └── ModelSelector.tsx
 │   ├── dashboard
 │   │   └── DashboardLayoutClient.tsx
 │   ├── navbar
@@ -58,7 +61,11 @@
 │   └── ui
 │       ├── button.tsx
 │       ├── card.tsx
+│       ├── command.tsx
+│       ├── dialog.tsx
+│       ├── dropdown-menu.tsx
 │       ├── input.tsx
+│       ├── popover.tsx
 │       ├── separator.tsx
 │       ├── sheet.tsx
 │       ├── sidebar.tsx
@@ -74,7 +81,8 @@
 │   │   ├── auth-schema.ts
 │   │   └── chat-schema.ts
 │   └── services
-│       └── conversation-service.ts
+│       ├── conversation-service.ts
+│       └── model-service.ts
 ├── drizzle.config.ts
 ├── envConfig.ts
 ├── hooks
@@ -118,8 +126,8 @@
 ├── services
 │   └── chatService.ts
 ├── store
-│   ├── authStore.ts
-│   └── chatStore.ts
+│   ├── chatStore.ts
+│   └── modelStore.ts
 ├── styles
 │   └── globals.css
 ├── tree.txt

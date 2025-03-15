@@ -11,6 +11,7 @@ export default async function ConversationPage({
   params: Promise<{ id: string }>;
 }) {
   const { id: conversationId } = await params;
+  //This can probably be removed since we are using middleware to validate the session and we have the user within the headers
   const user = await validateServerSession();
   //Fetch the messages using the conversation id on the server
   const conversation = await ConversationService.getConversation(

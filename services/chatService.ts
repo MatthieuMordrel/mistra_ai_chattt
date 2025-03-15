@@ -1,6 +1,7 @@
 import { saveMessagesAction } from "@/actions/conversation-actions";
 import { streamMistralClient } from "@/lib/mistral-client";
 import { useChatStore } from "@/store/chatStore";
+import { useModelStore } from "@/store/modelStore";
 import { ChatMessage } from "@/types/types";
 
 /**
@@ -112,8 +113,11 @@ const streamMessageToAPI = async (
   onComplete: (fullContent: string) => void,
   onError: (error: Error) => void,
 ): Promise<void> => {
+  // Get the selected model ID from the store
+  const selectedModelId = useModelStore.getState().selectedModelId;
+  console.log("[SERVICE] selectedModelId: ", selectedModelId);
   await streamMistralClient({
-    model: "mistral-small-latest",
+    model: selectedModelId || "mistral-small-latest", // Use selected model or fall back to default
     messages: messagesToSend,
     onToken,
     onComplete,
