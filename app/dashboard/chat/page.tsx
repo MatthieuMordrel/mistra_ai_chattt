@@ -1,5 +1,5 @@
 import ChatContainer from "@/components/chat/ChatContainer";
-import SkeletonChat from "@/components/chat/SkeletonChat";
+import SkeletonChat from "@/components/skeletons/SkeletonChat";
 import { Suspense } from "react";
 /**
  * Chat page component for new conversations

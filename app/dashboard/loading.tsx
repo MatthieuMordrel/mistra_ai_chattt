@@ -1,5 +1,5 @@
-import { ConversationSidebarSkeleton } from "@/components/chat/ConversationSidebarSkeleton";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
+import { ConversationSidebarSkeleton } from "@/components/skeletons/ConversationSidebarSkeleton";
 
 export default function DashboardLoading() {
   return (

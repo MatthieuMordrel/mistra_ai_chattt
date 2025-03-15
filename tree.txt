@@ -47,12 +47,7 @@
 │   │   ├── ChatInput.tsx
 │   │   ├── ChatMessageItem.tsx
 │   │   ├── ChatMessageList.tsx
-│   │   ├── ClientConversationList.tsx
-│   │   ├── ConversationList.tsx
-│   │   ├── ConversationSidebar.tsx
-│   │   ├── ConversationSidebarSkeleton.tsx
-│   │   ├── ModelSelector.tsx
-│   │   └── SkeletonChat.tsx
+│   │   └── ModelSelector.tsx
 │   ├── dashboard
 │   │   └── DashboardLayoutClient.tsx
 │   ├── navbar
@@ -61,7 +56,14 @@
 │   ├── providers
 │   │   ├── ModelsProvider.tsx
 │   │   └── ServerModelsLoader.tsx
+│   ├── sidebar
+│   │   ├── ClientConversationList.tsx
+│   │   ├── ConversationList.tsx
+│   │   └── ConversationSidebar.tsx
 │   ├── sign-in.tsx
+│   ├── skeletons
+│   │   ├── ConversationSidebarSkeleton.tsx
+│   │   └── SkeletonChat.tsx
 │   └── ui
 │       ├── button.tsx
 │       ├── card.tsx

@@ -1,4 +1,4 @@
-import SkeletonChat from "@/components/chat/SkeletonChat";
+import SkeletonChat from "@/components/skeletons/SkeletonChat";
 
 export default function ChatLoading() {
   return <SkeletonChat />;
