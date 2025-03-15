@@ -1,4 +1,6 @@
 import { ConversationService } from "@/db/services/conversation-service";
+import { getQueryClient } from "@/providers/QueryProvider";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { ClientConversationList } from "./ClientConversationList";
 
 export async function ConversationsSidebar({ userId }: { userId: string }) {
@@ -6,14 +8,16 @@ export async function ConversationsSidebar({ userId }: { userId: string }) {
   if (!userId) {
     return null;
   }
-  // Fetch conversation from the server using api/conversation
-  const conversations = await ConversationService.getUserConversations(userId);
-  // Format the conversations for the client
-  const formattedConversations = conversations.map((conv) => ({
-    id: conv.id,
-    title: conv.title,
-    updatedAt: conv.updatedAt.toISOString(),
-  }));
+  const queryClient = getQueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["conversations"],
+    queryFn: () => ConversationService.getUserConversations(userId),
+  });
   // Return the client-side wrapper
-  return <ClientConversationList conversations={formattedConversations} />;
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <ClientConversationList />
+    </HydrationBoundary>
+  );
 }

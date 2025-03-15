@@ -13,7 +13,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { useChatStore } from "@/store/chatStore";
 interface Conversation {
   id: string;
   title: string;
@@ -28,7 +27,6 @@ export function ConversationSidebar({
   conversations,
 }: ConversationSidebarProps) {
   const pathname = usePathname();
-  const setMessages = useChatStore((state) => state.setMessages);
 
   return (
     <Sidebar className="border-r">

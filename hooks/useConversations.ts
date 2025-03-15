@@ -15,13 +15,11 @@ export function useConversations() {
   const queryClient = useQueryClient();
 
   // Query for fetching conversations with better initial loading state handling
-  const { data: conversations = [], ...queryRest } = useQuery({
+  const conversationsQuery = useQuery({
     queryKey: ["conversations"],
     queryFn: fetchConversations,
     // Disable automatic refetching on window focus to avoid hydration issues
     refetchOnWindowFocus: false,
-    // Ensure consistent initial loading state
-    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Mutation for creating a new conversation with optimistic updates
@@ -81,8 +79,8 @@ export function useConversations() {
 
   // Return the conversations, the createConversation mutation and the isCreatingConversation state
   return {
-    conversations,
-    ...queryRest,
+    conversations: conversationsQuery.data,
+    ...conversationsQuery,
     createConversation: createConversationMutation.mutateAsync,
     isCreatingConversation: createConversationMutation.isPending,
   };
