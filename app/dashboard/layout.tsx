@@ -1,7 +1,7 @@
-import { ConversationsSidebar } from "@/components/chat/ConversationList";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
 import NavBar from "@/components/navbar/NavBar";
 import { ServerModelsLoader } from "@/components/providers/ServerModelsLoader";
+import { ConversationsSidebar } from "@/components/sidebar/ConversationList";
 import { ConversationSidebarSkeleton } from "@/components/skeletons/ConversationSidebarSkeleton";
 import { validateServerSession } from "@/lib/auth/validateSession";
 import { Suspense } from "react";

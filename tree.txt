@@ -54,7 +54,9 @@
 │   │   ├── NavBar.tsx
 │   │   └── SignOut.tsx
 │   ├── providers
+│   │   ├── ConversationProvider.tsx
 │   │   ├── ModelsProvider.tsx
+│   │   ├── ServerConversationLoader.tsx
 │   │   └── ServerModelsLoader.tsx
 │   ├── sidebar
 │   │   ├── ClientConversationList.tsx

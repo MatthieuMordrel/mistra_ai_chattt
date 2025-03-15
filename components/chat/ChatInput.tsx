@@ -14,16 +14,13 @@ import { useEffect, useRef, useState } from "react";
 /**
  * Component for the chat input form
  * Handles user input and message submission
+ * Gets the conversationId directly from the Zustand store
+ * which is hydrated at the container level via ServerConversationLoader
  */
-const ChatInput = ({
-  conversationIdServer,
-}: {
-  conversationIdServer?: string;
-}) => {
-  const [isInitialized, setIsInitialized] = useState(false);
+const ChatInput = () => {
   const messages = useChatStore((state) => state.messages);
   const setMessages = useChatStore((state) => state.setMessages);
-  const conversationIdStore = useChatStore((state) => state.conversationId);
+  const conversationId = useChatStore((state) => state.conversationId);
   const isLoading = useChatStore((state) => state.isLoading);
   const setConversationId = useChatStore((state) => state.setConversationId);
   const setConversationTitle = useChatStore(
@@ -35,17 +32,6 @@ const ChatInput = ({
   // Use the conversations hook for creating conversations
   const { createConversation } = useConversations();
   const router = useRouter();
-
-  useEffect(() => {
-    if (!isInitialized && conversationIdServer) {
-      setConversationId(conversationIdServer);
-      setIsInitialized(true);
-    }
-  }, [isInitialized, conversationIdServer, setConversationId]);
-
-  const conversationId = conversationIdServer
-    ? conversationIdServer
-    : conversationIdStore;
 
   // Focus input on component mount
   useEffect(() => {
