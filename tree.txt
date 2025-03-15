@@ -29,6 +29,7 @@
 │   │   │   ├── [id]
 │   │   │   │   ├── loading.tsx
 │   │   │   │   └── page.tsx
+│   │   │   ├── layout.tsx
 │   │   │   ├── loading.tsx
 │   │   │   └── page.tsx
 │   │   ├── layout.tsx
@@ -47,8 +48,10 @@
 │   │   ├── ChatInput.tsx
 │   │   ├── ChatMessageItem.tsx
 │   │   ├── ChatMessageList.tsx
+│   │   ├── ChatPageHeader.tsx
 │   │   └── ModelSelector.tsx
 │   ├── dashboard
+│   │   ├── DashboardHeader.tsx
 │   │   └── DashboardLayoutClient.tsx
 │   ├── navbar
 │   │   ├── NavBar.tsx

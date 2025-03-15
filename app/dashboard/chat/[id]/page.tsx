@@ -20,7 +20,7 @@ export default async function ConversationPage({
     user?.user.id!,
   );
   return (
-    <div className="mx-auto flex h-[calc(100vh-6rem)] max-w-4xl flex-col p-4">
+    <div className="flex h-full flex-col">
       <Suspense fallback={<div>Loading...</div>}>
         <ChatContainer conversation={conversation} />
       </Suspense>

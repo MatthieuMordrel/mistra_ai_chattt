@@ -1,5 +1,5 @@
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
-import NavBar from "@/components/navbar/NavBar";
 import { ServerModelsLoader } from "@/components/providers/ServerModelsLoader";
 import { ConversationsSidebar } from "@/components/sidebar/ConversationList";
 import { ConversationSidebarSkeleton } from "@/components/skeletons/ConversationSidebarSkeleton";
@@ -26,10 +26,10 @@ export default async function DashboardLayout({
 
       {/* Main content area */}
       <div className="flex w-full flex-1 flex-col">
-        <div className="flex h-16 items-center px-4">
-          {/* <SidebarTrigger /> */}
-          <NavBar showDashboard={true} showSignOut={true} />
-        </div>
+        {/* Dashboard header with navigation */}
+        <DashboardHeader />
+
+        {/* Main content */}
         <main className="flex-1 overflow-auto p-4">{children}</main>
       </div>
     </DashboardLayoutClient>

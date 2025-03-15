@@ -92,7 +92,7 @@ const createMessage = (
 export const useChatStore = create<ChatState>((set) => ({
   messages: [],
   isLoading: false,
-  conversationTitle: "New Conversation from Zustand Store",
+  conversationTitle: "",
   isStreaming: false,
   conversationId: null,
 

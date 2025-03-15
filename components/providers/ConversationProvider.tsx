@@ -7,6 +7,7 @@ import { useEffect } from "react";
 /**
  * Client component that hydrates the chat store with server-fetched conversation data
  * This follows the same pattern as ModelsProvider
+ * Used at the chat container level to provide conversation-specific data
  */
 export function ConversationProvider({
   conversationId,

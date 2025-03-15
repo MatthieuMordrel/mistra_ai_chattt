@@ -1,12 +1,11 @@
 "use client";
 import { useChatStore } from "@/store/chatStore";
-import { ModelSelector } from "./ModelSelector";
 
 /**
  * Header component for the chat interface
- * Displays the conversation title and provides a model selector
- * Gets the conversation title directly from the Zustand store
- * which is hydrated at the container level via ServerConversationLoader
+ * Displays the conversation title
+ * The ModelSelector has been moved to the DashboardHeader component
+ * to be shared across all dashboard routes
  */
 const ChatHeader = () => {
   // Get the conversation title directly from the store
@@ -15,9 +14,6 @@ const ChatHeader = () => {
   return (
     <div className="mb-4 flex items-center justify-between border-b pb-2">
       <h1 className="text-xl font-bold">{conversationTitle}</h1>
-      <div className="flex gap-2">
-        <ModelSelector />
-      </div>
     </div>
   );
 };

@@ -7,7 +7,7 @@ import { Suspense } from "react";
  */
 export default function ChatPage() {
   return (
-    <div className="mx-auto flex h-[calc(100vh-6rem)] max-w-4xl flex-col p-4">
+    <div className="flex h-full flex-col">
       <Suspense fallback={<SkeletonChat />}>
         <ChatContainer />
       </Suspense>
