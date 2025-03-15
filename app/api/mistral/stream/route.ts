@@ -1,4 +1,3 @@
-import { validateServerSession } from "@/lib/validateSession";
 import { components } from "@/types/mistral";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -27,14 +26,6 @@ interface MistralStreamRequest {
  * This endpoint is protected with Better Auth
  */
 export async function POST(req: NextRequest) {
-  // Check authentication
-  const session = await validateServerSession();
-
-  // Return 401 if not authenticated
-  if (!session || session.session.expiresAt < new Date()) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
     // Parse request body
     const requestData: MistralStreamRequest = await req.json();

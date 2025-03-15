@@ -2,7 +2,7 @@ import { ConversationsSidebar } from "@/components/chat/ConversationList";
 import { ConversationSidebarSkeleton } from "@/components/chat/ConversationSidebarSkeleton";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
 import NavBar from "@/components/navbar_/NavBar";
-import { validateServerSession } from "@/lib/validateSession";
+import { validateServerSession } from "@/lib/auth/validateSession";
 import { Suspense } from "react";
 
 export default async function DashboardLayout({

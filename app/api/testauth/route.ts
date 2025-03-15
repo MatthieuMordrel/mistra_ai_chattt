@@ -1,21 +1,34 @@
 // Query using http://localhost:3001/api/testauth
-import { auth } from "@/lib/auth"; // Import Better Auth instance
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
+import { getSessionFromRequest } from "@/lib/auth/getSessionFromRequest";
+import { NextRequest, NextResponse } from "next/server";
 
-// Protect the API route with auth()
-export const GET = async (req: Request) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  // Check if user is authenticated
-  if (session) {
+/**
+ * GET handler for testing session passing from middleware
+ */
+export async function GET(request: NextRequest) {
+  try {
+    // Get the session using our utility function
+    const { user } = await getSessionFromRequest(request);
+
+    // Return the session data (excluding sensitive information)
     return NextResponse.json({
-      message: "You have access!",
-      user: session.user, // Authenticated user's details
+      message: "Session successfully retrieved",
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+      // This field indicates whether the session was retrieved from the middleware header
+      // or had to be fetched directly using validateServerSession
+      sessionSource: request.headers.has("x-session-data")
+        ? "middleware"
+        : "direct-fetch",
     });
+  } catch (error) {
+    console.error("Error in test auth route:", error);
+    return NextResponse.json(
+      { error: "Failed to process request" },
+      { status: 500 },
+    );
   }
-
-  // Return 401 Unauthorized if not logged in
-  return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
-};
+}

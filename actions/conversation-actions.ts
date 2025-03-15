@@ -1,6 +1,6 @@
 "use server";
 import { ConversationService } from "@/db/services/conversation-service";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 import { ChatMessage } from "@/types/types";
 import { headers } from "next/headers";
 

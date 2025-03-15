@@ -82,13 +82,17 @@
 │   ├── useAutoScroll.ts
 │   └── useConversations.ts
 ├── lib
-│   ├── auth-client.ts
-│   ├── auth.ts
+│   ├── auth
+│   │   ├── auth-client.ts
+│   │   ├── auth.ts
+│   │   ├── getSessionFromRequest.ts
+│   │   ├── middlewareFunctions.ts
+│   │   ├── types.ts
+│   │   └── validateSession.ts
 │   ├── fetchClient
 │   │   └── fetchConversations.ts
 │   ├── mistral-client.ts
-│   ├── utils.ts
-│   └── validateSession.ts
+│   └── utils.ts
 ├── middleware.ts
 ├── next-env.d.ts
 ├── next.config.ts

@@ -1,6 +1,6 @@
 import ChatContainer from "@/components/chat/ChatContainer";
 import { ConversationService } from "@/db/services/conversation-service";
-import { validateServerSession } from "@/lib/validateSession";
+import { validateServerSession } from "@/lib/auth/validateSession";
 /**
  * Chat page component for existing conversations
  * Uses the ChatContainer component for the UI
