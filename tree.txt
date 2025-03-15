@@ -51,7 +51,7 @@
 │   │   └── ConversationSidebarSkeleton.tsx
 │   ├── dashboard
 │   │   └── DashboardLayoutClient.tsx
-│   ├── navbar_
+│   ├── navbar
 │   │   ├── NavBar.tsx
 │   │   └── SignOut.tsx
 │   ├── sign-in.tsx
@@ -100,7 +100,7 @@
 ├── pnpm-lock.yaml
 ├── postcss.config.mjs
 ├── providers
-│   ├── providers.tsx
+│   ├── Providers.tsx
 │   └── QueryProvider.tsx
 ├── public
 │   ├── file.svg

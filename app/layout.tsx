@@ -1,4 +1,4 @@
-import Providers from "@/providers/providers";
+import Providers from "@/providers/Providers";
 import "@/styles/globals.css";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { Metadata } from "next";

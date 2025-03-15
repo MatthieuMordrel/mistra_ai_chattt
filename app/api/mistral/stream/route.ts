@@ -1,25 +1,5 @@
-import { components } from "@/types/mistral";
+import { MistralStreamRequest } from "@/types/mistral";
 import { NextRequest, NextResponse } from "next/server";
-
-/**
- * Message type for Mistral API
- */
-type MistralMessage =
-  | components["schemas"]["SystemMessage"]
-  | components["schemas"]["UserMessage"]
-  | components["schemas"]["AssistantMessage"]
-  | components["schemas"]["ToolMessage"];
-
-/**
- * Request body interface for the Mistral streaming API
- */
-interface MistralStreamRequest {
-  model?: string;
-  messages: MistralMessage[];
-  temperature?: number;
-  maxTokens?: number;
-  responseFormat?: components["schemas"]["ResponseFormat"];
-}
 
 /**
  * POST handler for Mistral streaming API

@@ -1,13 +1,4 @@
-import { components } from "../types/mistral";
-
-/**
- * Message type for Mistral API
- */
-export type MistralMessage =
-  | components["schemas"]["SystemMessage"]
-  | components["schemas"]["UserMessage"]
-  | components["schemas"]["AssistantMessage"]
-  | components["schemas"]["ToolMessage"];
+import { components, MistralMessage } from "@/types/mistral";
 
 /**
  * Basic message interface that can be converted to Mistral API format
