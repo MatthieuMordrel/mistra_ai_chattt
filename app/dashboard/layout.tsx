@@ -4,14 +4,15 @@ import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutCli
 import NavBar from "@/components/navbar_/NavBar";
 import { validateServerSession } from "@/lib/validateSession";
 import { Suspense } from "react";
+
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   // Validate session and redirect if invalid for the whole dashboard
-  const { user } = await validateServerSession();
-  const userId = user.id;
+  const session = await validateServerSession("/sign-in");
+  const userId = session.session.userId;
 
   return (
     <DashboardLayoutClient>

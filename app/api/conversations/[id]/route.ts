@@ -1,5 +1,5 @@
 import { ConversationService } from "@/db/services/conversation-service";
-import { auth } from "@/lib/auth";
+import { validateServerSession } from "@/lib/validateSession";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -14,19 +14,17 @@ export async function GET(
     const conversationId = id;
 
     // Get the current user session
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+    const session = await validateServerSession();
 
     // Check if the user is authenticated
-    if (!session?.user) {
+    if (!session || session.session.expiresAt < new Date()) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Get the conversation with its messages
     const conversation = await ConversationService.getConversation(
       conversationId,
-      session.user.id,
+      session.session.userId,
     );
 
     return NextResponse.json(conversation);

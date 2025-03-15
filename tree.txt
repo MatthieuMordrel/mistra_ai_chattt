@@ -51,7 +51,7 @@
 │   │   └── ConversationSidebarSkeleton.tsx
 │   ├── dashboard
 │   │   └── DashboardLayoutClient.tsx
-│   ├── navbar
+│   ├── navbar_
 │   │   ├── NavBar.tsx
 │   │   └── SignOut.tsx
 │   ├── sign-in.tsx
@@ -89,12 +89,14 @@
 │   ├── mistral-client.ts
 │   ├── utils.ts
 │   └── validateSession.ts
+├── middleware.ts
 ├── next-env.d.ts
 ├── next.config.ts
 ├── package.json
 ├── pnpm-lock.yaml
 ├── postcss.config.mjs
 ├── providers
+│   ├── providers.tsx
 │   └── QueryProvider.tsx
 ├── public
 │   ├── file.svg

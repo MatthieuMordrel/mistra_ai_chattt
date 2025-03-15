@@ -57,7 +57,7 @@ export function ConversationSidebar({
                 >
                   <SidebarMenuButton
                     isActive={isActive}
-                    className="w-full justify-start"
+                    className="w-full cursor-pointer justify-start"
                   >
                     {conversation.title}
                   </SidebarMenuButton>

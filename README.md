@@ -53,12 +53,10 @@ To run this project, you'll need to set up the following environment variables. 
 
 ### Issues:
 
-- Conversations titles are fetched twice on initial load
-
 ### Improvements:
 
 - Make a soft navigate to the correct conversation ID after sending message (allows the navbar to update)
-  - Test logging isintilizaed in the chatMEssageList
+- Test logging isintilizaed in the chatMessageList
 - Ensure the user is brought to bottom of the chat on page load (Scrolling to an id in Link Component?)
 - Potentially only prefetch on hover rather than on viewport
 - Ensure to connect the user directly if session is found

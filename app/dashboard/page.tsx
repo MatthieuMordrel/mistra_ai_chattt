@@ -21,7 +21,7 @@ export default function DashboardPage() {
             </p>
             <Link href="/dashboard/chat" className="inline-block">
               <Button className="bg-foreground text-background hover:bg-opacity-90 rounded-full px-4 py-2 transition-colors">
-                New Conversation fefezfef
+                New Conversation
               </Button>
             </Link>
           </div>

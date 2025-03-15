@@ -1,6 +1,5 @@
-import { auth } from "@/lib/auth";
+import { validateServerSession } from "@/lib/validateSession";
 import { components } from "@/types/mistral";
-import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -29,16 +28,11 @@ interface MistralStreamRequest {
  */
 export async function POST(req: NextRequest) {
   // Check authentication
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await validateServerSession();
 
   // Return 401 if not authenticated
-  if (!session) {
-    return NextResponse.json(
-      { error: "Authentication required" },
-      { status: 401 },
-    );
+  if (!session || session.session.expiresAt < new Date()) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
