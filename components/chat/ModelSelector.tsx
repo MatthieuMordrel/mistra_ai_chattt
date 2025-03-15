@@ -1,6 +1,6 @@
 "use client";
 
-import { Model, useModelStore } from "@/store/modelStore";
+import { useModelStore } from "@/store/modelStore";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -13,9 +13,10 @@ import {
 /**
  * ModelSelector component for selecting AI models
  * Uses shadcn UI dropdown-menu for a clean, accessible interface
+ * Models are now loaded at the layout level via the ModelsProvider
  */
-export function ModelSelector({ models }: { models: Model[] }) {
-  console.log("[CLIENT] models: ", models);
+export function ModelSelector() {
+  const models = useModelStore((state) => state.models);
   const selectModel = useModelStore((state) => state.setSelectedModelId);
   const selectedModelId = useModelStore((state) => state.selectedModelId);
   const isLoading = useModelStore((state) => state.isLoading);

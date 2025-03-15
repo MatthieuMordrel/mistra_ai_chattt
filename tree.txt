@@ -51,12 +51,16 @@
 │   │   ├── ConversationList.tsx
 │   │   ├── ConversationSidebar.tsx
 │   │   ├── ConversationSidebarSkeleton.tsx
-│   │   └── ModelSelector.tsx
+│   │   ├── ModelSelector.tsx
+│   │   └── SkeletonChat.tsx
 │   ├── dashboard
 │   │   └── DashboardLayoutClient.tsx
 │   ├── navbar
 │   │   ├── NavBar.tsx
 │   │   └── SignOut.tsx
+│   ├── providers
+│   │   ├── ModelsProvider.tsx
+│   │   └── ServerModelsLoader.tsx
 │   ├── sign-in.tsx
 │   └── ui
 │       ├── button.tsx

@@ -2,6 +2,7 @@ import { ConversationsSidebar } from "@/components/chat/ConversationList";
 import { ConversationSidebarSkeleton } from "@/components/chat/ConversationSidebarSkeleton";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
 import NavBar from "@/components/navbar/NavBar";
+import { ServerModelsLoader } from "@/components/providers/ServerModelsLoader";
 import { validateServerSession } from "@/lib/auth/validateSession";
 import { Suspense } from "react";
 
@@ -16,6 +17,9 @@ export default async function DashboardLayout({
 
   return (
     <DashboardLayoutClient>
+      {/* Load models at the layout level to share across all dashboard pages */}
+      <ServerModelsLoader />
+
       <Suspense fallback={<ConversationSidebarSkeleton />}>
         <ConversationsSidebar userId={userId} />
       </Suspense>

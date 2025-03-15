@@ -1,6 +1,7 @@
 import ChatContainer from "@/components/chat/ChatContainer";
 import { ConversationService } from "@/db/services/conversation-service";
 import { validateServerSession } from "@/lib/auth/validateSession";
+import { Suspense } from "react";
 /**
  * Chat page component for existing conversations
  * Uses the ChatContainer component for the UI
@@ -20,7 +21,9 @@ export default async function ConversationPage({
   );
   return (
     <div className="mx-auto flex h-[calc(100vh-6rem)] max-w-4xl flex-col p-4">
-      <ChatContainer conversation={conversation} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ChatContainer conversation={conversation} />
+      </Suspense>
     </div>
   );
 }
