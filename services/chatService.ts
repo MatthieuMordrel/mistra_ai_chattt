@@ -113,6 +113,7 @@ const streamMessageToAPI = async (
   onError: (error: Error) => void,
 ): Promise<void> => {
   await streamMistralClient({
+    model: "mistral-small-latest",
     messages: messagesToSend,
     onToken,
     onComplete,
