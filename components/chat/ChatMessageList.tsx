@@ -19,7 +19,7 @@ const ChatMessageList = ({
 }) => {
   const messagesFromStore = useChatStore((state) => state.messages);
 
-  const displayMessages = messagesFromStore || messagesServer || [];
+  const displayMessages = messagesServer || messagesFromStore || [];
 
   return (
     <div className="absolute inset-0 overflow-x-hidden overflow-y-auto rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-800">
