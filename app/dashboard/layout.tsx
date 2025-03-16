@@ -1,6 +1,5 @@
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
-import { ServerModelsLoader } from "@/components/providers/ServerModelsLoader";
 import { ConversationsSidebar } from "@/components/sidebar/ConversationList";
 import { ConversationSidebarSkeleton } from "@/components/skeletons/ConversationSidebarSkeleton";
 import { validateServerSession } from "@/lib/auth/validateSession";
@@ -12,13 +11,13 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   // Validate session and redirect if invalid for the whole dashboard
-  const session = await validateServerSession("/sign-in");
+  const { session } = await validateServerSession("/sign-in");
   const userId = session.session.userId;
 
   return (
     <DashboardLayoutClient>
       {/* Load models at the layout level to share across all dashboard pages */}
-      <ServerModelsLoader />
+      {/* <ServerModelsLoader /> */}
 
       <Suspense fallback={<ConversationSidebarSkeleton />}>
         <ConversationsSidebar userId={userId} />

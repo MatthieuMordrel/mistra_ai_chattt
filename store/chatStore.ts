@@ -175,7 +175,7 @@ export const useChatStore = create<ChatState>((set) => ({
 
   resetForNewConversation: () => {
     set({
-      conversationTitle: "New Conversation",
+      conversationTitle: "New Chat",
       conversationId: null,
       messages: [],
     });

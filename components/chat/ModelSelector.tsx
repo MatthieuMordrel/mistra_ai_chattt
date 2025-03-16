@@ -1,6 +1,6 @@
 "use client";
 
-import { useModelStore } from "@/store/modelStore";
+import { Model, useModelStore } from "@/store/modelStore";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -17,23 +17,17 @@ import {
  * This ensures it's truly shared across all chat routes
  * Models are loaded at the dashboard layout level via the ServerModelsLoader
  */
-export function ModelSelector() {
-  const models = useModelStore((state) => state.models);
+export function ModelSelector({ models }: { models: Model[] }) {
   const selectModel = useModelStore((state) => state.setSelectedModelId);
   const selectedModelId = useModelStore((state) => state.selectedModelId);
-  const isLoading = useModelStore((state) => state.isLoading);
-
-  // Ensure models is always an array
-  const safeModels = Array.isArray(models) ? models : [];
+  const hydrated = useModelStore((state) => state.hydrated);
 
   // Find the currently selected model
-  const selectedModel = safeModels.find(
-    (model) => model.id === selectedModelId,
-  );
+  const selectedModel = models.find((model) => model.id === selectedModelId);
   const displayName = selectedModel?.name || "Select model...";
 
   // If loading or no models available, show a disabled button
-  if (isLoading || safeModels.length === 0) {
+  if (models.length === 0 || !hydrated) {
     return (
       <Button variant="outline" className="w-[200px] justify-between" disabled>
         <span className="truncate">Loading models...</span>
@@ -51,7 +45,7 @@ export function ModelSelector() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[200px]">
-        {safeModels.map((model) => (
+        {models.map((model) => (
           <DropdownMenuItem
             key={model.id}
             onClick={() => selectModel(model.id)}

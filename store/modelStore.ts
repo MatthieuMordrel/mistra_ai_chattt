@@ -1,26 +1,13 @@
+import { ModelService } from "@/db/services/model-service";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 /**
  * Interface for a model in the store
  */
-export type Model = {
-  id: string;
-  name: string;
-  description?: string | null;
-  contextWindow?: number | null;
-  inputPricePerToken?: string | null;
-  outputPricePerToken?: string | null;
-  canCompletionChat?: boolean | null;
-  canCompletionFim?: boolean | null;
-  canFunctionCalling?: boolean | null;
-  canFineTuning?: boolean | null;
-  canVision?: boolean | null;
-  maxContextLength?: number | null;
-  isActive: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
-};
+export type Model = Awaited<
+  ReturnType<typeof ModelService.getActiveModels>
+>[number];
 
 /**
  * Interface for the model store state
@@ -30,10 +17,10 @@ interface ModelState {
   models: Model[];
   /** Currently selected model ID */
   selectedModelId: string;
-  /** Flag indicating if models are being loaded */
-  isLoading: boolean;
   /** Error message if loading fails */
   error: string | null;
+  /** Flag indicating if the store has been hydrated */
+  hydrated: boolean;
 
   /**
    * Sets the available models
@@ -48,17 +35,19 @@ interface ModelState {
   setSelectedModelId: (modelId: string) => void;
 
   /**
-   * Sets the loading state
-   * @param isLoading - The loading state to set
-   */
-  setLoading: (isLoading: boolean) => void;
-
-  /**
    * Sets the error message
    * @param error - The error message to set
    */
   setError: (error: string | null) => void;
+
+  /** Sets the hydrated flag */
+  setHydrated: (hydrated: boolean) => void;
 }
+
+/**
+ * Default model ID to use if none is in localStorage
+ */
+const DEFAULT_MODEL_ID = "mistral-small-latest";
 
 /**
  * Zustand store for managing model selection
@@ -68,9 +57,9 @@ export const useModelStore = create<ModelState>()(
   persist(
     (set) => ({
       models: [],
-      selectedModelId: "mistral-small-latest", // Default model
-      isLoading: false,
+      selectedModelId: DEFAULT_MODEL_ID,
       error: null,
+      hydrated: false,
 
       setModels: (models: Model[]) => {
         set({ models });
@@ -80,17 +69,22 @@ export const useModelStore = create<ModelState>()(
         set({ selectedModelId: modelId });
       },
 
-      setLoading: (isLoading: boolean) => {
-        set({ isLoading });
-      },
-
       setError: (error: string | null) => {
         set({ error });
       },
+
+      setHydrated: (hydrated: boolean) => {
+        set({ hydrated });
+      },
     }),
     {
-      name: "model-storage", // Name for the localStorage key
-      partialize: (state) => ({ selectedModelId: state.selectedModelId }), // Only persist the selected model ID
+      name: "model-storage",
+      partialize: (state) => ({ selectedModelId: state.selectedModelId }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setHydrated(true);
+        }
+      },
     },
   ),
 );

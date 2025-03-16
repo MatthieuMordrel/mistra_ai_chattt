@@ -1,8 +1,8 @@
 import { ConversationWithMessages } from "@/types/db";
-import { ServerConversationLoader } from "../providers/ServerConversationLoader";
+import { ConversationProvider } from "../providers/ConversationProvider";
 import ChatInput from "./ChatInput";
-import ChatMessageList from "./ChatMessageList";
-
+import ChatMessageContainer from "./ChatMessagecontainer";
+import ChatTitle from "./ChatTitle";
 /**
  * Container component for the chat interface
  * Orchestrates the chat UI components and hooks
@@ -23,13 +23,13 @@ export default async function ChatContainer({
   }));
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="gap flex h-full flex-col">
       {/* Load conversation data into the store */}
-      <ServerConversationLoader conversation={conversation} />
+      <ConversationProvider conversation={conversation} />
+      <ChatTitle conversationTitleServer={conversation?.title} />
 
-      <div className="relative flex-1 overflow-hidden">
-        <ChatMessageList messages={messages} />
-      </div>
+      {/* Chat message container */}
+      <ChatMessageContainer messages={messages} />
 
       {/* Chat input for sending messages */}
       <ChatInput />

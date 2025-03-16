@@ -1,6 +1,7 @@
 import ChatContainer from "@/components/chat/ChatContainer";
+import SkeletonChat from "@/components/skeletons/SkeletonChat";
 import { ConversationService } from "@/db/services/conversation-service";
-import { validateServerSession } from "@/lib/auth/validateSession";
+import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 import { Suspense } from "react";
 /**
  * Chat page component for existing conversations
@@ -13,15 +14,15 @@ export default async function ConversationPage({
 }) {
   const { id: conversationId } = await params;
   //This can probably be removed since we are using middleware to validate the session and we have the user within the headers
-  const user = await validateServerSession();
+  const { session } = await cachedValidateServerSession();
   //Fetch the messages using the conversation id on the server
   const conversation = await ConversationService.getConversation(
     conversationId,
-    user?.user.id!,
+    session?.session.userId as string,
   );
   return (
     <div className="flex h-full flex-col">
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<SkeletonChat />}>
         <ChatContainer conversation={conversation} />
       </Suspense>
     </div>
