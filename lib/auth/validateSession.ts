@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import { auth } from "./auth";
-
+import { sessionVerificationFunction } from "./sessionVerificationFunction";
 /**
  * Validates the user session on the server side
  * Make the page dynamic since uses headers
@@ -27,8 +27,8 @@ export async function validateServerSession(redirectPath?: string) {
   });
 
   // Redirect if not authenticated or session expired
-  if (redirectPath && (!session || session.session.expiresAt < new Date())) {
-    redirect(redirectPath);
+  if (!redirectPath && !sessionVerificationFunction(session)) {
+    redirect(redirectPath || "/sign-in");
   }
 
   return { session, headers: headersList };

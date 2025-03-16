@@ -1,5 +1,6 @@
 import { getSessionCookie } from "better-auth/cookies";
 import { NextRequest, NextResponse } from "next/server";
+import { sessionVerificationFunction } from "./sessionVerificationFunction";
 import { SessionData } from "./types";
 
 // Helper function to handle API route authentication
@@ -38,9 +39,9 @@ export async function handleApiRouteAuth(request: NextRequest) {
     // Parse the session data
     const sessionData = (await sessionResponse.json()) as SessionData;
 
-    // Check if session exists and is not expired
-    if (!sessionData || new Date(sessionData.session.expiresAt) < new Date()) {
-      return NextResponse.json({ error: "Session expired" }, { status: 401 });
+    // Check if the session is valid
+    if (!sessionVerificationFunction(sessionData)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // If session is valid, proceed with the request
