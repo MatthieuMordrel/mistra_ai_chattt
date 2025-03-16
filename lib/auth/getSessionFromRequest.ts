@@ -34,7 +34,7 @@ export async function getSessionFromRequest(
   }
 
   // If we couldn't get the session from the header, fall back to validateServerSession
-  const session = await validateServerSession();
+  const { session } = await validateServerSession();
 
   // In middleware-protected routes, this should never be null
   // But we check anyway for type safety and to handle unexpected errors
