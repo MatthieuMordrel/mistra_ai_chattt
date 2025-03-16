@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import { SessionData } from "./types";
-import { validateServerSession } from "./validateSession";
 
 /**
  * Gets the session data from the request
@@ -20,6 +19,7 @@ export async function getSessionFromRequest(
   // Try to get the session data from the middleware
   const sessionDataHeader = request.headers.get("x-session-data");
 
+  let session: SessionData | null = null;
   // If the session data is in the header, parse it
   if (sessionDataHeader) {
     try {
@@ -32,9 +32,6 @@ export async function getSessionFromRequest(
       // Continue to fallback
     }
   }
-
-  // If we couldn't get the session from the header, fall back to validateServerSession
-  const { session } = await validateServerSession();
 
   // In middleware-protected routes, this should never be null
   // But we check anyway for type safety and to handle unexpected errors

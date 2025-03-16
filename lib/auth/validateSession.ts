@@ -27,8 +27,8 @@ export async function validateServerSession(redirectPath?: string) {
   });
 
   // Redirect if not authenticated or session expired
-  if (!redirectPath && !sessionVerificationFunction(session)) {
-    redirect(redirectPath || "/sign-in");
+  if (redirectPath && !sessionVerificationFunction(session)) {
+    redirect(redirectPath);
   }
 
   return { session, headers: headersList };
