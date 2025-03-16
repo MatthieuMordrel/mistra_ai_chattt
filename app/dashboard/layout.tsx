@@ -2,7 +2,7 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
 import { ConversationsSidebar } from "@/components/sidebar/ConversationList";
 import { ConversationSidebarSkeleton } from "@/components/skeletons/ConversationSidebarSkeleton";
-import { validateServerSession } from "@/lib/auth/validateSession";
+import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 import { Suspense } from "react";
 
 export default async function DashboardLayout({
@@ -11,7 +11,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   // Validate session and redirect if invalid for the whole dashboard
-  const { session } = await validateServerSession("/sign-in");
+  const { session } = await cachedValidateServerSession("/sign-in");
   const userId = session.session.userId;
 
   return (

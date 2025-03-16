@@ -3,8 +3,7 @@ import { SessionData } from "./types";
 
 /**
  * Gets the session data from the request
- * First tries to get it from the x-session-data header (set by middleware)
- * Falls back to validateServerSession if the header is not present or invalid
+ * Tries to get it from the x-session-data header (set by middleware)
  *
  * Since middleware already validates the session, this function should never return null
  * in API routes protected by middleware. The null check is only for type safety.
@@ -23,7 +22,7 @@ export async function getSessionFromRequest(
   // If the session data is in the header, parse it
   if (sessionDataHeader) {
     try {
-      const session = JSON.parse(
+      session = JSON.parse(
         decodeURIComponent(sessionDataHeader),
       ) as SessionData;
       return session;
