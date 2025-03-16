@@ -21,6 +21,7 @@ export function ConversationProvider({
   );
   const setMessages = useChatStore((state) => state.setMessages);
 
+  // Initialize store with server data
   useEffect(() => {
     if (conversation?.id) {
       setConversationId(conversation.id);

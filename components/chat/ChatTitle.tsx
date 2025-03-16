@@ -7,7 +7,8 @@ export default function ChatTitle({
 }) {
   const conversationTitle = useChatStore((state) => state.conversationTitle);
 
-  const displayTitle = conversationTitleServer || conversationTitle || "New Chat";
+  const displayTitle =
+    conversationTitleServer || conversationTitle || "New Chat";
 
   return (
     <div className="min-h-[32px] py-1">

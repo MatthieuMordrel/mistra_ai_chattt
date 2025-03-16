@@ -68,6 +68,7 @@ const ChatInput = () => {
      * This ensures the message appears in the UI right away
      */
     const updateUIState = (newMessage: ChatMessage) => {
+      console.log("Updating UI state with new message:", newMessage);
       if (messages.length === 0) {
         setMessages([newMessage]);
       } else {
