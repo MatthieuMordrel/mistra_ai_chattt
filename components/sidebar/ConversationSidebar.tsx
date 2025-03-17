@@ -94,7 +94,7 @@ export function ConversationSidebar({
                   key={conversation.id}
                   href={`/dashboard/chat/${conversation.id}`}
                   className="w-full"
-                  prefetch={true}
+                  // prefetch={true} //Ideally we should be able to prefetch + revalidate path when sending new messages of that route to clear the router cache
                 >
                   <SidebarMenuButton
                     isActive={isActive}
