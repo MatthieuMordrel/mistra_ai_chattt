@@ -1,7 +1,7 @@
 import { ChatMessage } from "@/types/types";
 import ChatMessageList from "./ChatMessageList";
 
-export default function ChatMessageContainer({
+export default function   ChatMessageContainer({
   messages,
 }: {
   messages?: ChatMessage[];

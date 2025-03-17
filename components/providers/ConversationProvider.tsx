@@ -3,7 +3,7 @@
 import { useChatStore } from "@/store/chatStore";
 import { ConversationWithMessages } from "@/types/db";
 import { ChatMessage } from "@/types/types";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 /**
  * Client component that hydrates the chat store with server-fetched conversation data
@@ -21,8 +21,13 @@ export function ConversationProvider({
   );
   const setMessages = useChatStore((state) => state.setMessages);
 
+  // Use a ref to track if we've hydrated the store
+  const hasHydrated = useRef(false);
+
   // Initialize store with server data
   useEffect(() => {
+    if (hasHydrated.current) return;
+
     if (conversation?.id) {
       setConversationId(conversation.id);
     }
@@ -41,6 +46,8 @@ export function ConversationProvider({
         })) as ChatMessage[],
       );
     }
+
+    hasHydrated.current = true;
   }, [conversation, setConversationId, setConversationTitle, setMessages]);
 
   return null;

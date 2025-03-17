@@ -2,7 +2,7 @@
 
 import { useChatStore } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ChatMessageItem from "./ChatMessageItem";
 
 /**
@@ -17,22 +17,23 @@ const ChatMessageList = ({
 }) => {
   const [isHydrated, setIsHydrated] = useState(false);
   const messagesFromStore = useChatStore((state) => state.messages);
-  const setMessages = useChatStore((state) => state.setMessages);
 
+  // Use a ref to track if we've hydrated the component
+  const hydrationRef = useRef(false);
   // Initialize store with server messages and mark as hydrated
   useEffect(() => {
-    if (messagesServer.length > 0) {
-      setMessages(messagesServer);
+    if (!hydrationRef.current) {
+      hydrationRef.current = true;
+      setIsHydrated(true);
     }
-    setIsHydrated(true);
-  }, [messagesServer, setMessages]);
+  }, []);
 
   // Use server messages for initial render, then switch to store after hydration
-  const displayMessages = isHydrated ? messagesFromStore : messagesServer;
+  const messagesToRender = isHydrated ? messagesFromStore : messagesServer;
 
   return (
     <div className="absolute inset-0 overflow-x-hidden overflow-y-auto rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-800">
-      {displayMessages.length === 0 ? (
+      {messagesToRender.length === 0 ? (
         <div className="flex h-full items-center justify-center text-center">
           <div className="max-w-md space-y-2">
             <h2 className="text-2xl font-bold">Welcome to Mistral AI Chat</h2>
@@ -43,7 +44,7 @@ const ChatMessageList = ({
         </div>
       ) : (
         <div className="space-y-4 pb-2">
-          {displayMessages.map((message, index) => (
+          {messagesToRender.map((message, index) => (
             <ChatMessageItem key={index} message={message} />
           ))}
         </div>

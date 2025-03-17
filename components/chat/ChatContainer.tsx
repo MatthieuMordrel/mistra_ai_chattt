@@ -29,7 +29,7 @@ export default async function ChatContainer({
       <ChatTitle conversationTitleServer={conversation?.title} />
 
       {/* Chat message container */}
-      <ChatMessageContainer />
+      <ChatMessageContainer messages={messages} />
 
       {/* Chat input for sending messages */}
       <ChatInput />
