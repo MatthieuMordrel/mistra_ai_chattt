@@ -10,7 +10,7 @@ import ChatTitle from "./ChatTitle";
  * The ChatPageHeader with conversation title and model selector is now in the chat layout
  * This ensures the ModelSelector is truly shared across all chat routes
  */
-export default async function ChatContainer({
+export default function ChatContainer({
   conversation,
 }: {
   conversation?: ConversationWithMessages;
