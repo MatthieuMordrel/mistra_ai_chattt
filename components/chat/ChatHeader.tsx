@@ -1,5 +1,5 @@
 "use client";
-import { useChatStore } from "@/store/chatStore";
+import { useConversationTitle } from "@/store/chatStore";
 
 /**
  * Header component for the chat interface
@@ -9,7 +9,7 @@ import { useChatStore } from "@/store/chatStore";
  */
 const ChatHeader = () => {
   // Get the conversation title directly from the store
-  const conversationTitle = useChatStore((state) => state.conversationTitle);
+  const conversationTitle = useConversationTitle();
 
   return (
     <div className="mb-4 flex items-center justify-between border-b pb-2">

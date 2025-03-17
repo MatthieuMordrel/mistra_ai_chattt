@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useChatStore } from "@/store/chatStore";
+import { useChatActions } from "@/store/chatStore";
 import { useRouter } from "next/navigation";
 
 /**
@@ -14,9 +14,7 @@ export default function NewConversation({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const resetForNewConversation = useChatStore(
-    (state) => state.resetForNewConversation,
-  );
+  const { resetForNewConversation } = useChatActions();
 
   const handleNewChat = () => {
     resetForNewConversation();

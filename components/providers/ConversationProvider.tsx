@@ -1,25 +1,22 @@
 "use client";
 
-import { useChatStore } from "@/store/chatStore";
+import { useChatActions } from "@/store/chatStore";
 import { ConversationWithMessages } from "@/types/db";
 import { ChatMessage } from "@/types/types";
 import { useEffect, useRef } from "react";
 
 /**
  * Client component that hydrates the chat store with server-fetched conversation data
- * This follows the same pattern as ModelsProvider
- * Used at the chat container level to provide conversation-specific data
+ * Uses the actions hook to access store actions
  */
-export function   ConversationProvider({
+export function ConversationProvider({
   conversation,
 }: {
   conversation?: ConversationWithMessages;
 }) {
-  const setConversationId = useChatStore((state) => state.setConversationId);
-  const setConversationTitle = useChatStore(
-    (state) => state.setConversationTitle,
-  );
-  const setMessages = useChatStore((state) => state.setMessages);
+  // Use the actions hook to get all actions at once
+  const { setConversationId, setConversationTitle, setMessages } =
+    useChatActions();
 
   // Use a ref to track if we've hydrated the store
   const hasHydrated = useRef(false);

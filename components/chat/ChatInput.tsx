@@ -6,26 +6,38 @@ import { Input } from "@/components/ui/input";
 import { useConversations } from "@/hooks/useConversations";
 import { formatConversationTitle } from "@/lib/utils";
 import { streamAssistantMessageAndSaveToDb } from "@/services/chatService";
-import { useChatStore } from "@/store/chatStore";
-import { ChatMessage } from "@/types/types";
+import {
+  useChatActions,
+  useConversationId,
+  useIsLoading,
+  useMessages,
+} from "@/store/chatStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
  * Component for the chat input form
  * Handles user input and message submission
- * Gets the conversationId directly from the Zustand store
- * which is hydrated at the container level via ServerConversationLoader
+ * Uses atomic selectors to prevent unnecessary re-renders
  */
 const ChatInput = () => {
-  const messages = useChatStore((state) => state.messages);
-  const setMessages = useChatStore((state) => state.setMessages);
-  const conversationId = useChatStore((state) => state.conversationId);
-  const isLoading = useChatStore((state) => state.isLoading);
-  const setConversationId = useChatStore((state) => state.setConversationId);
-  const setConversationTitle = useChatStore(
-    (state) => state.setConversationTitle,
-  );
+  // State selectors - component only re-renders when these specific values change
+  const messages = useMessages();
+  const isLoading = useIsLoading();
+  const conversationId = useConversationId();
+
+  // Actions grouped in a single object
+  const {
+    setMessages,
+    addUserMessage,
+    addAssistantMessage,
+    updateAssistantMessage,
+    setLoading,
+    setStreaming,
+    setConversationId,
+    setConversationTitle,
+  } = useChatActions();
+
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -54,31 +66,14 @@ const ChatInput = () => {
     inputRef.current?.focus();
     if (!input.trim() || isLoading) return;
 
-    // Create user message object
-    const userMessage: ChatMessage = {
-      role: "user",
-      content: input,
-    };
-
     // Clear input field immediately for better UX
     setInput("");
 
-    /**
-     * Update UI state immediately before any async operations
-     * This ensures the message appears in the UI right away
-     */
-    const updateUIState = (newMessage: ChatMessage) => {
-      console.log("Updating UI state with new message:", newMessage);
-      if (messages.length === 0) {
-        setMessages([newMessage]);
-      } else {
-        const updatedMessages = [...messages, newMessage];
-        setMessages(updatedMessages);
-      }
-    };
+    // Add user message to the chat store
+    addUserMessage(input);
 
-    // Update UI immediately
-    updateUIState(userMessage);
+    // Set loading state
+    setLoading(true);
 
     // Handle first message - create conversation in DB
     if (messages.length === 0) {
@@ -86,52 +81,56 @@ const ChatInput = () => {
         // Format the title using our utility function
         const formattedTitle = formatConversationTitle(input);
 
-        // Update the title using zustand, should update the ui instantly
+        // Update the title using zustand
         setConversationTitle(formattedTitle);
 
         // Create the conversation in the DB using TanStack Query mutation
-        // This will optimistically update the conversation list in the sidebar
         const result = await createConversation({
           title: formattedTitle,
-          messages: [userMessage],
+          messages: [{ role: "user", content: input }],
         });
 
         // Update the conversation ID in the store
         setConversationId(result.id);
+
         // Stream the assistant message and save to DB
         await streamAssistantMessageAndSaveToDb({
-          currentMessages: [userMessage], // Use array with user message
-          userMessage,
+          currentMessages: [{ role: "user", content: input }],
+          userMessage: { role: "user", content: input },
           conversationId: result.id,
         });
-        //TO DO: Redirect the user to the conversation page after streaming is complete and ensure no flash or lost of state
-        // router.replace(`/dashboard/chat/${result.id}`);
       } catch (error) {
         console.error("Error creating conversation:", error);
       }
     } else {
       if (!conversationId) {
         console.error("No conversation ID found");
+        setLoading(false);
         return;
       }
-      if (conversationId) {
-        try {
-          console.log("Saving user message: conversationId", conversationId);
-          await saveMessagesAction(conversationId, [userMessage]);
-          console.log("User message saved");
-        } catch (error) {
-          console.error("Error saving user message:", error);
-          // Continue even if saving fails - the UI will still show the message
-        }
+
+      try {
+        console.log("Saving user message: conversationId", conversationId);
+        await saveMessagesAction(conversationId, [
+          { role: "user", content: input },
+        ]);
+        console.log("User message saved");
+      } catch (error) {
+        console.error("Error saving user message:", error);
+        // Continue even if saving fails - the UI will still show the message
       }
+
       console.log("Streaming assistant message");
       // Send message to the API using the chat service
       await streamAssistantMessageAndSaveToDb({
-        currentMessages: [...messages, userMessage], // Include the new user message
-        userMessage,
+        currentMessages: [...messages, { role: "user", content: input }],
+        userMessage: { role: "user", content: input },
         conversationId: conversationId,
       });
     }
+
+    // Set loading state back to false when complete
+    setLoading(false);
   };
 
   return (

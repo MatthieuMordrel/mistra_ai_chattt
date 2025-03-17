@@ -1,11 +1,12 @@
 "use client";
-import { useChatStore } from "@/store/chatStore";
+import { useConversationTitle } from "@/store/chatStore";
+
 export default function ChatTitle({
   conversationTitleServer,
 }: {
   conversationTitleServer?: string;
 }) {
-  const conversationTitle = useChatStore((state) => state.conversationTitle);
+  const conversationTitle = useConversationTitle();
 
   const displayTitle =
     conversationTitleServer || conversationTitle || "New Chat";

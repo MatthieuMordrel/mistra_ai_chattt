@@ -5,7 +5,7 @@ import { ConversationSidebar } from "./ConversationSidebar";
 
 export function ClientConversationList() {
   // Use the hook to get conversations
-  const { conversations: conversationClient, isError } = useConversations();
+  const { conversations, isError } = useConversations();
 
   // Show error state
   if (isError) {
@@ -18,5 +18,5 @@ export function ClientConversationList() {
 
   // Always pass an empty array during loading to match server-side behavior
   // This ensures consistent rendering between server and client
-  return <ConversationSidebar conversations={conversationClient || []} />;
+  return <ConversationSidebar conversations={conversations || []} />;
 }

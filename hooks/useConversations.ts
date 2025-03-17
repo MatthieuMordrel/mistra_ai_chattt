@@ -19,9 +19,6 @@ export function useConversations() {
     queryKey: ["conversations"],
     queryFn: fetchConversations,
     refetchOnWindowFocus: false,
-    // Set initial data to an empty array to ensure consistent state
-    // This prevents hydration mismatches by ensuring we never have undefined
-    initialData: [],
   });
 
   // Mutation for creating a new conversation with optimistic updates

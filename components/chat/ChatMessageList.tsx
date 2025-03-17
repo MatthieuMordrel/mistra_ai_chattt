@@ -1,6 +1,6 @@
 "use client";
 
-import { useChatStore } from "@/store/chatStore";
+import { useMessages } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
 import ChatMessageItem from "./ChatMessageItem";
 
@@ -14,7 +14,8 @@ const ChatMessageList = ({
 }: {
   messagesServer?: ChatMessage[];
 }) => {
-  const messagesFromStore = useChatStore((state) => state.messages);
+  // Using the atomic selector hook for better performance
+  const messagesFromStore = useMessages();
 
   return (
     <div className="relative flex-1 overflow-hidden">
