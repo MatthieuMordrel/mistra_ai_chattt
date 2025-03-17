@@ -1,6 +1,6 @@
 import { saveMessagesAction } from "@/actions/conversation-actions";
 import { streamMistralClient } from "@/lib/mistral-client";
-import { useChatStore } from "@/store/chatStore";
+import { useChatStoreBase } from "@/store/chatStore";
 import { useModelStore } from "@/store/modelStore";
 import { ChatMessage } from "@/types/types";
 
@@ -34,9 +34,9 @@ interface SendMessageOptions {
  */
 const prepareUIState = (): void => {
   // Add empty assistant message and set loading state
-  useChatStore.getState().addAssistantMessage("", true);
-  useChatStore.getState().setLoading(true);
-  useChatStore.getState().setStreaming(true);
+  useChatStoreBase.getState().actions.addAssistantMessage("", true);
+  useChatStoreBase.getState().actions.setLoading(true);
+  useChatStoreBase.getState().actions.setStreaming(true);
 };
 
 /**
@@ -69,9 +69,9 @@ const saveAssistantMessageToDb = async (
  * @param content - The final content of the assistant message
  */
 const updateUIAfterStreaming = (content: string): void => {
-  useChatStore.getState().updateAssistantMessage(content);
-  useChatStore.getState().setLoading(false);
-  useChatStore.getState().setStreaming(false);
+  useChatStoreBase.getState().actions.updateAssistantMessage(content);
+  useChatStoreBase.getState().actions.setLoading(false);
+  useChatStoreBase.getState().actions.setStreaming(false);
 };
 
 /**
@@ -154,13 +154,15 @@ export const streamAssistantMessageAndSaveToDb = async ({
       // Token callback
       (token) => {
         // Make sure streaming flag is set to true during token streaming
-        if (!useChatStore.getState().isStreaming) {
-          useChatStore.getState().setStreaming(true);
+        if (!useChatStoreBase.getState().isStreaming) {
+          useChatStoreBase.getState().actions.setStreaming(true);
         }
 
         // Accumulate the content and update the UI with each token
         accumulatedContent += token;
-        useChatStore.getState().updateAssistantMessage(accumulatedContent);
+        useChatStoreBase
+          .getState()
+          .actions.updateAssistantMessage(accumulatedContent);
       },
       // Complete callback
       async (fullContent) => {

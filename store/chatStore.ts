@@ -98,7 +98,7 @@ const createMessage = (
  * Zustand store for managing chat UI state
  * Not exported directly to prevent subscribing to the entire store
  */
-const useChatStoreBase = create<ChatState>((set) => ({
+export const useChatStoreBase = create<ChatState>((set) => ({
   messages: [],
   isLoading: false,
   conversationTitle: "",
@@ -198,9 +198,3 @@ export const useConversationTitle = () =>
 
 // Export actions as a single hook
 export const useChatActions = () => useChatStoreBase((state) => state.actions);
-
-// For backward compatibility
-export const useChatStore = {
-  getState: useChatStoreBase.getState,
-  subscribe: useChatStoreBase.subscribe,
-};
