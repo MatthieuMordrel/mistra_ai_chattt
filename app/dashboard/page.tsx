@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import NewConversation from "@/components/chat/NewConversationButton";
 
 export default function DashboardPage() {
   return (
@@ -19,11 +18,7 @@ export default function DashboardPage() {
             <p className="mb-4">
               Begin a conversation with one of our AI models
             </p>
-            <Link href="/dashboard/chat" className="inline-block">
-              <Button className="bg-foreground text-background hover:bg-opacity-90 rounded-full px-4 py-2 transition-colors">
-                New Conversation
-              </Button>
-            </Link>
+            <NewConversation>New Conversation</NewConversation>
           </div>
         </div>
       </div>
