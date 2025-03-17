@@ -10,7 +10,7 @@ import { useEffect, useRef } from "react";
  * This follows the same pattern as ModelsProvider
  * Used at the chat container level to provide conversation-specific data
  */
-export function ConversationProvider({
+export function   ConversationProvider({
   conversation,
 }: {
   conversation?: ConversationWithMessages;

@@ -1,7 +1,7 @@
 import { ConversationWithMessages } from "@/types/db";
 import { ConversationProvider } from "../providers/ConversationProvider";
 import ChatInput from "./ChatInput";
-import ChatMessageContainer from "./ChatMessagecontainer";
+import ChatMessageList from "./ChatMessageList";
 import ChatTitle from "./ChatTitle";
 /**
  * Container component for the chat interface
@@ -23,13 +23,13 @@ export default function ChatContainer({
   }));
 
   return (
-    <div className="gap flex h-full flex-col">
+    <div className="flex h-full flex-col gap-2">
       {/* Load conversation data into the store */}
       <ConversationProvider conversation={conversation} />
       <ChatTitle conversationTitleServer={conversation?.title} />
 
       {/* Chat message container */}
-      <ChatMessageContainer messages={messages} />
+      <ChatMessageList messagesServer={messages} />
 
       {/* Chat input for sending messages */}
       <ChatInput />
