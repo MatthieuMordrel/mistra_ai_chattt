@@ -61,3 +61,4 @@ To run this project, you'll need to set up the following environment variables. 
 - User should be navigated to the right conversation after the conversation is created (currently they are navigated to the most recent conversation)
 - Syntax highlighting should be added to the chat messages
 - Real time cost calculation of the chat should be added and context consumption
+- Ensure navbar is genrated dynamically on the server side

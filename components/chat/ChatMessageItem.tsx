@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import type { ChatMessage } from "@/types/types";
 import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { lucario } from "react-syntax-highlighter/dist/esm/styles/prism";
 import remarkGfm from "remark-gfm";
 
 const ChatMessageItem = ({ message }: { message: ChatMessage }) => {
@@ -16,15 +18,40 @@ const ChatMessageItem = ({ message }: { message: ChatMessage }) => {
     >
       <div
         className={cn(
-          "prose prose-sm dark:prose-invert max-w-[85%] rounded-2xl px-4 py-3 shadow-sm",
+          "markdown-content max-w-[85%] px-4 pt-3",
           isUser
-            ? "bg-primary dark:text-primary-foreground text-white!"
-            : "bg-muted text-foreground dark:bg-secondary",
+            ? "bg-primary rounded-2xl !text-white shadow-sm"
+            : "text-foreground",
         )}
         data-slot="message-bubble"
       >
         <div className="max-w-none">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              code({ className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className || "");
+                const inlineCode = !match;
+                return !inlineCode ? (
+                  <SyntaxHighlighter
+                    language={match[1]}
+                    style={lucario}
+                    PreTag="div"
+                    customStyle={{
+                      borderRadius: "0.375rem",
+                      margin: "1rem 0",
+                    }}
+                  >
+                    {String(children).replace(/\n$/, "")}
+                  </SyntaxHighlighter>
+                ) : (
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                );
+              },
+            }}
+          >
             {message.content}
           </ReactMarkdown>
         </div>

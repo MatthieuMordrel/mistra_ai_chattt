@@ -1,4 +1,3 @@
-/* Enhanced Markdown styling */
 .prose,
 .markdown-content {
   @apply text-foreground leading-normal;
@@ -27,7 +26,7 @@
 
   /* Paragraphs with proper line height */
   & p {
-    @apply mb-4 leading-relaxed;
+    @apply mb-3 leading-relaxed;
   }
 
   /* Lists with better spacing and bullets */
@@ -51,16 +50,7 @@
     @apply mb-1;
   }
 
-  /* Code blocks with syntax highlighting support */
-  & pre {
-    @apply bg-muted mb-4 overflow-x-auto rounded-md p-4 text-sm leading-relaxed;
-
-    & code {
-      @apply text-foreground bg-transparent p-0;
-    }
-  }
-
-  /* Inline code */
+  /* Inline code - code blocks are handled by react-syntax-highlighter */
   & :not(pre) > code {
     @apply bg-muted text-foreground rounded px-1.5 py-0.5 font-mono text-sm;
   }
@@ -135,79 +125,6 @@
   }
 }
 
-/* Syntax highlighting theme (compatible with Prism.js or highlight.js) */
-.prose pre,
-.markdown-content pre {
-  & .token.comment,
-  & .token.prolog,
-  & .token.doctype,
-  & .token.cdata {
-    @apply text-muted-foreground;
-  }
-
-  & .token.punctuation {
-    @apply text-muted-foreground;
-  }
-
-  & .token.property,
-  & .token.tag,
-  & .token.boolean,
-  & .token.number,
-  & .token.constant,
-  & .token.symbol {
-    @apply text-primary;
-  }
-
-  & .token.selector,
-  & .token.attr-name,
-  & .token.string,
-  & .token.char,
-  & .token.builtin {
-    @apply text-accent-foreground;
-  }
-
-  & .token.operator,
-  & .token.entity,
-  & .token.url,
-  & .language-css .token.string,
-  & .style .token.string {
-    @apply text-foreground;
-  }
-
-  & .token.atrule,
-  & .token.attr-value,
-  & .token.keyword {
-    @apply text-primary;
-  }
-
-  & .token.function,
-  & .token.class-name {
-    @apply text-accent-foreground;
-  }
-
-  & .token.regex,
-  & .token.important,
-  & .token.variable {
-    @apply text-destructive;
-  }
-}
-
-/* Scrollbar styling */
-.prose pre::-webkit-scrollbar,
-.markdown-content pre::-webkit-scrollbar {
-  @apply h-2 w-2;
-}
-
-.prose pre::-webkit-scrollbar-track,
-.markdown-content pre::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-
-.prose pre::-webkit-scrollbar-thumb,
-.markdown-content pre::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/20 hover:bg-muted-foreground/30 rounded;
-}
-
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .prose,
@@ -222,10 +139,6 @@
 
     & h3 {
       @apply text-base;
-    }
-
-    & pre {
-      @apply p-3;
     }
 
     & table {

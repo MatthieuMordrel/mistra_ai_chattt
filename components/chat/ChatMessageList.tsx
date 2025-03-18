@@ -32,7 +32,7 @@ const ChatMessageList = ({
         ) : (
           <div
             className={cn(
-              "mx-12 space-y-6 pb-4",
+              "mx-12 space-y-4 pb-4",
               (messagesFromStore.length > 0 || messagesServer.length > 0) &&
                 "pt-2",
             )}
