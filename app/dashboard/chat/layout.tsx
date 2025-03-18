@@ -12,7 +12,7 @@ export default function ChatLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto flex h-[calc(100vh-6rem)] max-w-4xl flex-col p-4">
+    <div className="mx-auto flex h-[calc(100vh-6rem)] flex-col p-4">
       {/* Chat page header with conversation title and model selector */}
       {/* This is shared across all chat routes */}
       <ChatPageHeader />

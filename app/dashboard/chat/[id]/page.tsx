@@ -1,8 +1,6 @@
 import ChatContainer from "@/components/chat/ChatContainer";
-import SkeletonChat from "@/components/skeletons/SkeletonChat";
 import { ConversationService } from "@/db/services/conversation-service";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
-import { Suspense } from "react";
 /**
  * Chat page component for existing conversations
  * Uses the ChatContainer component for the UI
@@ -22,9 +20,7 @@ export default async function ConversationPage({
   );
   return (
     <div className="flex h-full flex-col">
-      <Suspense fallback={<SkeletonChat />}>
-        <ChatContainer conversation={conversation} />
-      </Suspense>
+      <ChatContainer conversation={conversation} />
     </div>
   );
 }
