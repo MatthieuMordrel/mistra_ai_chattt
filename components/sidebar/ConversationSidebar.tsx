@@ -13,6 +13,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
+import { useChatActions } from "@/store/chatStore";
 import NewConversation from "../chat/NewConversationButton";
 interface Conversation {
   id: string;
@@ -27,6 +28,7 @@ interface ConversationSidebarProps {
 export function ConversationSidebar({
   conversations,
 }: ConversationSidebarProps) {
+  const { setConversationTitle } = useChatActions();
   const pathname = usePathname();
   const router = useRouter();
   const [isHydrated, setIsHydrated] = useState(false);
@@ -81,6 +83,9 @@ export function ConversationSidebar({
                   prefetch={shouldPrefetch}
                   onMouseEnter={() => setHoveredConversationId(conversation.id)}
                   onMouseLeave={() => setHoveredConversationId(null)}
+                  onClick={() => {
+                    setConversationTitle(conversation.title);
+                  }}
                 >
                   <SidebarMenuButton
                     isActive={isActive}
