@@ -13,7 +13,7 @@ export default function NewConversation({
 }: {
   children: React.ReactNode;
 }) {
-  const { setConversationTitle } = useChatActions();
+  const { resetForNewConversation } = useChatActions();
   return (
     <Button
       className="bg-foreground text-background hover:bg-opacity-90 rounded-full px-4 py-2 transition-colors"
@@ -23,7 +23,7 @@ export default function NewConversation({
         href="/dashboard/chat"
         prefetch={true}
         onClick={() => {
-          setConversationTitle("New Chat");
+          resetForNewConversation();
         }}
       >
         {children}
