@@ -51,9 +51,6 @@ To run this project, you'll need to set up the following environment variables. 
 
 ## TO DO:
 
-- Handle markdown in the chat
-- Add model cost and context window
-
 ### Issues:
 
 ### Improvements:
@@ -61,3 +58,6 @@ To run this project, you'll need to set up the following environment variables. 
 - Make a soft navigate to the correct conversation ID after sending message (allows the navbar to update). Test logging isintilizaed in the chatMessageList.
 - Ensure the user is brought to bottom of the chat on page load (Scrolling to an id in Link Component?)
 - Conversations titles should be updated immediately after the user sends a message (the order of conversations is not updated immediately)
+- User should be navigated to the right conversation after the conversation is created (currently they are navigated to the most recent conversation)
+- Syntax highlighting should be added to the chat messages
+- Real time cost calculation of the chat should be added and context consumption

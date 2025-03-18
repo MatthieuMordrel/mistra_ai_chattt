@@ -20,7 +20,6 @@ const ChatMessageItem = ({ message }: { message: ChatMessage }) => {
           isUser
             ? "bg-primary dark:text-primary-foreground text-white!"
             : "bg-muted text-foreground dark:bg-secondary",
-          message.isStreaming && "animate-pulse",
         )}
         data-slot="message-bubble"
       >
