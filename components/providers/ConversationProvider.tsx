@@ -14,9 +14,14 @@ export function ConversationProvider({
 }: {
   conversation?: ConversationWithMessages;
 }) {
+  // console.log("rerender");
   // Use the actions hook to get all actions at once
-  const { setConversationId, setConversationTitle, setMessages } =
-    useChatActions();
+  const {
+    setConversationId,
+    setConversationTitle,
+    setMessages,
+    resetForNewConversation,
+  } = useChatActions();
 
   // Use a ref to track if we've hydrated the store
   const hasHydrated = useRef(false);
@@ -42,6 +47,10 @@ export function ConversationProvider({
           isStreaming: message.isStreaming,
         })) as ChatMessage[],
       );
+    }
+    // If there is no conversation provided by the server, reset the store
+    if (!conversation) {
+      resetForNewConversation();
     }
 
     hasHydrated.current = true;

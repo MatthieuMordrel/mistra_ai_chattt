@@ -16,6 +16,7 @@ const ChatMessageList = ({
 }) => {
   // Using the atomic selector hook for better performance
   const messagesFromStore = useMessages();
+  // console.log("messagesFromStore", messagesFromStore);
 
   return (
     <div className="relative flex-1 overflow-hidden">
@@ -35,11 +36,15 @@ const ChatMessageList = ({
               <ChatMessageItem key={index} message={message} />
             ))}
           </div>
-        ) : (
+        ) : messagesServer.length > 0 ? (
           <div className="space-y-4 pb-2">
             {messagesServer.map((message, index) => (
               <ChatMessageItem key={index} message={message} />
             ))}
+          </div>
+        ) : (
+          <div className="space-y-4 pb-2">
+            <p>No messages yet</p>
           </div>
         )}
       </div>
