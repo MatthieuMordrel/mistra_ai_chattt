@@ -83,7 +83,7 @@ export async function handlePublicRoutes(request: NextRequest) {
   const sessionData = await validateSession(request);
 
   if (sessionData) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/dashboard/home", request.url));
   }
 
   return NextResponse.next();

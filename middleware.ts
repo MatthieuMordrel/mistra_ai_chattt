@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Public routes that redirect to dashboard if logged in
+    // Public routes that redirect to dashboard/home if logged in
     "/",
     "/sign-in",
     // API routes that need authentication
