@@ -13,9 +13,7 @@ import {
 /**
  * ModelSelector component for selecting AI models
  * Uses shadcn UI dropdown-menu for a clean, accessible interface
- * This component is placed in the ChatPageHeader within the chat layout
- * This ensures it's truly shared across all chat routes
- * Models are loaded at the dashboard layout level via the ServerModelsLoader
+ * Models are provided as a prop from the server parent component
  */
 export function ModelSelector({ models }: { models: Model[] }) {
   const selectModel = useModelStore((state) => state.setSelectedModelId);

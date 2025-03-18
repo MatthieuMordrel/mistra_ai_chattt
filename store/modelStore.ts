@@ -13,20 +13,12 @@ export type Model = Awaited<
  * Interface for the model store state
  */
 interface ModelState {
-  /** Array of available models */
-  models: Model[];
   /** Currently selected model ID */
   selectedModelId: string;
   /** Error message if loading fails */
   error: string | null;
   /** Flag indicating if the store has been hydrated */
   hydrated: boolean;
-
-  /**
-   * Sets the available models
-   * @param models - The models to set
-   */
-  setModels: (models: Model[]) => void;
 
   /**
    * Sets the selected model ID
@@ -56,14 +48,9 @@ const DEFAULT_MODEL_ID = "mistral-small-latest";
 export const useModelStore = create<ModelState>()(
   persist(
     (set) => ({
-      models: [],
       selectedModelId: DEFAULT_MODEL_ID,
       error: null,
       hydrated: false,
-
-      setModels: (models: Model[]) => {
-        set({ models });
-      },
 
       setSelectedModelId: (modelId: string) => {
         set({ selectedModelId: modelId });
