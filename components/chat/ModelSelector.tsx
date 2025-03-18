@@ -1,6 +1,11 @@
 "use client";
 
-import { Model, useModelStore } from "@/store/modelStore";
+import {
+  Model,
+  useModelActions,
+  useModelHydrated,
+  useSelectedModelId,
+} from "@/store/modelStore";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -9,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { ModelHoverCard } from "./ModelHoverCard";
 
 /**
  * ModelSelector component for selecting AI models
@@ -16,9 +22,9 @@ import {
  * Models are provided as a prop from the server parent component
  */
 export function ModelSelector({ models }: { models: Model[] }) {
-  const selectModel = useModelStore((state) => state.setSelectedModelId);
-  const selectedModelId = useModelStore((state) => state.selectedModelId);
-  const hydrated = useModelStore((state) => state.hydrated);
+  const { setSelectedModelId } = useModelActions();
+  const selectedModelId = useSelectedModelId();
+  const hydrated = useModelHydrated();
 
   // Find the currently selected model
   const selectedModel = models.find((model) => model.id === selectedModelId);
@@ -44,14 +50,19 @@ export function ModelSelector({ models }: { models: Model[] }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[200px]">
         {models.map((model) => (
-          <DropdownMenuItem
-            key={model.id}
-            onClick={() => selectModel(model.id)}
-            className="flex items-center justify-between"
-          >
-            <span className="truncate">{model.name}</span>
-            {selectedModelId === model.id && <Check className="ml-2 h-4 w-4" />}
-          </DropdownMenuItem>
+          <ModelHoverCard key={model.id} model={model}>
+            <DropdownMenuItem
+              onClick={() => setSelectedModelId(model.id)}
+              className="flex items-center justify-between"
+              // Using onSelect={()=>{}} to prevent menu from closing on hover
+              onSelect={(e) => e.preventDefault()}
+            >
+              <span className="truncate">{model.name}</span>
+              {selectedModelId === model.id && (
+                <Check className="ml-2 h-4 w-4" />
+              )}
+            </DropdownMenuItem>
+          </ModelHoverCard>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
