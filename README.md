@@ -52,6 +52,7 @@ To run this project, you'll need to set up the following environment variables. 
 ## TO DO:
 
 - Handle markdown in the chat
+- Add model cost and context window
 
 ### Issues:
 
