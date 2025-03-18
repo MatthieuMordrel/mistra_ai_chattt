@@ -2,7 +2,7 @@
 
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
@@ -28,7 +28,11 @@ export function ConversationSidebar({
   conversations,
 }: ConversationSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isHydrated, setIsHydrated] = useState(false);
+  const [hoveredConversationId, setHoveredConversationId] = useState<
+    string | null
+  >(null);
 
   // Ensure conversations is always an array to prevent hydration mismatches
   const conversationList = Array.isArray(conversations) ? conversations : [];
@@ -37,6 +41,12 @@ export function ConversationSidebar({
   useEffect(() => {
     setIsHydrated(true);
   }, []);
+
+  // Listen for route changes to refresh data
+  useEffect(() => {
+    // When pathname changes, refresh to get fresh data
+    router.refresh();
+  }, [pathname, router]);
 
   return (
     <Sidebar className="border-r">
@@ -61,13 +71,16 @@ export function ConversationSidebar({
             conversationList.map((conversation) => {
               const isActive =
                 pathname === `/dashboard/chat/${conversation.id}`;
+              const shouldPrefetch = hoveredConversationId === conversation.id;
 
               return (
                 <Link
                   key={conversation.id}
                   href={`/dashboard/chat/${conversation.id}`}
                   className="w-full"
-                  // prefetch={true} //Ideally we should be able to prefetch + revalidate path when sending new messages of that route to clear the router cache
+                  prefetch={shouldPrefetch}
+                  onMouseEnter={() => setHoveredConversationId(conversation.id)}
+                  onMouseLeave={() => setHoveredConversationId(null)}
                 >
                   <SidebarMenuButton
                     isActive={isActive}

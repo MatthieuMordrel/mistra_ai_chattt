@@ -28,12 +28,8 @@ const ChatInput = () => {
 
   // Actions grouped in a single object
   const {
-    setMessages,
     addUserMessage,
-    addAssistantMessage,
-    updateAssistantMessage,
     setLoading,
-    setStreaming,
     setConversationId,
     setConversationTitle,
   } = useChatActions();
