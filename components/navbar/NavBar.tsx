@@ -18,12 +18,20 @@ export default function NavBar({
       <div className="flex items-center gap-4">
         {showHome && (
           <Button variant="outline" className="w-full" asChild>
-            <Link href="/">Home</Link>
+            <Link href="/" prefetch={null}>
+              {/* route is static so prefetch by default */}
+              Home
+            </Link>
           </Button>
         )}
         {showDashboard && (
           <Button variant="outline" className="w-full" asChild>
-            <Link href="/dashboard/home">Dashboard</Link>
+            <Link
+              href="/dashboard/home"
+              prefetch={true} // route is dynamic because it's using the sidebar so we need to set prefetch true to not load the skeleton
+            >
+              Dashboard
+            </Link>
           </Button>
         )}
       </div>
@@ -32,6 +40,7 @@ export default function NavBar({
           <Button variant="outline" className="w-full" asChild>
             <Link
               href="/sign-in"
+              prefetch={null} //Route is static so prefetch by default
               className="w-full rounded bg-blue-500 px-4 py-2 text-center text-white transition-colors hover:bg-blue-600"
             >
               Sign In
