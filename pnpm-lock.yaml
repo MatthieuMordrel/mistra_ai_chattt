@@ -35,9 +35,6 @@ importers:
       '@tailwindcss/oxide-win32-arm64-msvc':
         specifier: ^4.0.12
         version: 4.0.12
-      '@tailwindcss/typography':
-        specifier: ^0.5.16
-        version: 0.5.16(tailwindcss@4.0.12)
       '@tanstack/react-query':
         specifier: ^5.67.3
         version: 5.67.3(react@19.0.0)
@@ -96,6 +93,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.0.12
         version: 4.0.12
+      '@tailwindcss/typography':
+        specifier: ^0.5.16
+        version: 0.5.16(tailwindcss@4.0.12)
       '@tanstack/react-query-devtools':
         specifier: ^5.68.0
         version: 5.68.0(@tanstack/react-query@5.67.3(react@19.0.0))(react@19.0.0)
