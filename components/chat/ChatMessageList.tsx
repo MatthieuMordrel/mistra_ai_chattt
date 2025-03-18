@@ -1,50 +1,55 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useMessages } from "@/store/chatStore";
-import { ChatMessage } from "@/types/types";
+import type { ChatMessage } from "@/types/types";
 import ChatMessageItem from "./ChatMessageItem";
 
-/**
- * Component that displays a list of chat messages
- * Uses server messages for initial render (SSR)
- * Then switches to store messages after hydration
- */
 const ChatMessageList = ({
   messagesServer = [],
 }: {
   messagesServer?: ChatMessage[];
 }) => {
-  // Using the atomic selector hook for better performance
   const messagesFromStore = useMessages();
-  // console.log("messagesFromStore", messagesFromStore);
 
   return (
     <div className="relative flex-1 overflow-hidden">
-      <div className="absolute inset-0 overflow-x-hidden overflow-y-auto rounded-lg border bg-white p-4 shadow-sm dark:bg-gray-800">
+      <div
+        className="border-border bg-card dark:bg-card scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent absolute inset-0 overflow-y-auto rounded-lg border p-5 shadow-sm"
+        data-slot="messages-container"
+      >
         {messagesFromStore.length === 0 && messagesServer.length === 0 ? (
           <div className="flex h-full items-center justify-center text-center">
-            <div className="max-w-md space-y-2">
-              <h2 className="text-2xl font-bold">Welcome to Mistral AI Chat</h2>
-              <p className="text-gray-500">
+            <div className="max-w-md space-y-4 px-4">
+              <h2 className="text-foreground text-2xl font-semibold">
+                Welcome to Mistral AI Chat
+              </h2>
+              <p className="text-muted-foreground">
                 Start a conversation by typing a message below.
               </p>
             </div>
           </div>
-        ) : messagesFromStore.length > 0 ? (
-          <div className="space-y-4 pb-2">
-            {messagesFromStore.map((message, index) => (
-              <ChatMessageItem key={index} message={message} />
-            ))}
-          </div>
-        ) : messagesServer.length > 0 ? (
-          <div className="space-y-4 pb-2">
-            {messagesServer.map((message, index) => (
-              <ChatMessageItem key={index} message={message} />
-            ))}
-          </div>
         ) : (
-          <div className="space-y-4 pb-2">
-            <p>No messages yet</p>
+          <div
+            className={cn(
+              "mx-12 space-y-6 pb-4",
+              (messagesFromStore.length > 0 || messagesServer.length > 0) &&
+                "pt-2",
+            )}
+          >
+            {messagesFromStore.length > 0 ? (
+              messagesFromStore.map((message, index) => (
+                <ChatMessageItem key={index} message={message} />
+              ))
+            ) : messagesServer.length > 0 ? (
+              messagesServer.map((message, index) => (
+                <ChatMessageItem key={index} message={message} />
+              ))
+            ) : (
+              <p className="text-muted-foreground text-center">
+                No messages yet
+              </p>
+            )}
           </div>
         )}
       </div>

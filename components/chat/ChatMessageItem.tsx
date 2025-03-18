@@ -1,33 +1,40 @@
-import { ChatMessage } from "@/types/types";
+import { cn } from "@/lib/utils";
+import type { ChatMessage } from "@/types/types";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-/**
- * Component for rendering a single chat message
- * Handles different styling based on message role and streaming state
- * Uses React Markdown to render message content with markdown formatting
- */
 const ChatMessageItem = ({ message }: { message: ChatMessage }) => {
+  const isUser = message.role === "user";
+
   return (
     <div
-      className={`flex ${
-        message.role === "user" ? "justify-end" : "justify-start"
-      }`}
+      className={cn(
+        "animate-in fade-in slide-in-from-bottom-4 flex w-full duration-300",
+        isUser ? "justify-end" : "justify-start",
+      )}
+      data-slot="message-wrapper"
     >
       <div
-        className={`max-w-3xl rounded-lg px-4 py-2 ${
-          message.role === "user"
-            ? "bg-blue-500 text-white"
-            : "bg-gray-100 dark:bg-gray-700"
-        }`}
+        className={cn(
+          "prose prose-sm dark:prose-invert max-w-[85%] rounded-2xl px-4 py-3 shadow-sm",
+          isUser
+            ? "bg-primary dark:text-primary-foreground text-white!"
+            : "bg-muted text-foreground dark:bg-secondary",
+          message.isStreaming && "animate-pulse",
+        )}
+        data-slot="message-bubble"
       >
-        <div className="markdown-content">
+        <div className="max-w-none">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {message.content}
           </ReactMarkdown>
         </div>
         {message.isStreaming && (
-          <div className="mt-1 h-4 w-5 animate-pulse rounded-full bg-current opacity-40"></div>
+          <div className="mt-2 flex space-x-1">
+            <div className="size-2 animate-bounce rounded-full bg-current opacity-60 delay-100"></div>
+            <div className="size-2 animate-bounce rounded-full bg-current opacity-60 delay-200"></div>
+            <div className="size-2 animate-bounce rounded-full bg-current opacity-60 delay-300"></div>
+          </div>
         )}
       </div>
     </div>

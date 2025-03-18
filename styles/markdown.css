@@ -1,0 +1,235 @@
+/* Enhanced Markdown styling */
+.prose,
+.markdown-content {
+  @apply text-foreground leading-normal;
+
+  /* Consistent spacing */
+  & > * + * {
+    @apply mt-4;
+  }
+
+  /* Headers with proper hierarchy and spacing */
+  & h1 {
+    @apply text-foreground mt-6 mb-4 text-2xl font-bold tracking-tight;
+  }
+
+  & h2 {
+    @apply text-foreground mt-5 mb-3 text-xl font-semibold;
+  }
+
+  & h3 {
+    @apply text-foreground mt-4 mb-2 text-lg font-medium;
+  }
+
+  & h4 {
+    @apply text-foreground mt-4 mb-2 text-base font-medium;
+  }
+
+  /* Paragraphs with proper line height */
+  & p {
+    @apply mb-4 leading-relaxed;
+  }
+
+  /* Lists with better spacing and bullets */
+  & ul {
+    @apply mb-4 ml-6 list-disc space-y-2;
+  }
+
+  & ol {
+    @apply mb-4 ml-6 list-decimal space-y-2;
+  }
+
+  /* Nested lists */
+  & ul ul,
+  & ol ol,
+  & ul ol,
+  & ol ul {
+    @apply mt-2 mb-0;
+  }
+
+  & li {
+    @apply mb-1;
+  }
+
+  /* Code blocks with syntax highlighting support */
+  & pre {
+    @apply bg-muted mb-4 overflow-x-auto rounded-md p-4 text-sm leading-relaxed;
+
+    & code {
+      @apply text-foreground bg-transparent p-0;
+    }
+  }
+
+  /* Inline code */
+  & :not(pre) > code {
+    @apply bg-muted text-foreground rounded px-1.5 py-0.5 font-mono text-sm;
+  }
+
+  /* Links with hover effects */
+  & a {
+    @apply text-primary decoration-primary/30 hover:decoration-primary underline underline-offset-2 transition-colors;
+  }
+
+  /* Blockquotes with better styling */
+  & blockquote {
+    @apply border-muted-foreground/20 text-muted-foreground my-6 border-l-4 pl-4 italic;
+
+    & p {
+      @apply mb-0;
+    }
+  }
+
+  /* Tables with better styling */
+  & table {
+    @apply mb-6 w-full border-collapse;
+  }
+
+  & thead {
+    @apply bg-muted;
+  }
+
+  & th {
+    @apply border-border border p-2 text-left font-medium;
+  }
+
+  & td {
+    @apply border-border border p-2;
+  }
+
+  /* Horizontal rule */
+  & hr {
+    @apply border-border my-8 border-t;
+  }
+
+  /* Images */
+  & img {
+    @apply my-4 h-auto max-w-full rounded-md;
+  }
+
+  /* Definition lists */
+  & dl {
+    @apply mb-4;
+  }
+
+  & dt {
+    @apply mb-1 font-semibold;
+  }
+
+  & dd {
+    @apply mb-4 ml-4;
+  }
+
+  /* Keyboard shortcuts */
+  & kbd {
+    @apply border-border bg-muted text-muted-foreground inline-flex items-center justify-center rounded border px-1.5 text-xs font-medium;
+  }
+
+  /* Abbreviations */
+  & abbr {
+    @apply cursor-help underline decoration-dotted;
+  }
+
+  /* Task lists */
+  & input[type="checkbox"] {
+    @apply border-border text-primary focus:ring-primary mr-2 h-4 w-4 rounded;
+  }
+}
+
+/* Syntax highlighting theme (compatible with Prism.js or highlight.js) */
+.prose pre,
+.markdown-content pre {
+  & .token.comment,
+  & .token.prolog,
+  & .token.doctype,
+  & .token.cdata {
+    @apply text-muted-foreground;
+  }
+
+  & .token.punctuation {
+    @apply text-muted-foreground;
+  }
+
+  & .token.property,
+  & .token.tag,
+  & .token.boolean,
+  & .token.number,
+  & .token.constant,
+  & .token.symbol {
+    @apply text-primary;
+  }
+
+  & .token.selector,
+  & .token.attr-name,
+  & .token.string,
+  & .token.char,
+  & .token.builtin {
+    @apply text-accent-foreground;
+  }
+
+  & .token.operator,
+  & .token.entity,
+  & .token.url,
+  & .language-css .token.string,
+  & .style .token.string {
+    @apply text-foreground;
+  }
+
+  & .token.atrule,
+  & .token.attr-value,
+  & .token.keyword {
+    @apply text-primary;
+  }
+
+  & .token.function,
+  & .token.class-name {
+    @apply text-accent-foreground;
+  }
+
+  & .token.regex,
+  & .token.important,
+  & .token.variable {
+    @apply text-destructive;
+  }
+}
+
+/* Scrollbar styling */
+.prose pre::-webkit-scrollbar,
+.markdown-content pre::-webkit-scrollbar {
+  @apply h-2 w-2;
+}
+
+.prose pre::-webkit-scrollbar-track,
+.markdown-content pre::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.prose pre::-webkit-scrollbar-thumb,
+.markdown-content pre::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/20 hover:bg-muted-foreground/30 rounded;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .prose,
+  .markdown-content {
+    & h1 {
+      @apply text-xl;
+    }
+
+    & h2 {
+      @apply text-lg;
+    }
+
+    & h3 {
+      @apply text-base;
+    }
+
+    & pre {
+      @apply p-3;
+    }
+
+    & table {
+      @apply text-sm;
+    }
+  }
+}

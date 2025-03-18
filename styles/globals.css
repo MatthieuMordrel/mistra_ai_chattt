@@ -1,6 +1,8 @@
 @import "tailwindcss";
+@import "./markdown.css";
 
 @plugin 'tailwindcss-animate';
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -123,76 +125,4 @@
   body {
     @apply bg-background text-foreground;
   }
-}
-
-/* Markdown styling */
-.markdown-content {
-  @apply text-inherit;
-}
-
-/* Headers */
-.markdown-content h1 {
-  @apply mt-6 mb-4 text-2xl font-bold;
-}
-
-.markdown-content h2 {
-  @apply mt-5 mb-3 text-xl font-bold;
-}
-
-.markdown-content h3 {
-  @apply mt-4 mb-2 text-lg font-bold;
-}
-
-/* Paragraphs and spacing */
-.markdown-content p {
-  @apply mb-4;
-}
-
-/* Lists */
-.markdown-content ul {
-  @apply mb-4 list-disc pl-5;
-}
-
-.markdown-content ol {
-  @apply mb-4 list-decimal pl-5;
-}
-
-/* Code blocks */
-.markdown-content pre {
-  @apply bg-secondary dark:bg-secondary mb-4 overflow-auto rounded-md p-3;
-}
-
-.markdown-content code {
-  @apply bg-secondary dark:bg-secondary rounded px-1 py-0.5 font-mono text-sm;
-}
-
-/* Inline elements */
-.markdown-content a {
-  @apply text-primary-foreground underline;
-}
-
-.markdown-content strong {
-  @apply font-bold;
-}
-
-.markdown-content em {
-  @apply italic;
-}
-
-/* Tables */
-.markdown-content table {
-  @apply mb-4 w-full border-collapse;
-}
-
-.markdown-content th {
-  @apply bg-secondary dark:bg-secondary border p-2;
-}
-
-.markdown-content td {
-  @apply border p-2;
-}
-
-/* Blockquotes */
-.markdown-content blockquote {
-  @apply border-secondary mb-4 border-l-4 pl-4 italic;
 }
