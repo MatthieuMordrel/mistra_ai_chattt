@@ -32,9 +32,10 @@
 │   │   │   ├── layout.tsx
 │   │   │   ├── loading.tsx
 │   │   │   └── page.tsx
-│   │   ├── layout.tsx
-│   │   ├── loading.tsx
-│   │   └── page.tsx
+│   │   ├── home
+│   │   │   ├── loading.tsx
+│   │   │   └── page.tsx
+│   │   └── layout.tsx
 │   ├── favicon.ico
 │   ├── layout.tsx
 │   ├── page.tsx
@@ -49,7 +50,9 @@
 │   │   ├── ChatMessageItem.tsx
 │   │   ├── ChatMessageList.tsx
 │   │   ├── ChatPageHeader.tsx
-│   │   └── ModelSelector.tsx
+│   │   ├── ChatTitle.tsx
+│   │   ├── ModelSelector.tsx
+│   │   └── NewConversationButton.tsx
 │   ├── dashboard
 │   │   ├── DashboardHeader.tsx
 │   │   └── DashboardLayoutClient.tsx
@@ -57,10 +60,7 @@
 │   │   ├── NavBar.tsx
 │   │   └── SignOut.tsx
 │   ├── providers
-│   │   ├── ConversationProvider.tsx
-│   │   ├── ModelsProvider.tsx
-│   │   ├── ServerConversationLoader.tsx
-│   │   └── ServerModelsLoader.tsx
+│   │   └── ConversationProvider.tsx
 │   ├── sidebar
 │   │   ├── ClientConversationList.tsx
 │   │   ├── ConversationList.tsx
@@ -106,6 +106,7 @@
 │   │   ├── auth.ts
 │   │   ├── getSessionFromRequest.ts
 │   │   ├── middlewareFunctions.ts
+│   │   ├── sessionVerificationFunction.ts
 │   │   ├── types.ts
 │   │   └── validateSession.ts
 │   ├── fetchClient

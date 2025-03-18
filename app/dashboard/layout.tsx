@@ -16,9 +16,6 @@ export default async function DashboardLayout({
 
   return (
     <DashboardLayoutClient>
-      {/* Load models at the layout level to share across all dashboard pages */}
-      {/* <ServerModelsLoader /> */}
-
       <Suspense fallback={<ConversationSidebarSkeleton />}>
         <ConversationsSidebar userId={userId} />
       </Suspense>

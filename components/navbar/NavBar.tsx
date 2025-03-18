@@ -23,7 +23,7 @@ export default function NavBar({
         )}
         {showDashboard && (
           <Button variant="outline" className="w-full" asChild>
-            <Link href="/dashboard">Dashboard</Link>
+            <Link href="/dashboard/home">Dashboard</Link>
           </Button>
         )}
       </div>
