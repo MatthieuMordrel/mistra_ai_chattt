@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import {
   Model,
   useModelActions,
@@ -33,9 +34,15 @@ export function ModelSelector({ models }: { models: Model[] }) {
   // If loading or no models available, show a disabled button
   if (models.length === 0 || !hydrated) {
     return (
-      <Button variant="outline" className="w-[200px] justify-between" disabled>
-        <span className="truncate">Loading models...</span>
-        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      <Button
+        variant="outline"
+        className="bg-background/50 border-muted-foreground/20 w-[220px] justify-between shadow-sm backdrop-blur-sm transition-all"
+        disabled
+      >
+        <span className="text-muted-foreground/70 truncate font-medium">
+          Loading models...
+        </span>
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-30" />
       </Button>
     );
   }
@@ -43,23 +50,41 @@ export function ModelSelector({ models }: { models: Model[] }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="w-[200px] justify-between">
-          <span className="truncate">{displayName}</span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        <Button
+          variant="outline"
+          className="bg-background/50 border-muted-foreground/20 hover:bg-accent/50 hover:border-accent w-[220px] justify-between shadow-sm backdrop-blur-sm transition-all duration-200"
+        >
+          <span className="truncate font-medium">{displayName}</span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 transition-transform duration-200 group-data-[state=open]:rotate-180" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[200px]">
+      <DropdownMenuContent
+        className="bg-background/90 border-muted-foreground/20 animate-in fade-in-80 zoom-in-95 w-[220px] overflow-hidden shadow-lg backdrop-blur-lg"
+        align="start"
+        sideOffset={4}
+      >
         {models.map((model) => (
           <ModelHoverCard key={model.id} model={model}>
             <DropdownMenuItem
               onClick={() => setSelectedModelId(model.id)}
-              className="flex items-center justify-between"
+              className={cn(
+                "flex cursor-pointer items-center justify-between px-3 py-2.5 transition-colors duration-150",
+                "hover:bg-accent/70 focus:bg-accent/70",
+                selectedModelId === model.id && "bg-accent/30",
+              )}
               // Using onSelect={()=>{}} to prevent menu from closing on hover
               onSelect={(e) => e.preventDefault()}
             >
-              <span className="truncate">{model.name}</span>
+              <span
+                className={cn(
+                  "truncate",
+                  selectedModelId === model.id && "font-medium",
+                )}
+              >
+                {model.name}
+              </span>
               {selectedModelId === model.id && (
-                <Check className="ml-2 h-4 w-4" />
+                <Check className="text-primary animate-in fade-in-50 ml-2 h-4 w-4 duration-100" />
               )}
             </DropdownMenuItem>
           </ModelHoverCard>
