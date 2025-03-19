@@ -36,7 +36,11 @@ export function ConversationSidebar({
   // Ensure conversations is always an array to prevent hydration mismatches
   const conversationList = Array.isArray(conversations) ? conversations : [];
 
-  // Refresh the page when the pathname changes to invalidate the router cache and ensure the latest conversations are fetched
+  // Refresh the page when the pathname changes to invalidate the router cache and ensure the latest conversations are fetched if we renavigate fast to the same conversation
+  // Ideally we would like to just invalidate the cache for the conversations without making a new server request using revalidatePath
+  // But revalidatepath is crap and this only happens when the path is next visited by the user
+  // And i don't want to refresh the page everytime we send a message because it's worse
+  // Potentially a better solution would be limit cache duration for dynamic routes to 5 seconds and consider that user never navigates to the page twice in 5 seconds
   useEffect(() => {
     router.refresh();
   }, [pathname]);

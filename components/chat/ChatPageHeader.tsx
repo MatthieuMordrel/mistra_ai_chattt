@@ -11,7 +11,7 @@ export async function ChatPageHeader() {
   //Get the models from the db on the server
   const models = await ModelService.getActiveModels();
   return (
-    <div className="mb-4 flex items-center justify-between border-b pb-2">
+    <div className="mb-4 flex items-center justify-between pb-2">
       <ChatTitleLayout />
       <div className="flex gap-2">
         <ModelSelector models={models} />
