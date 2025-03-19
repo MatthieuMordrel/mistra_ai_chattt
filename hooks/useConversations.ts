@@ -1,13 +1,12 @@
 import { createConversationAction } from "@/actions/conversation-actions";
-import {
-  Conversation,
-  fetchConversations,
-} from "@/lib/fetchClient/fetchConversations";
+import { fetchConversations } from "@/lib/fetchClient/fetchConversations";
 import { getQueryClient } from "@/providers/QueryProvider";
-import { ChatMessage } from "@/types/types";
+import { ChatMessage, Conversation } from "@/types/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-// Define the return type of createConversationAction
+/**
+ * id of the created conversation
+ */
 interface CreateConversationResult {
   id: string;
 }
