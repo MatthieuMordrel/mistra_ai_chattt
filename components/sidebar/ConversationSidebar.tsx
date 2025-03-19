@@ -33,9 +33,6 @@ export function ConversationSidebar({
 
   // Ensure conversations is always an array to prevent hydration mismatches
   const conversationList = Array.isArray(conversations) ? conversations : [];
-  const serverConversationList = Array.isArray(conversationsServer)
-    ? conversationsServer
-    : [];
 
   // Show error state
   if (isError) {
@@ -53,8 +50,7 @@ export function ConversationSidebar({
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {conversationList.length === 0 &&
-          serverConversationList.length === 0 ? (
+          {conversationList.length === 0 && conversationsServer.length === 0 ? (
             <div className="text-muted-foreground flex h-40 flex-col items-center justify-center px-4 text-center">
               <MessageSquareIcon className="mb-2 h-8 w-8 opacity-50" />
               <p>No conversations yet</p>
@@ -65,7 +61,7 @@ export function ConversationSidebar({
           ) : (
             (conversationList.length > 0
               ? conversationList
-              : serverConversationList
+              : conversationsServer
             ).map((conversation) => {
               const isActive =
                 pathname === `/dashboard/chat/${conversation.id}`;

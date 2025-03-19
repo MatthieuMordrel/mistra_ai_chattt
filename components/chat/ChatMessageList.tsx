@@ -37,19 +37,12 @@ const ChatMessageList = ({
                 "pt-2",
             )}
           >
-            {messagesFromStore.length > 0 ? (
-              messagesFromStore.map((message, index) => (
-                <ChatMessageItem key={index} message={message} />
-              ))
-            ) : messagesServer.length > 0 ? (
-              messagesServer.map((message, index) => (
-                <ChatMessageItem key={index} message={message} />
-              ))
-            ) : (
-              <p className="text-muted-foreground text-center">
-                No messages yet
-              </p>
-            )}
+            {(messagesFromStore.length > 0
+              ? messagesFromStore
+              : messagesServer
+            ).map((message, index) => (
+              <ChatMessageItem key={index} message={message} />
+            ))}
           </div>
         )}
       </div>
