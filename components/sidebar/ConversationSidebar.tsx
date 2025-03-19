@@ -2,8 +2,8 @@
 
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import {
   Sidebar,
@@ -31,8 +31,15 @@ export function ConversationSidebar({
     string | null
   >(null);
 
+  const router = useRouter();
+
   // Ensure conversations is always an array to prevent hydration mismatches
   const conversationList = Array.isArray(conversations) ? conversations : [];
+
+  // Refresh the page when the pathname changes to invalidate the router cache and ensure the latest conversations are fetched
+  useEffect(() => {
+    router.refresh();
+  }, [pathname]);
 
   // Show error state
   if (isError) {
