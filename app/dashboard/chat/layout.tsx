@@ -13,11 +13,7 @@ export default function ChatLayout({
 }) {
   return (
     <div className="mx-auto flex h-[calc(100vh-6rem)] flex-col p-4">
-      {/* Chat page header with conversation title and model selector */}
-      {/* This is shared across all chat routes */}
       <ChatPageHeader />
-
-      {/* Chat route content */}
       {children}
     </div>
   );
