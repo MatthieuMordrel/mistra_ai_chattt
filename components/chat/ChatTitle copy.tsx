@@ -12,7 +12,7 @@ export default function ChatTitleLayout() {
     </div>
   ) : (
     <div className="min-h-[32px] py-1">
-      <h1 className="text-xl font-bold">{conversationTitle}</h1>
+      <h1 className="h-8 text-xl font-bold">{conversationTitle}</h1>
     </div>
   );
 }

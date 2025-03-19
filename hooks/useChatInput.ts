@@ -76,7 +76,6 @@ export const useChatInput = () => {
           title: formattedTitle,
           messages: [{ role: "user", content: input }],
         });
-
         // Update the conversation ID in the store
         setConversationId(result.id);
 
