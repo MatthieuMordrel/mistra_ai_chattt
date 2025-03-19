@@ -2,6 +2,7 @@ import { db } from "@/db/database";
 import { conversation, message } from "@/db/schema/chat-schema";
 import { ChatMessage } from "@/types/types";
 import { and, desc, eq } from "drizzle-orm";
+import "server-only";
 
 /**
  * Service for handling database operations related to conversations and messages

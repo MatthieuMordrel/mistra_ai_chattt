@@ -1,6 +1,7 @@
 import { db } from "@/db/database";
 import { model } from "@/db/schema/chat-schema";
 import { eq } from "drizzle-orm";
+import "server-only";
 
 /**
  * Service for handling database operations related to AI models
