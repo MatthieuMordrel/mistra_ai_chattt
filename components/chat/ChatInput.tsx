@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useChatInput } from "@/hooks/useChatInput";
+import { SendIcon } from "lucide-react";
 
 /**
  * Component for the chat input form
@@ -14,24 +15,28 @@ const ChatInput = () => {
   const { input, setInput, inputRef, isLoading, handleSubmit } = useChatInput();
 
   return (
-    <div className="mt-4">
-      <form onSubmit={handleSubmit} className="flex space-x-2">
-        <Input
-          ref={inputRef}
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800"
-          disabled={isLoading}
-        />
-        <Button
-          type="submit"
-          disabled={isLoading || !input.trim()}
-          className="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:opacity-50"
-        >
-          Send
-        </Button>
+    <div className="mt-4 px-2 sm:px-4">
+      <form onSubmit={handleSubmit} className="relative">
+        <div className="relative flex items-center">
+          <Input
+            ref={inputRef}
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type your message..."
+            className="border-input bg-background focus-visible:ring-primary w-full rounded-full border px-6 py-6 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none dark:bg-gray-800"
+            disabled={isLoading}
+          />
+
+          <Button
+            type="submit"
+            disabled={isLoading || !input.trim()}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 absolute right-2 flex h-10 w-10 items-center justify-center rounded-full p-2 shadow-md transition-all disabled:opacity-50"
+            aria-label="Send message"
+          >
+            <SendIcon className="h-5 w-5" />
+          </Button>
+        </div>
       </form>
     </div>
   );
