@@ -115,7 +115,6 @@ const streamMessageToAPI = async (
 ): Promise<void> => {
   // Get the selected model ID from the store
   const selectedModelId = useModelStoreBase.getState().selectedModelId;
-  console.log("[SERVICE] selectedModelId: ", selectedModelId);
   await streamMistralClient({
     model: selectedModelId || "mistral-small-latest", // Use selected model or fall back to default
     messages: messagesToSend,
