@@ -15,7 +15,7 @@ const ChatMessageList = ({
   return (
     <div className="relative flex-1 overflow-hidden">
       <div
-        className="border-border bg-card dark:bg-card scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent absolute inset-0 overflow-y-auto rounded-lg border p-5 shadow-sm"
+        className="bg-card dark:bg-card scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent absolute inset-0 overflow-y-auto rounded-lg p-5 shadow-sm"
         data-slot="messages-container"
       >
         {messagesFromStore.length === 0 && messagesServer.length === 0 ? (
