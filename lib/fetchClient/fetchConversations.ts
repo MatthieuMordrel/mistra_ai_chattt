@@ -1,8 +1,5 @@
-export interface Conversation {
-  id: string;
-  title: string;
-  updatedAt: string;
-}
+import { Conversation } from "@/types/types";
+
 // API function to fetch conversations
 export async function fetchConversations() {
   const response = await fetch("/api/conversations");

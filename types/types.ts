@@ -17,3 +17,12 @@ export type MistralMessage =
   | components["schemas"]["UserMessage"]
   | components["schemas"]["AssistantMessage"]
   | components["schemas"]["ToolMessage"];
+
+/**
+ * Conversation interface for the UI
+ */
+export interface Conversation {
+  id: string;
+  title: string;
+  updatedAt: string;
+}

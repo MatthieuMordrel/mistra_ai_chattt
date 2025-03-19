@@ -1,7 +1,7 @@
 import { ConversationService } from "@/db/services/conversation-service";
 import { getQueryClient } from "@/providers/QueryProvider";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { ClientConversationList } from "./ClientConversationList";
+import { ConversationSidebar } from "./ConversationSidebar";
 
 export async function ConversationsSidebar({ userId }: { userId: string }) {
   // If no session, return empty sidebar
@@ -18,10 +18,16 @@ export async function ConversationsSidebar({ userId }: { userId: string }) {
     queryFn: () => conversations,
   });
 
+  const conversationsServer = conversations.map((conv) => ({
+    id: conv.id,
+    title: conv.title,
+    updatedAt: conv.updatedAt.toISOString(),
+  }));
+
   // Return the client-side wrapper with the dehydrated state
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ClientConversationList />
+      <ConversationSidebar conversationsServer={conversationsServer} />
     </HydrationBoundary>
   );
 }

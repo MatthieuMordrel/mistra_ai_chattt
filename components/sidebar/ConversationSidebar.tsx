@@ -2,8 +2,8 @@
 
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 import {
   Sidebar,
@@ -13,42 +13,38 @@ import {
   SidebarMenu,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
+import { useConversations } from "@/hooks/useConversations";
 import { useChatActions } from "@/store/chatStore";
+import { Conversation } from "@/types/types";
 import NewConversation from "../chat/NewConversationButton";
-interface Conversation {
-  id: string;
-  title: string;
-  updatedAt: string;
-}
-
-interface ConversationSidebarProps {
-  conversations: Conversation[];
-}
 
 export function ConversationSidebar({
-  conversations,
-}: ConversationSidebarProps) {
+  conversationsServer,
+}: {
+  conversationsServer: Conversation[];
+}) {
+  const { conversations, isError } = useConversations();
   const { setConversationTitle } = useChatActions();
+
   const pathname = usePathname();
-  const router = useRouter();
-  const [isHydrated, setIsHydrated] = useState(false);
   const [hoveredConversationId, setHoveredConversationId] = useState<
     string | null
   >(null);
 
   // Ensure conversations is always an array to prevent hydration mismatches
   const conversationList = Array.isArray(conversations) ? conversations : [];
+  const serverConversationList = Array.isArray(conversationsServer)
+    ? conversationsServer
+    : [];
 
-  // After hydration is complete, update the state
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  // Listen for route changes to refresh data
-  useEffect(() => {
-    // When pathname changes, refresh to get fresh data
-    router.refresh();
-  }, [pathname, router]);
+  // Show error state
+  if (isError) {
+    return (
+      <div className="flex h-full items-center justify-center p-4 text-center text-red-500">
+        Error loading conversations
+      </div>
+    );
+  }
 
   return (
     <Sidebar className="border-r">
@@ -57,11 +53,8 @@ export function ConversationSidebar({
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {/* 
-            During the first render, always show the empty state to match server rendering
-            After hydration, render based on the actual data
-          */}
-          {!isHydrated || conversationList.length === 0 ? (
+          {conversationList.length === 0 &&
+          serverConversationList.length === 0 ? (
             <div className="text-muted-foreground flex h-40 flex-col items-center justify-center px-4 text-center">
               <MessageSquareIcon className="mb-2 h-8 w-8 opacity-50" />
               <p>No conversations yet</p>
@@ -70,7 +63,10 @@ export function ConversationSidebar({
               </p>
             </div>
           ) : (
-            conversationList.map((conversation) => {
+            (conversationList.length > 0
+              ? conversationList
+              : serverConversationList
+            ).map((conversation) => {
               const isActive =
                 pathname === `/dashboard/chat/${conversation.id}`;
               const shouldPrefetch = hoveredConversationId === conversation.id;
