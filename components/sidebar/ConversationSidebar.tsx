@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { revalidateConversations } from "@/actions/conversation-actions";
 import {
   Sidebar,
   SidebarContent,
@@ -50,8 +49,13 @@ export function ConversationSidebar({
 
   // We can try to call revalidatePath in a server action, which according to the docs should invalidate the cache for the conversations without making a new server request
   // This works but makes a request and invalidate the cache for all conversation, while ideally i would like to invalidate the cache for the specific conversation
+  //Maybe i can do it in a route handler ?
+  // useEffect(() => {
+  //   revalidateConversations(pathParams.id as string);
+  // }, [pathParams.id]);
+
   useEffect(() => {
-    revalidateConversations(pathParams.id as string);
+    fetch(`/api/conversations/revalidate?id=${pathParams.id}`);
   }, [pathParams.id]);
 
   // Show error state
