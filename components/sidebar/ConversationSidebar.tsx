@@ -40,17 +40,15 @@ export function ConversationSidebar({
   const conversationList = Array.isArray(conversations) ? conversations : [];
 
   // Refresh the page when the pathname changes to invalidate the router cache and ensure the latest conversations are fetched if we renavigate fast to the same conversation
-  // Ideally we would like to just invalidate the cache for the conversations without making a new server request using revalidatePath
-  // But revalidatepath is crap and this only happens when the path is next visited by the user
-  // And i don't want to refresh the page everytime we send a message because it's worse
-  // Potentially a better solution would be limit cache duration for dynamic routes to 5 seconds and consider that user never navigates to the page twice in 5 seconds
-  // But staleTimes seems completely bugged too
+  // Ideally we would like to just invalidate the cache for the conversation without making a new server request using revalidatePath
+  // revalidatePath might actually works since we only see a POST request and not a GET request, tbh how this works is beyond me
+  // Potentially a better solution would be limit cache duration for dynamic routes to 2 seconds using staleTimes
+  // But staleTimes seems completely bugged too and doesn't work at all for some reason
   // useEffect(() => {
   //   router.refresh();
   // }, [pathname]);
 
   // We can try to call revalidatePath in a server action, which according to the docs should invalidate the cache for the conversations without making a new server request
-  // However it might still do a request because it's bugged
   // This works but makes a request and invalidate the cache for all conversation, while ideally i would like to invalidate the cache for the specific conversation
   useEffect(() => {
     revalidateConversations(pathParams.id as string);
