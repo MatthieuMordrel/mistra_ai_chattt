@@ -49,8 +49,9 @@ export function ConversationSidebar({
   //   router.refresh();
   // }, [pathname]);
 
-  //We can try to call revalidatePath in a server action, which according to the docs should invalidate the cache for the conversations without making a new server request
-  //However it might still do a request because it's bugged
+  // We can try to call revalidatePath in a server action, which according to the docs should invalidate the cache for the conversations without making a new server request
+  // However it might still do a request because it's bugged
+  // This works but makes a request and invalidate the cache for all conversation, while ideally i would like to invalidate the cache for the specific conversation
   useEffect(() => {
     revalidateConversations(pathParams.id as string);
   }, [pathParams.id]);

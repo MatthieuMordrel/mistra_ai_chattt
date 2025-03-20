@@ -148,6 +148,6 @@ export async function deleteConversation(conversationId: string) {
 
 export async function revalidateConversations(id: string) {
   // Revalidate the conversations path to update the UI
-  //This empty the cache for all conversations because the route is dynamic
+  //This empty the route cache for all conversations because the route is dynamic
   revalidatePath(`/dashboard/chat/${id}`);
 }
