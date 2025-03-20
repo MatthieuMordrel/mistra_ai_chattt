@@ -2,9 +2,10 @@
 
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { revalidateConversations } from "@/actions/conversation-actions";
 import {
   Sidebar,
   SidebarContent,
@@ -16,6 +17,7 @@ import {
 import { useConversations } from "@/hooks/useConversations";
 import { useChatActions } from "@/store/chatStore";
 import { Conversation } from "@/types/types";
+import { useEffect } from "react";
 import NewConversation from "../chat/NewConversationButton";
 
 export function ConversationSidebar({
@@ -25,6 +27,7 @@ export function ConversationSidebar({
 }) {
   const { conversations, isError } = useConversations();
   const { setConversationTitle } = useChatActions();
+  const pathParams = useParams();
 
   const pathname = usePathname();
   const [hoveredConversationId, setHoveredConversationId] = useState<
@@ -48,6 +51,9 @@ export function ConversationSidebar({
 
   //We can try to call revalidatePath in a server action, which according to the docs should invalidate the cache for the conversations without making a new server request
   //However it might still do a request because it's bugged
+  useEffect(() => {
+    revalidateConversations(pathParams.id as string);
+  }, [pathParams.id]);
 
   // Show error state
   if (isError) {
