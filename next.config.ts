@@ -8,13 +8,13 @@ const nextConfig: NextConfig = {
       hmrRefreshes: true,
     },
   },
-  experimental: {
-    staleTimes: {
-      dynamic: 4,
-      static: 3000000,
-    },
-    // nodeMiddleware: true, //Only in canary version...
-  },
+  // experimental: {
+  //   staleTimes: {
+  //     dynamic: 4,
+  //     static: 3000000,
+  //   },
+  // nodeMiddleware: true, //Only in canary version...
+  // },
   reactStrictMode: false,
 };
 

@@ -41,9 +41,13 @@ export function ConversationSidebar({
   // But revalidatepath is crap and this only happens when the path is next visited by the user
   // And i don't want to refresh the page everytime we send a message because it's worse
   // Potentially a better solution would be limit cache duration for dynamic routes to 5 seconds and consider that user never navigates to the page twice in 5 seconds
+  // But staleTimes seems completely bugged too
   // useEffect(() => {
   //   router.refresh();
   // }, [pathname]);
+
+  //We can try to call revalidatePath in a server action, which according to the docs should invalidate the cache for the conversations without making a new server request
+  //However it might still do a request because it's bugged
 
   // Show error state
   if (isError) {
