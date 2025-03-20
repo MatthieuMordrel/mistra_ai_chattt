@@ -3,6 +3,7 @@
 import { saveMessagesAction } from "@/actions/conversation-actions";
 import { useConversations } from "@/hooks/useConversations";
 import { formatConversationTitle } from "@/lib/utils";
+import { getQueryClient } from "@/providers/QueryProvider";
 import { streamAssistantMessageAndSaveToDb } from "@/services/chatService";
 import {
   useChatActions,
@@ -30,6 +31,7 @@ export const useChatInput = () => {
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const { createConversation } = useConversations();
+  const queryClient = getQueryClient();
 
   // Focus input on component mount
   useEffect(() => {
@@ -102,6 +104,9 @@ export const useChatInput = () => {
           { role: "user", content: input },
         ]);
         console.log("User message saved");
+        // Invalidate the conversations query to refetch and reorder in the sidebar, we need to do this after saving the message
+        // We could also optimistaically update the ui so we could have the update earlier, but this is simpler
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
       } catch (error) {
         console.error("Error saving user message:", error);
         // Continue even if saving fails - the UI will still show the message
