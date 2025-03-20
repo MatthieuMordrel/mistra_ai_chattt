@@ -2,9 +2,10 @@
 
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useParams, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
+import { revalidateConversations } from "@/actions/conversation-actions";
 import {
   Sidebar,
   SidebarContent,
@@ -16,7 +17,6 @@ import {
 import { useConversations } from "@/hooks/useConversations";
 import { useChatActions } from "@/store/chatStore";
 import { Conversation } from "@/types/types";
-import { useEffect } from "react";
 import NewConversation from "../chat/NewConversationButton";
 
 export function ConversationSidebar({
@@ -33,8 +33,6 @@ export function ConversationSidebar({
     string | null
   >(null);
 
-  const router = useRouter();
-
   // Ensure conversations is always an array to prevent hydration mismatches
   const conversationList = Array.isArray(conversations) ? conversations : [];
 
@@ -50,13 +48,17 @@ export function ConversationSidebar({
   // We can try to call revalidatePath in a server action, which according to the docs should invalidate the cache for the conversations without making a new server request
   // This works but makes a request and invalidate the cache for all conversation, while ideally i would like to invalidate the cache for the specific conversation
   //Maybe i can do it in a route handler ?
-  // useEffect(() => {
-  //   revalidateConversations(pathParams.id as string);
-  // }, [pathParams.id]);
-
   useEffect(() => {
-    fetch(`/api/conversations/revalidate?id=${pathParams.id}`);
+    revalidateConversations(pathParams.id as string);
   }, [pathParams.id]);
+
+  //This doesn't work for some reason, the route handler is called and runs on the server, but somehow the cache is not invalidated
+  // Maybe because the lambda dies out before the cache is invalidated? tbh i don't know how the client can be revalidated from the server without any request coming in
+  // to try using waitUntil from vercel but i'm tired; so let's just use the server action for now
+  // Maybe i'm just not getting the params correctly, to check tomorrow
+  // useEffect(() => {
+  //   fetch(`/api/conversations/revalidate?id=${pathParams.id}`);
+  // }, [pathParams.id]);
 
   // Show error state
   if (isError) {
