@@ -11,6 +11,7 @@ import {
   useIsLoading,
   useMessages,
 } from "@/store/chatStore";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -32,6 +33,7 @@ export const useChatInput = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { createConversation } = useConversations();
   const queryClient = getQueryClient();
+  const router = useRouter();
 
   // Focus input on component mount
   useEffect(() => {
@@ -60,11 +62,13 @@ export const useChatInput = () => {
 
     // Add user message to the chat store
     addUserMessage(input);
+    console.log("Messages from the store:", messages);
 
     // Set loading state
     setLoading(true);
 
     // Handle first message - create conversation in DB
+    // There is is still 0 message at this point because the state update is async
     if (messages.length === 0) {
       try {
         // Format the title using our utility function
@@ -80,6 +84,11 @@ export const useChatInput = () => {
         });
         // Update the conversation ID in the store
         setConversationId(result.id);
+
+        //Log the messages from the store
+        console.log("Messages from the store:", messages);
+        //Navigate to the new conversation
+        // router.push(`/dashboard/chat/${result.id}`);
 
         // Stream the assistant message and save to DB
         await streamAssistantMessageAndSaveToDb({
