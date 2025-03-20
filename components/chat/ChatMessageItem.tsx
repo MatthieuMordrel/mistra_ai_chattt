@@ -11,6 +11,8 @@ const ChatMessageItem = ({ message }: { message: ChatMessage }) => {
   return (
     <div
       className={cn(
+        //Cannot use the below because it happens when component is remounted and create a flicker on soft navigation when creating conversation
+        // animate-in fade-in slide-in-from-bottom-4
         "flex w-full duration-300",
         isUser ? "justify-end" : "justify-start",
       )}

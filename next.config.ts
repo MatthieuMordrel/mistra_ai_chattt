@@ -9,10 +9,10 @@ const nextConfig: NextConfig = {
     },
   },
   experimental: {
-    //   staleTimes: {
-    //     dynamic: 300,
-    //     static: 300,
-    //   },
+    staleTimes: {
+      dynamic: 4,
+      static: 3000000,
+    },
     // nodeMiddleware: true, //Only in canary version...
   },
   reactStrictMode: false,

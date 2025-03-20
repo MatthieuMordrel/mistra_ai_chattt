@@ -3,7 +3,7 @@
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   Sidebar,
@@ -41,9 +41,9 @@ export function ConversationSidebar({
   // But revalidatepath is crap and this only happens when the path is next visited by the user
   // And i don't want to refresh the page everytime we send a message because it's worse
   // Potentially a better solution would be limit cache duration for dynamic routes to 5 seconds and consider that user never navigates to the page twice in 5 seconds
-  useEffect(() => {
-    router.refresh();
-  }, [pathname]);
+  // useEffect(() => {
+  //   router.refresh();
+  // }, [pathname]);
 
   // Show error state
   if (isError) {
