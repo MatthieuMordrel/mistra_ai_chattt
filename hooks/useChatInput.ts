@@ -11,6 +11,7 @@ import {
   useIsLoading,
   useMessages,
 } from "@/store/chatStore";
+import { ChatMessage } from "@/types/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -53,85 +54,101 @@ export const useChatInput = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Refocus the input after sending
-    inputRef.current?.focus();
+    // Validate input
     if (!input.trim() || isLoading) return;
+
+    // Store user message for processing
+    const userMessage: ChatMessage = { role: "user", content: input.trim() };
 
     // Clear input field immediately for better UX
     setInput("");
 
-    // Add user message to the chat store
-    addUserMessage(input);
-    console.log("Messages from the store:", messages);
+    // Add user message to UI
+    addUserMessage(userMessage.content);
 
     // Set loading state
     setLoading(true);
 
-    // Handle first message - create conversation in DB
-    // There is is still 0 message at this point because the state update is async
-    if (messages.length === 0) {
-      try {
-        // Format the title using our utility function
-        const formattedTitle = formatConversationTitle(input);
+    try {
+      // Determine if this is a new conversation
+      const isNewConversation = !conversationId;
 
-        // Update the title using zustand
-        setConversationTitle(formattedTitle);
-
-        // Create the conversation in the DB using TanStack Query mutation
-        const result = await createConversation({
-          title: formattedTitle,
-          messages: [{ role: "user", content: input }],
-        });
-        // Update the conversation ID in the store
-        setConversationId(result.id);
-
-        //Log the messages from the store
-        console.log("Messages from the store:", messages);
-        //Navigate to the new conversation
-        // router.push(`/dashboard/chat/${result.id}`);
-
-        // Stream the assistant message and save to DB
-        await streamAssistantMessageAndSaveToDb({
-          currentMessages: [{ role: "user", content: input }],
-          userMessage: { role: "user", content: input },
-          conversationId: result.id,
-        });
-      } catch (error) {
-        console.error("Error creating conversation:", error);
+      if (isNewConversation) {
+        // Handle new conversation creation
+        await handleNewConversation(userMessage);
+      } else {
+        // Handle message in existing conversation
+        await handleExistingConversation(userMessage);
       }
-    } else {
-      if (!conversationId) {
-        console.error("No conversation ID found");
-        setLoading(false);
-        return;
-      }
+    } catch (error) {
+      console.error("Error in chat submission:", error);
+    } finally {
+      // Always reset loading state when done
+      setLoading(false);
+    }
+  };
 
-      try {
-        console.log("Saving user message: conversationId", conversationId);
-        // Save the user message to the DB using the action
-        await saveMessagesAction(conversationId, [
-          { role: "user", content: input },
-        ]);
-        console.log("User message saved");
-        // Invalidate the conversations query to refetch and reorder in the sidebar, we need to do this after saving the message
-        // We could also optimistaically update the ui so we could have the update earlier, but this is simpler
-        queryClient.invalidateQueries({ queryKey: ["conversations"] });
-      } catch (error) {
-        console.error("Error saving user message:", error);
-        // Continue even if saving fails - the UI will still show the message
-      }
+  /**
+   * Handle creation of a new conversation
+   */
+  const handleNewConversation = async (userMessage: ChatMessage) => {
+    // Format title from first message
+    const formattedTitle = formatConversationTitle(userMessage.content);
 
-      console.log("Streaming assistant message");
-      // Send message to the API using the chat service
-      await streamAssistantMessageAndSaveToDb({
-        currentMessages: [...messages, { role: "user", content: input }],
-        userMessage: { role: "user", content: input },
-        conversationId: conversationId,
+    // Update title in UI
+    setConversationTitle(formattedTitle);
+
+    try {
+      // Create conversation in database
+      const result = await createConversation({
+        title: formattedTitle,
+        messages: [userMessage],
       });
+
+      // Store the new conversation ID
+      setConversationId(result.id);
+
+      // Stream the assistant response
+      await streamAssistantMessageAndSaveToDb({
+        currentMessages: [userMessage],
+        userMessage: userMessage,
+        conversationId: result.id,
+      });
+    } catch (error) {
+      console.error("Error creating conversation:", error);
+      throw error; // Re-throw to be caught by the main handler
+    }
+  };
+
+  /**
+   * Handle adding message to existing conversation
+   */
+  const handleExistingConversation = async (userMessage: ChatMessage) => {
+    if (!conversationId) {
+      console.error("No conversation ID found");
+      return;
     }
 
-    // Set loading state back to false when complete
-    setLoading(false);
+    try {
+      // Save user message to database
+      await saveMessagesAction(conversationId, [userMessage]);
+
+      // Update sidebar conversations list
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+
+      // Prepare current messages including the new user message
+      const currentMessagesWithNewMessage = [...messages, userMessage];
+
+      // Stream the assistant response
+      await streamAssistantMessageAndSaveToDb({
+        currentMessages: currentMessagesWithNewMessage,
+        userMessage: userMessage,
+        conversationId: conversationId,
+      });
+    } catch (error) {
+      console.error("Error in existing conversation:", error);
+      throw error; // Re-throw to be caught by the main handler
+    }
   };
 
   return {
