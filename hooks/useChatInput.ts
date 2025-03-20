@@ -114,6 +114,9 @@ export const useChatInput = () => {
         userMessage: userMessage,
         conversationId: result.id,
       });
+
+      // Update URL without causing a full navigation/page reload
+      window.history.replaceState(null, "", `/dashboard/chat/${result.id}`);
     } catch (error) {
       console.error("Error creating conversation:", error);
       throw error; // Re-throw to be caught by the main handler

@@ -11,7 +11,7 @@ const ChatMessageItem = ({ message }: { message: ChatMessage }) => {
   return (
     <div
       className={cn(
-        "animate-in fade-in slide-in-from-bottom-4 flex w-full duration-300",
+        "flex w-full duration-300",
         isUser ? "justify-end" : "justify-start",
       )}
       data-slot="message-wrapper"
