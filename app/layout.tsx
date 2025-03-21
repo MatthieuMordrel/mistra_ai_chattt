@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mistral AI Chat",
+  title: { default: "Mistral AI Chat", template: "%s | Mistral AI Chat" },
   description: "Your intelligent AI assistant powered by Mistral models",
 };
 
