@@ -36,29 +36,10 @@ export function ConversationSidebar({
   // Ensure conversations is always an array to prevent hydration mismatches
   const conversationList = Array.isArray(conversations) ? conversations : [];
 
-  // Refresh the page when the pathname changes to invalidate the router cache and ensure the latest conversations are fetched if we renavigate fast to the same conversation
-  // Ideally we would like to just invalidate the cache for the conversation without making a new server request using revalidatePath
-  // revalidatePath might actually works since we only see a POST request and not a GET request, tbh how this works is beyond me
-  // Potentially a better solution would be limit cache duration for dynamic routes to 2 seconds using staleTimes
-  // But staleTimes seems completely bugged too and doesn't work at all for some reason
-  // useEffect(() => {
-  //   router.refresh();
-  // }, [pathname]);
-
-  // We can try to call revalidatePath in a server action, which according to the docs should invalidate the cache for the conversations without making a new server request
-  // This works but makes a request and invalidate the cache for all conversation, while ideally i would like to invalidate the cache for the specific conversation
-  //Maybe i can do it in a route handler ?
+  // Invalidate the router cache for all conversation by calling revalidatePath in a server action
   useEffect(() => {
     revalidateConversations(pathParams.id as string);
   }, [pathParams.id]);
-
-  //This doesn't work for some reason, the route handler is called and runs on the server, but somehow the cache is not invalidated
-  // Maybe because the lambda dies out before the cache is invalidated? tbh i don't know how the client can be revalidated from the server without any request coming in
-  // to try using waitUntil from vercel but i'm tired; so let's just use the server action for now
-  // Maybe i'm just not getting the params correctly, to check tomorrow
-  // useEffect(() => {
-  //   fetch(`/api/conversations/revalidate?id=${pathParams.id}`);
-  // }, [pathParams.id]);
 
   // Show error state
   if (isError) {
