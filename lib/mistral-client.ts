@@ -41,6 +41,11 @@ export function sanitizeMessages(messages: BasicMessage[]): MistralMessage[] {
   });
 }
 
+// Types for the streaming response data
+type StreamChunk = components["schemas"]["CompletionChunk"];
+type StreamChoice = components["schemas"]["CompletionResponseStreamChoice"];
+type DeltaMessage = components["schemas"]["DeltaMessage"];
+
 /**
  * Options for the streamMistralClient function
  */
@@ -61,6 +66,64 @@ export interface StreamMistralClientOptions {
   onComplete?: (fullText: string) => void;
   /** Callback for error handling */
   onError?: (error: Error) => void;
+  /** Advanced callback for raw chunk data (for debugging or advanced use cases) */
+  onChunk?: (chunk: StreamChunk) => void;
+}
+
+/**
+ * Parses an SSE message line and extracts the StreamChunk data
+ * @param line A line from the SSE stream (starting with "data: ")
+ * @returns Parsed StreamChunk or null if parsing failed or it's a control message
+ */
+function parseSSELine(line: string): StreamChunk | null {
+  // Skip empty lines or non-data lines
+  if (!line.trim() || !line.startsWith("data: ")) {
+    return null;
+  }
+
+  // Extract the JSON part (removing "data: " prefix)
+  const jsonStr = line.substring(6).trim();
+
+  // Handle the special "[DONE]" message
+  if (jsonStr === "[DONE]") {
+    return null;
+  }
+
+  try {
+    // Parse and cast to StreamChunk type
+    return JSON.parse(jsonStr) as StreamChunk;
+  } catch (error) {
+    console.error("Error parsing SSE line:", error);
+    return null;
+  }
+}
+
+/**
+ * Extracts content from a StreamChunk if available
+ * @param chunk The parsed StreamChunk
+ * @returns The content string or null if no content is available
+ */
+function extractContentFromChunk(chunk: StreamChunk): string | null {
+  // Check if we have choices and delta content
+  if (!chunk.choices || !chunk.choices[0] || !chunk.choices[0].delta) {
+    return null;
+  }
+
+  const delta = chunk.choices[0].delta;
+
+  // Handle string content
+  if (typeof delta.content === "string") {
+    return delta.content;
+  }
+
+  // Handle content array (for multi-modal responses)
+  if (Array.isArray(delta.content)) {
+    return delta.content
+      .map((item) => ("text" in item ? item.text : ""))
+      .join("");
+  }
+
+  return null;
 }
 
 /**
@@ -84,6 +147,7 @@ export async function streamMistralClient({
   onToken = (token: string) => {},
   onComplete = (fullText: string) => {},
   onError = (error: Error) => console.error(error),
+  onChunk,
 }: StreamMistralClientOptions): Promise<string> {
   try {
     // Sanitize messages to ensure they conform to Mistral API requirements
@@ -113,11 +177,13 @@ export async function streamMistralClient({
       throw new Error("No response body received.");
     }
 
+    // Set up the stream reader and decoder
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
     let fullContent = "";
 
+    // Process the stream
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -134,36 +200,36 @@ export async function streamMistralClient({
         // Skip empty lines
         if (!line.trim()) continue;
 
-        // Handle SSE format - lines starting with "data: "
-        if (line.startsWith("data: ")) {
-          const jsonStr = line.substring(6); // Remove "data: " prefix
+        // Parse the SSE line into a StreamChunk
+        const chunk = parseSSELine(line);
 
-          // Handle the special "[DONE]" message that some SSE APIs use
-          if (jsonStr.trim() === "[DONE]") {
-            continue;
-          }
+        // Skip if parsing failed or it's a control message
+        if (!chunk) continue;
 
-          try {
-            const data = JSON.parse(jsonStr);
+        // Call onChunk callback if provided (for advanced usage)
+        if (onChunk) {
+          onChunk(chunk);
+        }
 
-            // Extract and use the content if available
-            if (
-              data.choices &&
-              data.choices[0].delta &&
-              data.choices[0].delta.content
-            ) {
-              const content = data.choices[0].delta.content;
-              fullContent += content;
-              // Call the token callback
-              onToken(content);
-            }
-          } catch (error) {
-            if (error instanceof Error) {
-              onError(error);
-            } else {
-              onError(new Error("Unknown error parsing JSON"));
-            }
-          }
+        // Extract content from the chunk
+        const content = extractContentFromChunk(chunk);
+
+        // Process the content if available
+        if (content) {
+          fullContent += content;
+          onToken(content);
+        }
+      }
+    }
+
+    // Process any remaining content in the buffer
+    if (buffer.trim()) {
+      const chunk = parseSSELine(buffer);
+      if (chunk) {
+        const content = extractContentFromChunk(chunk);
+        if (content) {
+          fullContent += content;
+          onToken(content);
         }
       }
     }

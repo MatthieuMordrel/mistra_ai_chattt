@@ -99,34 +99,8 @@ const handleStreamingError = (
 };
 
 /**
- * Streams a message to the Mistral AI API and processes the response
- *
- * @param messagesToSend - Messages to send to the API
- * @param onToken - Callback for each token received
- * @param onComplete - Callback when streaming is complete
- * @param onError - Callback when an error occurs
- * @returns A promise that resolves when streaming is complete
- */
-const streamMessageToAPI = async (
-  messagesToSend: ChatMessage[],
-  onToken: (token: string) => void,
-  onComplete: (fullContent: string) => void,
-  onError: (error: Error) => void,
-): Promise<void> => {
-  // Get the selected model ID from the store
-  const selectedModelId = useModelStoreBase.getState().selectedModelId;
-  await streamMistralClient({
-    model: selectedModelId || "mistral-small-latest", // Use selected model or fall back to default
-    messages: messagesToSend,
-    onToken,
-    onComplete,
-    onError,
-  });
-};
-
-/**
  * Send a message to the Mistral AI API and handle streaming response
- * This function orchestrates the message sending process by calling more specialized functions
+ * This function orchestrates the message sending process
  *
  * @param options - The options for sending a message
  * @returns A promise that resolves when the message is sent and the response is processed
@@ -147,11 +121,15 @@ export const streamAssistantMessageAndSaveToDb = async ({
   let accumulatedContent = "";
 
   try {
+    // Get the selected model ID from the store
+    const selectedModelId = useModelStoreBase.getState().selectedModelId;
+
     // Stream the response using our protected API client
-    await streamMessageToAPI(
-      currentMessages,
+    await streamMistralClient({
+      model: selectedModelId || "mistral-small-latest", // Use selected model or fall back to default
+      messages: currentMessages,
       // Token callback
-      (token) => {
+      onToken: (token) => {
         // Make sure streaming flag is set to true during token streaming
         if (!useChatStoreBase.getState().isStreaming) {
           useChatStoreBase.getState().actions.setStreaming(true);
@@ -164,7 +142,7 @@ export const streamAssistantMessageAndSaveToDb = async ({
           .actions.updateAssistantMessage(accumulatedContent);
       },
       // Complete callback
-      async (fullContent) => {
+      onComplete: async (fullContent) => {
         // Update UI state
         updateUIAfterStreaming(fullContent);
         // Call the completion callback if provided
@@ -173,8 +151,8 @@ export const streamAssistantMessageAndSaveToDb = async ({
         await saveAssistantMessageToDb(fullContent, conversationId);
       },
       // Error callback
-      (error) => handleStreamingError(error, callbacks?.onError),
-    );
+      onError: (error) => handleStreamingError(error, callbacks?.onError),
+    });
   } catch (error) {
     handleStreamingError(error, callbacks?.onError);
   }
