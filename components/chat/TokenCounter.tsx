@@ -36,7 +36,7 @@ export default function TokenCounter({ className = "" }: TokenCounterProps) {
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Estimated token count</p>
+          <p className="font-medium">Estimated token count</p>
           <p className="mt-1 text-xs">
             Values are approximate and may differ from exact Mistral
             tokenization
