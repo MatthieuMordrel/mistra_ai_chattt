@@ -20,17 +20,16 @@ export function ConversationProvider({
   const {
     setConversationId,
     setConversationTitle,
-    setMessages,  
+    setMessages,
     resetForNewConversation,
   } = useChatActions();
 
   // Use a ref to track if we've hydrated the store
   const hasHydrated = useRef(false);
-  console.log("hasHydrated", hasHydrated.current);
 
   // Initialize store with server data
   useEffect(() => {
-    if (hasHydrated.current || messagesStore.length > 0) return;
+    if (hasHydrated.current) return;
 
     if (conversation?.id) {
       setConversationId(conversation.id);

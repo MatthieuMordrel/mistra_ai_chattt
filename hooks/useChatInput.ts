@@ -12,7 +12,6 @@ import {
   useMessages,
 } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 /**
@@ -34,7 +33,6 @@ export const useChatInput = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { createConversation } = useConversations();
   const queryClient = getQueryClient();
-  const router = useRouter();
 
   // Focus input on component mount
   useEffect(() => {
@@ -105,34 +103,28 @@ export const useChatInput = () => {
         messages: [userMessage],
       });
 
+      // Only update the URL visually without causing any navigation or data fetching
+      // Doesn't udpate the conversations sidebar though
+      if (window.history) {
+        window.history.replaceState(
+          {
+            ...window.history.state,
+            as: `/dashboard/chat/${result.id}`,
+            url: `/dashboard/chat/${result.id}`,
+          },
+          "",
+          `/dashboard/chat/${result.id}`,
+        );
+      }
+
       // Store the new conversation ID
       setConversationId(result.id);
-
       // Stream the assistant response
       await streamAssistantMessageAndSaveToDb({
         currentMessages: [userMessage],
         userMessage: userMessage,
         conversationId: result.id,
       });
-
-      // Navigate to the new conversation, there is an issue where the component is remounted and so the animation is played again
-      router.push(`/dashboard/chat/${result.id}`);
-
-      // Only update the URL visually without causing any navigation or data fetching
-      // This is the most minimal change possible to update the address bar
-      // if (window.history) {
-      //   window.history.replaceState(
-      //     {
-      //       ...window.history.state,
-      //       as: `/dashboard/chat/${result.id}`,
-      //       url: `/dashboard/chat/${result.id}`,
-      //     },
-      //     "",
-      //     `/dashboard/chat/${result.id}`,
-      //   );
-      // }
-      // Update URL without causing a full navigation/page reload
-      // window.history.replaceState(null, "", `/dashboard/chat/${result.id}`);
 
       //need to rerender my sidebar to refresh the conversation list
     } catch (error) {

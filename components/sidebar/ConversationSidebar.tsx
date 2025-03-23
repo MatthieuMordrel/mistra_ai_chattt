@@ -25,6 +25,7 @@ export function ConversationSidebar({
   conversationsServer: Conversation[];
 }) {
   const { conversations, isError } = useConversations();
+
   const { setConversationTitle } = useChatActions();
   const pathParams = useParams();
 
