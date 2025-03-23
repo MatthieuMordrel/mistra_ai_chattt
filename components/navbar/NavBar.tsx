@@ -8,15 +8,17 @@ export default function NavBar({
   showDashboard = false,
   showSignIn = false,
   showSignOut = false,
+  showSidebarTrigger = false,
 }: {
   showHome?: boolean;
   showDashboard?: boolean;
   showSignIn?: boolean;
   showSignOut?: boolean;
+  showSidebarTrigger?: boolean;
 }) {
   return (
     <nav className="flex w-full shrink-0 items-center justify-between p-4">
-      <SidebarTrigger />
+      {showSidebarTrigger && <SidebarTrigger />}
       <div className="flex items-center gap-2">
         {showHome && (
           <Button

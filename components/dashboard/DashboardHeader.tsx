@@ -10,7 +10,11 @@ import NavBar from "../navbar/NavBar";
 export function DashboardHeader() {
   return (
     <div className="flex h-16 items-center px-4">
-      <NavBar showDashboard={true} showSignOut={true} />
+      <NavBar
+        showDashboard={true}
+        showSignOut={true}
+        showSidebarTrigger={true}
+      />
     </div>
   );
 }
