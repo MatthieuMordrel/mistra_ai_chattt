@@ -6,6 +6,11 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
+/**
+ * Generates metadata for the conversation page
+ * @param params - The parameters for the conversation page
+ * @returns The metadata for the conversation page
+ */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [{ id: conversationId }, { session }] = await Promise.all([
     params,

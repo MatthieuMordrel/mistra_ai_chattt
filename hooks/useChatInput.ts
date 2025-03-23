@@ -116,7 +116,7 @@ export const useChatInput = () => {
       });
 
       // Navigate to the new conversation, there is an issue where the component is remounted and so the animation is played again
-      // router.push(`/dashboard/chat/${result.id}`);
+      router.push(`/dashboard/chat/${result.id}`);
 
       // Only update the URL visually without causing any navigation or data fetching
       // This is the most minimal change possible to update the address bar
@@ -132,7 +132,7 @@ export const useChatInput = () => {
       //   );
       // }
       // Update URL without causing a full navigation/page reload
-      window.history.replaceState(null, "", `/dashboard/chat/${result.id}`);
+      // window.history.replaceState(null, "", `/dashboard/chat/${result.id}`);
 
       //need to rerender my sidebar to refresh the conversation list
     } catch (error) {
