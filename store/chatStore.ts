@@ -127,7 +127,7 @@ export const useChatStoreBase = create<ChatState>((set) => ({
   isStreaming: false,
   conversationId: null,
   tokenCount: 0,
-  isCalculatingTokens: false,
+  isCalculatingTokens: true, //Set to true by default because on the server we don't know the token count
   actions: {
     setMessages: (messages: ChatMessage[]) => {
       set({ messages });
@@ -220,6 +220,7 @@ export const useChatStoreBase = create<ChatState>((set) => ({
         conversationId: null,
         messages: [],
         tokenCount: 0,
+        isCalculatingTokens: false,
       });
     },
   },

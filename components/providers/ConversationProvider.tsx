@@ -38,6 +38,10 @@ export function ConversationProvider({
   useEffect(() => {
     if (hasHydrated.current) return;
 
+    if (!conversation?.messages) {
+      resetForNewConversation();
+    }
+
     if (conversation?.id) {
       setConversationId(conversation.id);
     }
@@ -70,18 +74,13 @@ export function ConversationProvider({
         });
     }
 
-    // If there is no conversation provided by the server, reset the store
-    if (!conversation) {
-      resetForNewConversation();
-    }
-
     hasHydrated.current = true;
   }, [
     conversation,
     setConversationId,
     setConversationTitle,
     setMessages,
-      resetForNewConversation,
+    resetForNewConversation,
     setTokenCount,
     setCalculatingTokens,
   ]);

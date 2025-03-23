@@ -11,8 +11,6 @@ const ChatMessageList = ({
   messagesServer?: ChatMessage[];
 }) => {
   const messagesFromStore = useMessages();
-  console.log("messagesServer", messagesServer);
-  console.log("messagesFromStore", messagesFromStore);
 
   return (
     <div className="relative flex-1 overflow-hidden">
