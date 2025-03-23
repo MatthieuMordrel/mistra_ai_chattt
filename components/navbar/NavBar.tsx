@@ -2,7 +2,7 @@ import { Home } from "lucide-react";
 import Link from "next/link";
 import SignOutButton from "../navbar/SignOut";
 import { Button } from "../ui/button";
-
+import { SidebarTrigger } from "../ui/sidebar";
 export default function NavBar({
   showHome = false,
   showDashboard = false,
@@ -16,6 +16,7 @@ export default function NavBar({
 }) {
   return (
     <nav className="flex w-full shrink-0 items-center justify-between p-4">
+      <SidebarTrigger />
       <div className="flex items-center gap-2">
         {showHome && (
           <Button
