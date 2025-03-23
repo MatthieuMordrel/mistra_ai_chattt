@@ -1,6 +1,11 @@
 "use client";
 
-import { useChatActions, useMessages } from "@/store/chatStore";
+import { countMessageTokens } from "@/lib/tokenizer";
+import {
+  useChatActions,
+  useIsCalculatingTokens,
+  useMessages,
+} from "@/store/chatStore";
 import { ConversationWithMessages } from "@/types/db";
 import { ChatMessage } from "@/types/types";
 import { useEffect, useRef } from "react";
@@ -15,13 +20,15 @@ export function ConversationProvider({
   conversation?: ConversationWithMessages;
 }) {
   const messagesStore = useMessages();
-  // console.log("rerender");
+  const isCalculatingTokens = useIsCalculatingTokens();
   // Use the actions hook to get all actions at once
   const {
     setConversationId,
     setConversationTitle,
     setMessages,
     resetForNewConversation,
+    setTokenCount,
+    setCalculatingTokens,
   } = useChatActions();
 
   // Use a ref to track if we've hydrated the store
@@ -41,21 +48,43 @@ export function ConversationProvider({
 
     const messages = conversation?.messages;
     if (messages && messages.length > 0) {
-      setMessages(
-        messages.map((message) => ({
-          role: message.role as "user" | "assistant" | "system",
-          content: message.content,
-          isStreaming: message.isStreaming,
-        })) as ChatMessage[],
-      );
+      const formattedMessages = messages.map((message) => ({
+        role: message.role as "user" | "assistant" | "system",
+        content: message.content,
+        isStreaming: message.isStreaming,
+      })) as ChatMessage[];
+
+      setMessages(formattedMessages);
+
+      // Calculate token count for the existing conversation
+      setCalculatingTokens(true);
+      countMessageTokens(formattedMessages)
+        .then((count) => {
+          setTokenCount(count);
+        })
+        .catch((err) => {
+          console.error("Error calculating initial token count:", err);
+        })
+        .finally(() => {
+          setCalculatingTokens(false);
+        });
     }
+
     // If there is no conversation provided by the server, reset the store
     if (!conversation) {
       resetForNewConversation();
     }
 
     hasHydrated.current = true;
-  }, [conversation, setConversationId, setConversationTitle, setMessages]);
+  }, [
+    conversation,
+    setConversationId,
+    setConversationTitle,
+    setMessages,
+      resetForNewConversation,
+    setTokenCount,
+    setCalculatingTokens,
+  ]);
 
   return null;
 }

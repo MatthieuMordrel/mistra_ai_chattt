@@ -31,7 +31,7 @@ export default function RootLayout({
         <Providers>
           <ReactQueryDevtools
             initialIsOpen={false}
-            buttonPosition="bottom-right"
+            buttonPosition="top-right"
           />
           {children}
         </Providers>

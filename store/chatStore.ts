@@ -18,6 +18,10 @@ interface ChatState {
   conversationId: string | null;
   /** Current conversation title */
   conversationTitle: string;
+  /** Current token count of the conversation */
+  tokenCount: number;
+  /** Flag indicating if token count is being calculated */
+  isCalculatingTokens: boolean;
   /** Actions that can be performed on the store */
   actions: {
     /**
@@ -70,6 +74,24 @@ interface ChatState {
     setConversationTitle: (title: string) => void;
 
     /**
+     * Sets the token count
+     * @param count - The token count to set
+     */
+    setTokenCount: (count: number) => void;
+
+    /**
+     * Increments the token count (for streaming)
+     * @param increment - The number of tokens to add
+     */
+    incrementTokenCount: (increment: number) => void;
+
+    /**
+     * Sets the calculating tokens state
+     * @param isCalculating - Whether tokens are being calculated
+     */
+    setCalculatingTokens: (isCalculating: boolean) => void;
+
+    /**
      * Resets the store for a new conversation
      * Sets title to "New Conversation", clears ID and messages
      */
@@ -104,6 +126,8 @@ export const useChatStoreBase = create<ChatState>((set) => ({
   conversationTitle: "",
   isStreaming: false,
   conversationId: null,
+  tokenCount: 0,
+  isCalculatingTokens: false,
   actions: {
     setMessages: (messages: ChatMessage[]) => {
       set({ messages });
@@ -176,11 +200,26 @@ export const useChatStoreBase = create<ChatState>((set) => ({
       set({ conversationTitle: title });
     },
 
+    setTokenCount: (count: number) => {
+      set({ tokenCount: count });
+    },
+
+    incrementTokenCount: (increment: number) => {
+      set((state) => ({
+        tokenCount: state.tokenCount + increment,
+      }));
+    },
+
+    setCalculatingTokens: (isCalculating: boolean) => {
+      set({ isCalculatingTokens: isCalculating });
+    },
+
     resetForNewConversation: () => {
       set({
         conversationTitle: "New Chat",
         conversationId: null,
         messages: [],
+        tokenCount: 0,
       });
     },
   },
@@ -195,6 +234,10 @@ export const useConversationId = () =>
   useChatStoreBase((state) => state.conversationId);
 export const useConversationTitle = () =>
   useChatStoreBase((state) => state.conversationTitle);
+export const useTokenCount = () =>
+  useChatStoreBase((state) => state.tokenCount);
+export const useIsCalculatingTokens = () =>
+  useChatStoreBase((state) => state.isCalculatingTokens);
 
 // Export actions as a single hook
 export const useChatActions = () => useChatStoreBase((state) => state.actions);

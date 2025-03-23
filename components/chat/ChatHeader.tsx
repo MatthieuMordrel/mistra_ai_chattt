@@ -1,4 +1,5 @@
 "use client";
+import TokenCounter from "@/components/chat/TokenCounter";
 import { useConversationTitle } from "@/store/chatStore";
 
 /**
@@ -14,6 +15,7 @@ const ChatHeader = () => {
   return (
     <div className="mb-4 flex items-center justify-between border-b pb-2">
       <h1 className="text-xl font-bold">{conversationTitle}</h1>
+      <TokenCounter />
     </div>
   );
 };

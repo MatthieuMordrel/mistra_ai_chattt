@@ -1,5 +1,6 @@
 import { saveMessagesAction } from "@/actions/conversation-actions";
 import { streamMistralClient } from "@/lib/mistral-client";
+import { countMessageTokens, estimateTokenCount } from "@/lib/tokenizer";
 import { useChatStoreBase } from "@/store/chatStore";
 import { useModelStoreBase } from "@/store/modelStore";
 import { ChatMessage } from "@/types/types";
@@ -37,6 +38,30 @@ const prepareUIState = (): void => {
   useChatStoreBase.getState().actions.addAssistantMessage("", true);
   useChatStoreBase.getState().actions.setLoading(true);
   useChatStoreBase.getState().actions.setStreaming(true);
+};
+
+/**
+ * Counts tokens for the current conversation and updates the UI
+ * @param messages Current messages in the conversation
+ */
+const calculateAndUpdateTokenCount = async (
+  messages: ChatMessage[],
+): Promise<void> => {
+  try {
+    // Set calculating state to true
+    useChatStoreBase.getState().actions.setCalculatingTokens(true);
+
+    // Calculate token count for all messages
+    const count = await countMessageTokens(messages);
+
+    // Update the token count in the store
+    useChatStoreBase.getState().actions.setTokenCount(count);
+  } catch (error) {
+    console.error("Error calculating token count:", error);
+  } finally {
+    // Always reset calculating state
+    useChatStoreBase.getState().actions.setCalculatingTokens(false);
+  }
 };
 
 /**
@@ -117,6 +142,9 @@ export const streamAssistantMessageAndSaveToDb = async ({
   // Prepare UI state
   prepareUIState();
 
+  // Calculate initial token count for the conversation
+  calculateAndUpdateTokenCount(currentMessages);
+
   // Initialize a variable to accumulate the streaming content
   let accumulatedContent = "";
 
@@ -140,6 +168,14 @@ export const streamAssistantMessageAndSaveToDb = async ({
         useChatStoreBase
           .getState()
           .actions.updateAssistantMessage(accumulatedContent);
+
+        // Estimate and increment token count for this piece
+        const tokenEstimate = estimateTokenCount(token);
+        if (tokenEstimate > 0) {
+          useChatStoreBase
+            .getState()
+            .actions.incrementTokenCount(tokenEstimate);
+        }
       },
       // Complete callback
       onComplete: async (fullContent) => {

@@ -133,7 +133,12 @@ function extractContentFromChunk(chunk: StreamChunk): string | null {
  * ```typescript
  * await streamMistralClient({
  *   messages: [{ role: "user", content: "Tell me about Paris" }],
- *   onToken: (token) => setPartialResponse(prev => prev + token),
+ *   onToken: (token) => {
+ *     setPartialResponse(prev => prev + token);
+ *     // Handle token count estimation here if needed
+ *     const tokenEstimate = estimateTokenCount(token);
+ *     incrementTokenCount(tokenEstimate);
+ *   },
  *   onComplete: (fullText) => console.log("Completed!"),
  * });
  * ```

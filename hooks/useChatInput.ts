@@ -8,8 +8,10 @@ import { streamAssistantMessageAndSaveToDb } from "@/services/chatService";
 import {
   useChatActions,
   useConversationId,
+  useIsCalculatingTokens,
   useIsLoading,
   useMessages,
+  useTokenCount,
 } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
 import { useEffect, useRef, useState } from "react";
@@ -22,11 +24,14 @@ export const useChatInput = () => {
   const messages = useMessages();
   const isLoading = useIsLoading();
   const conversationId = useConversationId();
+  const tokenCount = useTokenCount();
+  const isCalculatingTokens = useIsCalculatingTokens();
   const {
     addUserMessage,
     setLoading,
     setConversationId,
     setConversationTitle,
+    setTokenCount,
   } = useChatActions();
 
   const [input, setInput] = useState("");
@@ -63,6 +68,11 @@ export const useChatInput = () => {
 
     // Add user message to UI
     addUserMessage(userMessage.content);
+
+    // Reset token count for new conversation
+    if (!conversationId) {
+      setTokenCount(0);
+    }
 
     // Set loading state
     setLoading(true);
@@ -169,6 +179,8 @@ export const useChatInput = () => {
     setInput,
     inputRef,
     isLoading,
+    tokenCount,
+    isCalculatingTokens,
     handleSubmit,
   };
 };

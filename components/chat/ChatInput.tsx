@@ -1,5 +1,6 @@
 "use client";
 
+import TokenCounter from "@/components/chat/TokenCounter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useChatInput } from "@/hooks/useChatInput";
@@ -38,6 +39,11 @@ const ChatInput = () => {
           </Button>
         </div>
       </form>
+
+      {/* Token counter display */}
+      <div className="mt-2 flex justify-end">
+        <TokenCounter />
+      </div>
     </div>
   );
 };
