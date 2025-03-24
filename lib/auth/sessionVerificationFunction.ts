@@ -1,4 +1,5 @@
 import { SessionData } from "./types";
+import { isEmailWhitelisted } from "./whitelist";
 
 /**
  * Verifies the session data
@@ -11,8 +12,7 @@ export function sessionVerificationFunction(
   if (
     !session ||
     session.session.expiresAt < new Date() ||
-    (session.user.email !== "matthieujda08@gmail.com" &&
-      session.user.email !== "aleksandra.livinskaia@gmail.com")
+    !isEmailWhitelisted(session.user.email)
   ) {
     return false;
   }
