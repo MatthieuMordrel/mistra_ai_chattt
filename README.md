@@ -4,10 +4,12 @@ A simple chat application powered by Mistral AI that allows users to interact wi
 
 ## Features
 
-- 🤖 Chat with different Mistral AI models
 - 🔄 Easy switching between Mistral AI models
 - 🔐 Simple authentication via Google OAuth
 - 💾 Chat history persistence
+- 🚀 Blazing fast speed
+- 🔍 Real time token counting
+- 🔒 Whitelisting for private use
 
 ## Tech Stack
 
@@ -33,6 +35,10 @@ A simple chat application powered by Mistral AI that allows users to interact wi
 
 - **Mistral AI API** - Access to various Mistral language models
 
+### Hosting Platform
+
+- **Vercel** - Project is designed to be hosted on Vercel (could work with other hosting platforms but would require some tweaks)
+
 ## Environment Variables
 
 To run this project, you'll need to set up the following environment variables. A template file `.env.example` is provided in the repository.
@@ -43,7 +49,7 @@ To run this project, you'll need to set up the following environment variables. 
    cp .env.example .env
    ```
 
-2. Fill in your own values in the `.env` file:
+2. Fill in your own values in the `.env` file or/and your hosting platform's environment variables:
 
    - `MISTRAL_API_KEY`: Your Mistral AI API key
    - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`: For Google OAuth authentication
@@ -60,3 +66,5 @@ To run this project, you'll need to set up the following environment variables. 
 
 - Ensure navbar is correctly updated on conversation creation
 - Add infinite scroll to conversations sidebar (using useInfiniteQuery?)
+- Clicking on a model should close the dropdown
+- Add a message for non-whitelisted users when they get redirected to login page
