@@ -68,3 +68,4 @@ To run this project, you'll need to set up the following environment variables. 
 - Add infinite scroll to conversations sidebar (using useInfiniteQuery?)
 - Clicking on a model should close the dropdown
 - Add a message for non-whitelisted users when they get redirected to login page
+- Use the serverless neon database driver to stream chat message
