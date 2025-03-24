@@ -1,5 +1,6 @@
 "use client";
 
+import { useAutoScroll } from "@/hooks/useAutoScroll";
 import { cn } from "@/lib/utils";
 import { useMessages } from "@/store/chatStore";
 import type { ChatMessage } from "@/types/types";
@@ -11,6 +12,7 @@ const ChatMessageList = ({
   messagesServer?: ChatMessage[];
 }) => {
   const messagesFromStore = useMessages();
+  const messagesEndRef = useAutoScroll();
 
   return (
     <div className="relative flex-1 overflow-hidden">
@@ -43,6 +45,7 @@ const ChatMessageList = ({
             ).map((message, index) => (
               <ChatMessageItem key={index} message={message} />
             ))}
+            <div ref={messagesEndRef} />
           </div>
         )}
       </div>

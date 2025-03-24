@@ -1,34 +1,38 @@
 "use client";
 
-import { MessageDB } from "@/types/db";
 import { useEffect, useRef } from "react";
 
 /**
  * Custom hook for auto-scrolling to the bottom of the chat
  * Returns a ref to attach to the bottom element
- *
- * @param messages - The messages to watch for changes
- * @param dependencies - Optional additional dependencies to trigger scrolling
+ * Only scrolls on initial load
  */
-export function useAutoScroll(messages: MessageDB[], dependencies: any[] = []) {
+export function useAutoScroll() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  // This is to ensure the scroll only happens once everytime the component is mounted (on each page load)
+  const hasScrolledRef = useRef(false);
 
-  // Scroll to bottom when messages change or when any dependency changes
+  // Scroll to bottom only on initial load
   useEffect(() => {
+    if (hasScrolledRef.current) return;
+
     // Use requestAnimationFrame to ensure DOM has updated before scrolling
     const scrollToBottom = () => {
       if (messagesEndRef.current) {
+        //Could be change to instant if there are many messages (would need to block rendering until scroll is complete)
         messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        hasScrolledRef.current = true;
       }
     };
 
     // Use setTimeout to ensure the scroll happens after any rendering
     const timeoutId = setTimeout(() => {
+      // This is to ensure the scroll happens after any rendering
       requestAnimationFrame(scrollToBottom);
     }, 100);
 
     return () => clearTimeout(timeoutId);
-  }, [messages, ...dependencies]);
+  }, []); // Empty dependency array means this only runs once on mount
 
   return messagesEndRef;
 }

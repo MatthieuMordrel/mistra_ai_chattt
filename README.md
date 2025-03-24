@@ -22,7 +22,6 @@ A simple chat application powered by Mistral AI that allows users to interact wi
 ### Backend
 
 - **Next.js Route Handlers & Server Functions** - Serverless API endpoints
-- **Vercel Data Cache** - Server-side caching for improved performance
 - **Better Auth** - Authentication and session management
 
 ### Database
@@ -58,4 +57,4 @@ To run this project, you'll need to set up the following environment variables. 
 ### Improvements:
 
 - Ensure navbar is correctly updated on conversation creation
-- Ensure the user is brought to bottom of the chat on page load (Scrolling to an id in Link Component?)
+- Add infinite scroll to conversations sidebar (using useInfiniteQuery?)
