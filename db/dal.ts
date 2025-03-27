@@ -1,33 +1,27 @@
 import "server-only";
 
 import { cache } from "react";
-import {
-  createConversationInDB,
-  deleteConversation,
-  getConversation,
-  getUserConversations,
-  saveMessages,
-  updateConversationTitle,
-} from "./services/conversation-service";
-import { ModelService } from "./services/model-service";
+import { conversationService } from "./services/conversation-service";
+import { modelService } from "./services/model-service";
 
+// prettier-ignore
 export const DAL = {
   conversation: {
     queries: {
-      getConversation: cache(getConversation),
-      getUserConversations: cache(getUserConversations),
+      getConversation: cache(conversationService.queries.getConversation),
+      getUserConversations: cache(conversationService.queries.getUserConversations),
     },
     mutations: {
-      createConversation: createConversationInDB,
-      updateConversationTitle: updateConversationTitle,
-      saveMessages: saveMessages,
-      deleteConversation: deleteConversation,
+      createConversation: conversationService.mutations.createConversation,
+      updateConversationTitle: conversationService.mutations.updateConversationTitle,
+      saveMessages: conversationService.mutations.saveMessages,
+      deleteConversation: conversationService.mutations.deleteConversation,
     },
   },
   model: {
     queries: {
-      getActiveModels: cache(ModelService.getActiveModels),
-      getModelById: cache(ModelService.getModelById),
+      getActiveModels: cache(modelService.queries.getActiveModels),
+      getModelById: cache(modelService.queries.getModelById),
     },
   },
 };

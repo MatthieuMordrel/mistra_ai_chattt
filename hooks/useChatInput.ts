@@ -1,7 +1,7 @@
 "use client";
 
 import { saveMessagesAction } from "@/actions/conversation-actions";
-import { useConversations } from "@/hooks/useConversations";
+import { useConversations } from "@/hooks/tanstack-query/useConversations";
 import { formatConversationTitle } from "@/lib/utils";
 import { getQueryClient } from "@/providers/QueryProvider";
 import { streamAssistantMessageAndSaveToDb } from "@/services/chatService";

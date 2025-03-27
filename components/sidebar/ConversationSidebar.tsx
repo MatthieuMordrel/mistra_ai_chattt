@@ -14,7 +14,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { useConversations } from "@/hooks/useConversations";
+import { useConversations } from "@/hooks/tanstack-query/useConversations";
 import { useChatActions } from "@/store/chatStore";
 import { Conversation } from "@/types/types";
 import NewConversation from "../chat/NewConversationButton";

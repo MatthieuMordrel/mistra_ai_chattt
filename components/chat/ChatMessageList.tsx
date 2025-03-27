@@ -1,6 +1,6 @@
 "use client";
 
-import { useAutoScroll } from "@/hooks/useAutoScroll";
+import { useAutoScroll } from "@/hooks/utils/useAutoScroll";
 import { cn } from "@/lib/utils";
 import { useMessages } from "@/store/chatStore";
 import type { ChatMessage } from "@/types/types";

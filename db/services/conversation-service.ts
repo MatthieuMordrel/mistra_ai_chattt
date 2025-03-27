@@ -6,197 +6,181 @@ import { ChatMessage } from "@/types/types";
 import { and, desc, eq } from "drizzle-orm";
 
 /**
- * Create a new conversation in the database
- * @param userId The ID of the user who owns the conversation
- * @param title The title of the conversation
- * @returns The ID of the newly created conversation
+ * Service for handling database operations related to conversations and messages
  */
-export async function createConversationInDB(
-  userId: string,
-  title: string = "New Conversation",
-): Promise<string> {
-  const result = await db
-    .insert(conversation)
-    .values({
-      userId,
-      title,
-    })
-    .returning({ id: conversation.id });
+export const conversationService = {
+  queries: {
+    /**
+     * Get a conversation by ID including messages and set isStreaming to false
+     */
+    getConversation: async (conversationId: string, userId: string) => {
+      // Fetch conversation and messages in parallel
+      const [conversationResult, messages] = await Promise.all([
+        db
+          .select()
+          .from(conversation)
+          .where(
+            and(
+              eq(conversation.id, conversationId),
+              eq(conversation.userId, userId),
+            ),
+          ),
+        db
+          .select()
+          .from(message)
+          .where(eq(message.conversationId, conversationId))
+          .orderBy(message.createdAt),
+      ]);
 
-  if (!result[0]) {
-    throw new Error("Failed to create conversation");
-  }
+      const [conversationData] = conversationResult;
 
-  return result[0].id;
-}
+      if (!conversationData) {
+        throw new Error("Conversation not found");
+      }
 
-/**
- * Save a message to the database
- * @param conversationId The ID of the conversation the message belongs to
- * @param role The role of the message sender ('user' or 'assistant')
- * @param content The content of the message
- * @param tokens Optional token count for tracking usage
- * @returns The ID of the newly created message
- */
-export async function saveMessage(
-  conversationId: string,
-  role: "user" | "assistant" | "system",
-  content: string,
-  tokens?: number,
-): Promise<string> {
-  const result = await db
-    .insert(message)
-    .values({
-      conversationId,
-      role,
-      content,
-      tokens,
-    })
-    .returning({ id: message.id });
+      return {
+        ...conversationData,
+        messages: messages.map((msg) => ({
+          ...msg,
+          isStreaming: false,
+        })),
+      };
+    },
 
-  if (!result[0]) {
-    throw new Error("Failed to save message");
-  }
+    /**
+     * Get all conversations for a user
+     */
+    getUserConversations: async (userId: string) => {
+      return db
+        .select()
+        .from(conversation)
+        .where(eq(conversation.userId, userId))
+        .orderBy(desc(conversation.updatedAt));
+    },
 
-  // Update the conversation's updatedAt timestamp
-  await db
-    .update(conversation)
-    .set({ updatedAt: new Date() })
-    .where(eq(conversation.id, conversationId));
+    /**
+     * Calculate the total tokens used in a conversation
+     */
+    getConversationTokens: async (conversationId: string) => {
+      const result = await db
+        .select({ sum: message.tokens })
+        .from(message)
+        .where(eq(message.conversationId, conversationId));
 
-  return result[0].id;
-}
+      // Sum might be null if there are no messages or no token counts
+      return result[0]?.sum || 0;
+    },
+  },
 
-/**
- * Save multiple messages to the database
- * @param conversationId The ID of the conversation the messages belong to
- * @param messages The messages to save
- * @returns The IDs of the newly created messages
- */
-export async function saveMessages(
-  conversationId: string,
-  messages: ChatMessage[],
-): Promise<string[]> {
-  if (!messages.length) return [];
+  mutations: {
+    /**
+     * Create a new conversation in the database
+     */
+    createConversation: async (
+      userId: string,
+      title: string = "New Conversation",
+    ) => {
+      const result = await db
+        .insert(conversation)
+        .values({
+          userId,
+          title,
+        })
+        .returning({ id: conversation.id });
 
-  const messageIds: string[] = [];
+      if (!result[0]) {
+        throw new Error("Failed to create conversation");
+      }
 
-  // Insert each message individually to get the IDs
-  for (const msg of messages) {
-    const id = await saveMessage(
-      conversationId,
-      msg.role,
-      msg.content,
-      undefined, // We don't have token counts in the ChatMessage type, we'll need to calculate this at some point
-    );
-    messageIds.push(id);
-  }
+      return result[0].id;
+    },
 
-  return messageIds;
-}
+    /**
+     * Save a message to the database
+     */
+    saveMessage: async (
+      conversationId: string,
+      role: "user" | "assistant" | "system",
+      content: string,
+      tokens?: number,
+    ) => {
+      const result = await db
+        .insert(message)
+        .values({
+          conversationId,
+          role,
+          content,
+          tokens,
+        })
+        .returning({ id: message.id });
 
-/**
- * Get a conversation by ID including messages and set isStreaming to false
- * @param conversationId The ID of the conversation to get
- * @param userId The ID of the user who owns the conversation
- * @returns The conversation and its messages
- */
-export async function getConversation(conversationId: string, userId: string) {
-  // Fetch conversation and messages in parallel
-  const [conversationResult, messages] = await Promise.all([
-    db
-      .select()
-      .from(conversation)
-      .where(
-        and(
-          eq(conversation.id, conversationId),
-          eq(conversation.userId, userId),
-        ),
-      ),
-    db
-      .select()
-      .from(message)
-      .where(eq(message.conversationId, conversationId))
-      .orderBy(message.createdAt),
-  ]);
+      if (!result[0]) {
+        throw new Error("Failed to save message");
+      }
 
-  const [conversationData] = conversationResult;
+      // Update the conversation's updatedAt timestamp
+      await db
+        .update(conversation)
+        .set({ updatedAt: new Date() })
+        .where(eq(conversation.id, conversationId));
 
-  if (!conversationData) {
-    throw new Error("Conversation not found");
-  }
+      return result[0].id;
+    },
 
-  return {
-    ...conversationData,
-    messages: messages.map((msg) => ({
-      ...msg,
-      isStreaming: false,
-    })),
-  };
-}
+    /**
+     * Save multiple messages to the database
+     */
+    saveMessages: async (conversationId: string, messages: ChatMessage[]) => {
+      if (!messages.length) return [];
 
-/**
- * Get all conversations for a user
- * @param userId The ID of the user
- * @returns An array of conversations
- */
-export async function getUserConversations(userId: string) {
-  return db
-    .select()
-    .from(conversation)
-    .where(eq(conversation.userId, userId))
-    .orderBy(desc(conversation.updatedAt));
-}
+      const messageIds: string[] = [];
 
-/**
- * Update a conversation's title
- * @param conversationId The ID of the conversation to update
- * @param userId The ID of the user who owns the conversation
- * @param title The new title for the conversation
- */
-export async function updateConversationTitle(
-  conversationId: string,
-  userId: string,
-  title: string,
-) {
-  await db
-    .update(conversation)
-    .set({ title, updatedAt: new Date() })
-    .where(
-      and(eq(conversation.id, conversationId), eq(conversation.userId, userId)),
-    );
-}
+      // Insert each message individually to get the IDs
+      for (const msg of messages) {
+        const id = await conversationService.mutations.saveMessage(
+          conversationId,
+          msg.role,
+          msg.content,
+          undefined, // We don't have token counts in the ChatMessage type
+        );
+        messageIds.push(id);
+      }
 
-/**
- * Delete a conversation and all its messages
- * @param conversationId The ID of the conversation to delete
- * @param userId The ID of the user who owns the conversation
- */
-export async function deleteConversation(
-  conversationId: string,
-  userId: string,
-) {
-  await db
-    .delete(conversation)
-    .where(
-      and(eq(conversation.id, conversationId), eq(conversation.userId, userId)),
-    );
-  // Messages will be deleted automatically due to the CASCADE constraint
-}
+      return messageIds;
+    },
 
-/**
- * Calculate the total tokens used in a conversation
- * @param conversationId The ID of the conversation
- * @returns The total number of tokens used
- */
-export async function getConversationTokens(
-  conversationId: string,
-): Promise<number> {
-  const result = await db
-    .select({ sum: message.tokens })
-    .from(message)
-    .where(eq(message.conversationId, conversationId));
+    /**
+     * Update a conversation's title
+     */
+    updateConversationTitle: async (
+      conversationId: string,
+      userId: string,
+      title: string,
+    ) => {
+      await db
+        .update(conversation)
+        .set({ title, updatedAt: new Date() })
+        .where(
+          and(
+            eq(conversation.id, conversationId),
+            eq(conversation.userId, userId),
+          ),
+        );
+    },
 
-  // Sum might be null if there are no messages or no token counts
-  return result[0]?.sum || 0;
-}
+    /**
+     * Delete a conversation and all its messages
+     */
+    deleteConversation: async (conversationId: string, userId: string) => {
+      await db
+        .delete(conversation)
+        .where(
+          and(
+            eq(conversation.id, conversationId),
+            eq(conversation.userId, userId),
+          ),
+        );
+      // Messages will be deleted automatically due to the CASCADE constraint
+    },
+  },
+};
