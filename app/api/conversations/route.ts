@@ -11,10 +11,12 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function GET(request: NextRequest) {
   // Get the session using our utility function
-  const sessionResult = await tryCatch(getSessionFromRequest(request));
+  const { data: session, error: sessionError } = await tryCatch(
+    getSessionFromRequest(request),
+  );
 
-  if (sessionResult.error) {
-    console.error("Error getting session:", sessionResult.error);
+  if (sessionError) {
+    console.error("Error getting session:", sessionError);
     return NextResponse.json(
       { error: "Authentication failed" },
       { status: 401 },
@@ -22,12 +24,12 @@ export async function GET(request: NextRequest) {
   }
 
   // Get conversations for the user
-  const conversationsResult = await tryCatch(
-    ConversationService.getUserConversations(sessionResult.data.user.id),
+  const { data: conversations, error: conversationsError } = await tryCatch(
+    ConversationService.getUserConversations(session.user.id),
   );
 
-  if (conversationsResult.error) {
-    console.error("Error fetching conversations:", conversationsResult.error);
+  if (conversationsError) {
+    console.error("Error fetching conversations:", conversationsError);
     return NextResponse.json(
       { error: "Failed to fetch conversations" },
       { status: 500 },
@@ -35,7 +37,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Format the conversations for the client
-  const formattedConversations = conversationsResult.data.map((conv) => ({
+  const formattedConversations = conversations.map((conv) => ({
     id: conv.id,
     title: conv.title,
     updatedAt: conv.updatedAt.toISOString(),

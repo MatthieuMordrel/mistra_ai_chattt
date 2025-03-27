@@ -13,10 +13,12 @@ export async function GET(
   const { id: conversationId } = await params;
 
   // Get the current user session
-  const sessionResult = await tryCatch(getSessionFromRequest(request));
+  const { data: session, error: sessionError } = await tryCatch(
+    getSessionFromRequest(request),
+  );
 
-  if (sessionResult.error) {
-    console.error("Error getting session:", sessionResult.error);
+  if (sessionError) {
+    console.error("Error getting session:", sessionError);
     return NextResponse.json(
       { error: "Authentication failed" },
       { status: 401 },
@@ -25,10 +27,7 @@ export async function GET(
 
   // Get the conversation with its messages
   const { data: conversation, error: conversationError } = await tryCatch(
-    ConversationService.getConversation(
-      conversationId,
-      sessionResult.data.user.id,
-    ),
+    ConversationService.getConversation(conversationId, session.user.id),
   );
 
   if (conversationError) {
