@@ -1,5 +1,5 @@
 import ChatContainer from "@/components/chat/ChatContainer";
-import { cacheGetConversation } from "@/db/services/conversation-service_dal";
+import { DAL } from "@/db/dal";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 import { Metadata } from "next";
 type Props = {
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     params,
     cachedValidateServerSession(),
   ]);
-  const conversation = await cacheGetConversation(
+  const conversation = await DAL.conversation.queries.getConversation(
     conversationId,
     session?.session.userId as string,
   );
@@ -38,7 +38,7 @@ export default async function ConversationPage({
     cachedValidateServerSession(),
   ]);
   //Fetching the conversation from the server
-  const conversation = await cacheGetConversation(
+  const conversation = await DAL.conversation.queries.getConversation(
     conversationId,
     session?.session.userId as string,
   );

@@ -1,4 +1,4 @@
-import { ModelService } from "@/db/services/model-service";
+import { DAL } from "@/db/dal";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -6,7 +6,7 @@ import { persist } from "zustand/middleware";
  * Interface for a model in the store
  */
 export type Model = Awaited<
-  ReturnType<typeof ModelService.getActiveModels>
+  ReturnType<typeof DAL.model.queries.getActiveModels>
 >[number];
 
 /**

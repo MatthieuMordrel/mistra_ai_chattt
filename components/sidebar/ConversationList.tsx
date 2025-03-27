@@ -1,4 +1,4 @@
-import { ConversationService } from "@/db/services/conversation-service";
+import { DAL } from "@/db/dal";
 import { getQueryClient } from "@/providers/QueryProvider";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { ConversationSidebar } from "./ConversationSidebar";
@@ -11,7 +11,8 @@ export async function ConversationsSidebar({ userId }: { userId: string }) {
   const queryClient = getQueryClient();
 
   // Prefetch the conversations data on the server
-  const conversations = await ConversationService.getUserConversations(userId);
+  const conversations =
+    await DAL.conversation.queries.getUserConversations(userId);
 
   await queryClient.prefetchQuery({
     queryKey: ["conversations"],

@@ -1,4 +1,4 @@
-import { ModelService } from "@/db/services/model-service";
+import { DAL } from "@/db/dal";
 import { tryCatch } from "@/lib/tryCatch";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
   // Fetch active models from the database
   const { data: models, error } = await tryCatch(
-    ModelService.getActiveModels(),
+    DAL.model.queries.getActiveModels(),
   );
 
   if (error) {

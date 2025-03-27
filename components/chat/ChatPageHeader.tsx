@@ -1,4 +1,4 @@
-import { ModelService } from "@/db/services/model-service";
+import { DAL } from "@/db/dal";
 import ChatTitleLayout from "./ChatTitle copy";
 import { ModelSelector } from "./ModelSelector";
 /**
@@ -9,7 +9,7 @@ import { ModelSelector } from "./ModelSelector";
  */
 export async function ChatPageHeader() {
   //Get the models from the db on the server
-  const models = await ModelService.getActiveModels();
+  const models = await DAL.model.queries.getActiveModels();
   return (
     <div className="mb-4 flex items-center justify-start gap-6 pb-2">
       <ModelSelector models={models} />

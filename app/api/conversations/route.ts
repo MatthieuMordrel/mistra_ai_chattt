@@ -1,4 +1,4 @@
-import { ConversationService } from "@/db/services/conversation-service";
+import { DAL } from "@/db/dal";
 import { getSessionFromRequest } from "@/lib/auth/getSessionFromRequest";
 import { tryCatch } from "@/lib/tryCatch";
 import { NextRequest, NextResponse } from "next/server";
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
   // Get conversations for the user
   const { data: conversations, error: conversationsError } = await tryCatch(
-    ConversationService.getUserConversations(session.user.id),
+    DAL.conversation.queries.getUserConversations(session.user.id),
   );
 
   if (conversationsError) {

@@ -1,6 +1,7 @@
 "use server";
-import { ConversationService } from "@/db/services/conversation-service";
+import { DAL } from "@/db/dal";
 import { auth } from "@/lib/auth/auth";
+import { tryCatch } from "@/lib/tryCatch";
 import { ChatMessage } from "@/types/types";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
@@ -21,26 +22,29 @@ export async function createConversationAction(
     throw new Error("Unauthorized");
   }
 
-  try {
-    // Create a new conversation
-    const conversationId = await ConversationService.createConversationInDB(
-      session.user.id,
-      title,
-    );
+  // Create a new conversation
+  const { data: conversationId, error } = await tryCatch(
+    DAL.conversation.mutations.createConversation(session.user.id, title),
+  );
 
-    // Save messages if provided
-    if (messages.length > 0) {
-      await ConversationService.saveMessages(conversationId, messages);
-    }
-
-    // Revalidate the conversations path to update the UI
-    // revalidatePath("/dashboard/chat");
-
-    return { id: conversationId };
-  } catch (error) {
-    console.error("Error creating conversation:", error);
+  if (error) {
     throw new Error("Failed to create conversation");
   }
+
+  // Save messages if provided
+  if (messages.length > 0) {
+    const { error: saveMessagesError } = await tryCatch(
+      DAL.conversation.mutations.saveMessages(conversationId, messages),
+    );
+    if (saveMessagesError) {
+      throw new Error("Failed to save messages");
+    }
+  }
+
+  // Revalidate the conversations path to update the UI
+  // revalidatePath("/dashboard/chat");
+
+  return { id: conversationId };
 }
 
 /**
@@ -59,21 +63,22 @@ export async function updateConversationTitle(
     throw new Error("Unauthorized");
   }
 
-  try {
-    await ConversationService.updateConversationTitle(
+  const { error } = await tryCatch(
+    DAL.conversation.mutations.updateConversationTitle(
       conversationId,
       session.user.id,
       title,
-    );
+    ),
+  );
 
-    // Revalidate the conversations path to update the UI
-    // revalidatePath("/dashboard/chat");
-
-    return { success: true };
-  } catch (error) {
-    console.error("Error updating conversation title:", error);
+  if (error) {
     throw new Error("Failed to update conversation title");
   }
+
+  // Revalidate the conversations path to update the UI
+  // revalidatePath("/dashboard/chat");
+
+  return { success: true };
 }
 
 /**
@@ -93,34 +98,34 @@ export async function saveMessagesAction(
     throw new Error("Unauthorized");
   }
 
-  try {
-    // Verify the user owns the conversation
-    const conversationData = await ConversationService.getConversation(
-      conversationId,
-      session.user.id,
-    );
+  // Verify the user owns the conversation
+  const { data: conversationData, error: conversationError } = await tryCatch(
+    DAL.conversation.queries.getConversation(conversationId, session.user.id),
+  );
 
-    if (!conversationData) {
-      throw new Error("Conversation not found");
-    }
+  if (conversationError) {
+    throw new Error("Conversation not found");
+  }
 
-    // Save the messages
-    await ConversationService.saveMessages(conversationId, messages);
+  // Save the messages
+  const { error: saveMessagesError } = await tryCatch(
+    DAL.conversation.mutations.saveMessages(conversationId, messages),
+  );
 
-    // Revalidate the conversation path to update the UI if needed
-    // revalidatePath(`/dashboard/chat/${conversationId}`);
-
-    return { success: true };
-  } catch (error) {
-    console.error("Error saving messages:", error);
+  if (saveMessagesError) {
     throw new Error("Failed to save messages");
   }
+
+  // Revalidate the conversation path to update the UI if needed
+  // revalidatePath(`/dashboard/chat/${conversationId}`);
+
+  return { success: true };
 }
 
 /**
  * Deletes a conversation in the database and returns a sucess boolean or throws an error
  */
-export async function deleteConversation(conversationId: string) {
+export async function deleteConversationAction(conversationId: string) {
   // Get the session using cookies
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -130,22 +135,26 @@ export async function deleteConversation(conversationId: string) {
     throw new Error("Unauthorized");
   }
 
-  try {
-    await ConversationService.deleteConversation(
+  const { error: deleteConversationError } = await tryCatch(
+    DAL.conversation.mutations.deleteConversation(
       conversationId,
       session.user.id,
-    );
+    ),
+  );
 
-    // Revalidate the conversations path to update the UI
-    // revalidatePath("/dashboard/chat");
-
-    return { success: true };
-  } catch (error) {
-    console.error("Error deleting conversation:", error);
+  if (deleteConversationError) {
     throw new Error("Failed to delete conversation");
   }
+
+  // Revalidate the conversations path to update the UI
+  // revalidatePath("/dashboard/chat");
+
+  return { success: true };
 }
 
+/**
+ * Revalidates the conversations path to update the UI
+ */
 export async function revalidateConversations(id: string) {
   // Revalidate the conversations path to update the UI
   //This empty the route cache for all conversations because the route is dynamic
