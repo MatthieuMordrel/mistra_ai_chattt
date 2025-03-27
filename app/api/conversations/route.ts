@@ -1,5 +1,6 @@
 import { ConversationService } from "@/db/services/conversation-service";
 import { getSessionFromRequest } from "@/lib/auth/getSessionFromRequest";
+import { tryCatch } from "@/lib/tryCatch";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -9,28 +10,36 @@ import { NextRequest, NextResponse } from "next/server";
  * in the x-session-data header to avoid fetching it again.
  */
 export async function GET(request: NextRequest) {
-  try {
-    // Get the session using our utility function
-    const { user } = await getSessionFromRequest(request);
+  // Get the session using our utility function
+  const sessionResult = await tryCatch(getSessionFromRequest(request));
 
-    // Fetch conversations for the user
-    const conversations = await ConversationService.getUserConversations(
-      user.id,
+  if (sessionResult.error) {
+    console.error("Error getting session:", sessionResult.error);
+    return NextResponse.json(
+      { error: "Authentication failed" },
+      { status: 401 },
     );
+  }
 
-    // Format the conversations for the client
-    const formattedConversations = conversations.map((conv) => ({
-      id: conv.id,
-      title: conv.title,
-      updatedAt: conv.updatedAt.toISOString(),
-    }));
+  // Get conversations for the user
+  const conversationsResult = await tryCatch(
+    ConversationService.getUserConversations(sessionResult.data.user.id),
+  );
 
-    return NextResponse.json(formattedConversations);
-  } catch (error) {
-    console.error("Error fetching conversations:", error);
+  if (conversationsResult.error) {
+    console.error("Error fetching conversations:", conversationsResult.error);
     return NextResponse.json(
       { error: "Failed to fetch conversations" },
       { status: 500 },
     );
   }
+
+  // Format the conversations for the client
+  const formattedConversations = conversationsResult.data.map((conv) => ({
+    id: conv.id,
+    title: conv.title,
+    updatedAt: conv.updatedAt.toISOString(),
+  }));
+
+  return NextResponse.json(formattedConversations);
 }

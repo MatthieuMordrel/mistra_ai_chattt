@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { tryCatchSync } from "../tryCatch";
 import { SessionData } from "./types";
 
 /**
@@ -18,24 +19,22 @@ export async function getSessionFromRequest(
   // Try to get the session data from the middleware
   const sessionDataHeader = request.headers.get("x-session-data");
 
-  let session: SessionData | null = null;
-  // If the session data is in the header, parse it
-  if (sessionDataHeader) {
-    try {
-      session = JSON.parse(
-        decodeURIComponent(sessionDataHeader),
-      ) as SessionData;
-      return session;
-    } catch (e) {
-      console.error("Error parsing session data from header:", e);
-      // Continue to fallback
-    }
+  if (sessionDataHeader === null) {
+    throw new Error(
+      "Missing x-session-data header. Ensure middleware is properly configured.",
+    );
   }
 
-  // In middleware-protected routes, this should never be null
-  // But we check anyway for type safety and to handle unexpected errors
-  if (!session) {
-    throw new Error("Failed to retrieve session data");
+  // Use tryCatchSync for the synchronous JSON.parse operation which may error
+  const { data: session, error } = tryCatchSync<SessionData>(() =>
+    JSON.parse(decodeURIComponent(sessionDataHeader)),
+  );
+
+  if (error) {
+    console.error("Error parsing session data from header:", error);
+    throw new Error(`Failed to parse session data: ${error.message}`, {
+      cause: error,
+    });
   }
 
   return session;
