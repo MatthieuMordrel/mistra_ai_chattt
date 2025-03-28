@@ -4,7 +4,9 @@ import TokenCounter from "@/components/chat/TokenCounter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useChatInput } from "@/hooks/useChatInput";
+import { useInputFocus } from "@/hooks/useInputFocus";
 import { SendIcon } from "lucide-react";
+import { useRef } from "react";
 
 /**
  * Component for the chat input form
@@ -12,8 +14,14 @@ import { SendIcon } from "lucide-react";
  * UI layer that uses the useChatInput hook for logic
  */
 const ChatInput = () => {
+  // Reference to the input element for focus management
+  const inputRef = useRef<HTMLInputElement>(null);
+
   // Use the custom hook to separate logic from UI
-  const { input, setInput, inputRef, isLoading, handleSubmit } = useChatInput();
+  const { input, setInput, isLoading, handleSubmit } = useChatInput();
+
+  // Handle input focus behavior
+  useInputFocus(inputRef, isLoading);
 
   return (
     <div className="mt-4 px-2 sm:px-4">
