@@ -58,6 +58,8 @@ To run this project, you'll need to set up the following environment variables. 
    - `BETTER_AUTH_URL`: The URL of the BetterAuth server
    - `WHITELISTED_EMAILS`: Comma-separated list of whitelisted email addresses
 
+3. In Vercel, ensure to extend the maximum duration of your functions to ensure long conversations can be streamed
+
 ## TO DO:
 
 ### Issues:
