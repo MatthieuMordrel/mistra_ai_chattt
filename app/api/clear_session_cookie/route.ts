@@ -5,6 +5,7 @@ export async function GET() {
   // Delete the session cookie
   const cookieStore = await cookies();
   cookieStore.delete("better-auth.session_token");
+  cookieStore.delete("__Secure-better-auth.session_token");
 
   // Return a success response
   return NextResponse.json({ success: true });
