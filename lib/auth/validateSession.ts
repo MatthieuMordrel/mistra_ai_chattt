@@ -1,7 +1,7 @@
 import "server-only";
 
 import { headers } from "next/headers";
-import { forbidden, redirect } from "next/navigation";
+import { forbidden, redirect, unauthorized } from "next/navigation";
 import { cache } from "react";
 import { tryCatch } from "../tryCatch";
 import { auth } from "./config/auth";
@@ -37,19 +37,19 @@ export async function validateServerSession(redirectPath?: string) {
       const result = await tryCatch(auth.api.signOut({ headers: headersList }));
       if (result.error) {
         //If there is an error when signing out, return a forbidden error to avoid infinite redirect
-        forbidden();
+        unauthorized();
       }
       redirect(redirectPath);
     }
-    throw new HttpError("Invalid session", 403);
+    // If there is no redirect path, return a unauthorized error
+    // This should happen when calling the server actions or route handlers directly only
+    throw new HttpError("Invalid session", 401);
   }
 
   //Check if session is valid
   const validSession = sessionVerificationFunction(session);
 
   if (!validSession) {
-    // When session is invalid, redirect to sign-in with a special query param
-    // that will trigger cookie cleanup in the route handler
     if (redirectPath) {
       const result = await tryCatch(auth.api.signOut({ headers: headersList }));
       if (result.error) {
