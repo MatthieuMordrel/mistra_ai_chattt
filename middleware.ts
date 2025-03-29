@@ -6,11 +6,6 @@ import {
 
 /**
  * Middleware for handling authentication in Next.js
- *
- * This implementation follows the Better Auth recommendation for Next.js 15.1.7 and below:
- * - For public routes: Check if session cookie exists and redirect to dashboard if it does
- * - For protected API routes: Make an API call to our own /api/auth/get-session endpoint to validate the session
- *   and pass the session data to the API route via headers to avoid fetching it again
  */
 
 // Main middleware function
