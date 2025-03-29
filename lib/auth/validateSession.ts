@@ -49,15 +49,8 @@ export async function validateServerSession(redirect?: boolean) {
 
   if (!validSession) {
     if (redirect) {
-      const result = await tryCatch(
-        Promise.all([
-          auth.api.signOut({ headers: headersList }),
-          auth.api.revokeSession({
-            body: { token: session.session.token },
-            headers: headersList,
-          }),
-        ]),
-      );
+      //For some reason, the signOut function does not work on the server and doesn't delete the session cookie
+      const result = await tryCatch(auth.api.signOut({ headers: headersList }));
       if (result.error) {
         //If there is an error when signing out, return a forbidden error to avoid infinite redirect
         forbidden();
