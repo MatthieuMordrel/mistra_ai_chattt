@@ -24,7 +24,6 @@ export async function validateServerSession(redirectPath?: undefined): Promise<{
   headers: Headers;
 }>;
 export async function validateServerSession(redirectPath?: string) {
-  console.log("validateServerSession");
   const headersList = await headers();
 
   // Get the session from auth
