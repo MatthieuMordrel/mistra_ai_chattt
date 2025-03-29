@@ -35,7 +35,6 @@ export async function validateServerSession(redirect?: boolean) {
     if (redirect) {
       const result = await tryCatch(auth.api.signOut({ headers: headersList }));
       if (result.error) {
-        //If there is an error when signing out, return a forbidden error to avoid infinite redirect
         unauthorized();
       }
       unauthorized();
@@ -50,7 +49,15 @@ export async function validateServerSession(redirect?: boolean) {
 
   if (!validSession) {
     if (redirect) {
-      const result = await tryCatch(auth.api.signOut({ headers: headersList }));
+      const result = await tryCatch(
+        Promise.all([
+          auth.api.signOut({ headers: headersList }),
+          auth.api.revokeSession({
+            body: { token: session.session.token },
+            headers: headersList,
+          }),
+        ]),
+      );
       if (result.error) {
         //If there is an error when signing out, return a forbidden error to avoid infinite redirect
         forbidden();
