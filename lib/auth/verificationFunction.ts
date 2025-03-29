@@ -1,5 +1,25 @@
 "server-only";
 
+import { SessionData } from "../../types/auth";
+
+/**
+ * Verifies the session data
+ * @param session - The session data
+ * @returns true if the session is valid, false otherwise
+ */
+export function sessionVerificationFunction(
+  session: SessionData | null,
+): boolean {
+  if (
+    !session ||
+    session.session.expiresAt < new Date() ||
+    !isEmailWhitelisted(session.user.email)
+  ) {
+    return false;
+  }
+  return true;
+}
+
 /**
  * List of whitelisted email addresses that are allowed to access the application
  * This file is server-only and cannot be imported on the client side

@@ -1,4 +1,4 @@
-import { auth } from "./auth";
+import { auth } from "../lib/auth/config/auth";
 
 /**
  * Type for the session object returned by Better Auth

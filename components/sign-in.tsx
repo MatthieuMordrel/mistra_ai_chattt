@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { signIn } from "@/lib/auth/auth-client";
+import { signIn } from "@/lib/auth/config/auth-client";
 import { cn } from "@/lib/utils";
 
 export default function SignIn() {

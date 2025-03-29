@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
   //   },
   // nodeMiddleware: true, //Only in canary version...
   // },
+  experimental: {
+    authInterrupts: true,
+  },
   reactStrictMode: false,
 };
 

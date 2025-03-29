@@ -1,28 +1,13 @@
 import { DAL } from "@/db/dal";
-import { getSessionFromRequest } from "@/lib/auth/getSessionFromRequest";
+import { withAuth } from "@/lib/auth/withAuth";
 import { tryCatch } from "@/lib/tryCatch";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 /**
  * GET handler for fetching all conversations for the current user
- *
- * Note: Authentication is now handled by middleware, which also passes the session data
- * in the x-session-data header to avoid fetching it again.
+ * Protected by withAuth HOF
  */
-export async function GET(request: NextRequest) {
-  // Get the session using our utility function
-  const { data: session, error: sessionError } = await tryCatch(
-    getSessionFromRequest(request),
-  );
-
-  if (sessionError) {
-    console.error("Error getting session:", sessionError);
-    return NextResponse.json(
-      { error: "Authentication failed" },
-      { status: 401 },
-    );
-  }
-
+export const GET = withAuth(async (session, request) => {
   // Get conversations for the user
   const { data: conversations, error: conversationsError } = await tryCatch(
     DAL.conversation.queries.getUserConversations(session.user.id),
@@ -44,4 +29,4 @@ export async function GET(request: NextRequest) {
   }));
 
   return NextResponse.json(formattedConversations);
-}
+});

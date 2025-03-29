@@ -1,6 +1,15 @@
 import { components } from "./mistral";
 
 /**
+ * Conversation interface for the UI
+ */
+export interface Conversation {
+  id: string;
+  title: string;
+  updatedAt: string;
+}
+
+/**
  * Chat message interface for the UI
  */
 export interface ChatMessage {
@@ -19,10 +28,12 @@ export type MistralMessage =
   | components["schemas"]["ToolMessage"];
 
 /**
- * Conversation interface for the UI
+ * Request body interface for the Mistral streaming API
  */
-export interface Conversation {
-  id: string;
-  title: string;
-  updatedAt: string;
+export interface MistralStreamRequest {
+  model?: string;
+  messages: MistralMessage[];
+  temperature?: number;
+  maxTokens?: number;
+  responseFormat?: components["schemas"]["ResponseFormat"];
 }

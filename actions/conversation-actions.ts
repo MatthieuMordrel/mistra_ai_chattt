@@ -1,10 +1,9 @@
 "use server";
 import { DAL } from "@/db/dal";
-import { auth } from "@/lib/auth/auth";
+import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 import { tryCatch } from "@/lib/tryCatch";
 import { ChatMessage } from "@/types/types";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 
 /**
  * Creates a new conversation in the database and returns the conversation id
@@ -14,9 +13,8 @@ export async function createConversationAction(
   messages: ChatMessage[] = [],
 ) {
   // Get the session using cookies
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const result = await cachedValidateServerSession();
+  const session = result.session;
 
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -24,7 +22,10 @@ export async function createConversationAction(
 
   // Create a new conversation
   const { data: conversationId, error } = await tryCatch(
-    DAL.conversation.mutations.createConversation(session.user.id, title),
+    DAL.conversation.mutations.createConversation(
+      session.session.userId,
+      title,
+    ),
   );
 
   if (error) {
@@ -55,9 +56,8 @@ export async function updateConversationTitle(
   title: string,
 ) {
   // Get the session using cookies
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const result = await cachedValidateServerSession();
+  const session = result.session;
 
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -90,9 +90,8 @@ export async function saveMessagesAction(
   messages: ChatMessage[],
 ) {
   // Get the session using cookies
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const result = await cachedValidateServerSession();
+  const session = result.session;
 
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -127,9 +126,8 @@ export async function saveMessagesAction(
  */
 export async function deleteConversationAction(conversationId: string) {
   // Get the session using cookies
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const result = await cachedValidateServerSession();
+  const session = result.session;
 
   if (!session?.user) {
     throw new Error("Unauthorized");

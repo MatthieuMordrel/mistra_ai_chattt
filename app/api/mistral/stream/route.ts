@@ -1,12 +1,14 @@
+import { withAuth } from "@/lib/auth/withAuth";
 import { tryCatch } from "@/lib/tryCatch";
-import { MistralStreamRequest, components } from "@/types/mistral";
-import { NextRequest, NextResponse } from "next/server";
+import { components } from "@/types/mistral";
+import { MistralStreamRequest } from "@/types/types";
+import { NextResponse } from "next/server";
 
 /**
  * POST handler for Mistral streaming API
- * This endpoint is protected with Better Auth
+ * This endpoint is protected with withAuth
  */
-export async function POST(req: NextRequest) {
+export const POST = withAuth(async (session, req) => {
   //Parse request body
   const requestData: MistralStreamRequest = await req.json();
 
@@ -73,4 +75,4 @@ export async function POST(req: NextRequest) {
       Connection: "keep-alive",
     },
   });
-}
+});

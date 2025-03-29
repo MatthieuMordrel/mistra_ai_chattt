@@ -18,8 +18,7 @@ export async function middleware(request: NextRequest) {
   // Check if the request is for an API route that needs authentication
   if (
     request.nextUrl.pathname.startsWith("/api/conversations") ||
-    request.nextUrl.pathname.startsWith("/api/mistral") ||
-    request.nextUrl.pathname.startsWith("/api/testauth")
+    request.nextUrl.pathname.startsWith("/api/mistral")
   ) {
     return handleApiRouteAuth(request);
   }
@@ -44,6 +43,5 @@ export const config = {
     // API routes that need authentication
     "/api/conversations/:path*",
     "/api/mistral/:path*",
-    "/api/testauth",
   ],
 };

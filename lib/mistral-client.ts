@@ -1,5 +1,5 @@
-import { components, MistralMessage } from "@/types/mistral";
-
+import { components } from "@/types/mistral";
+import { MistralMessage } from "@/types/types";
 /**
  * Basic message interface that can be converted to Mistral API format
  */

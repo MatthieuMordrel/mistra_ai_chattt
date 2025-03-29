@@ -1,13 +1,5 @@
 import { components } from "../../types/mistral";
-
-/**
- * Message type for Mistral API
- */
-export type MistralMessage =
-  | components["schemas"]["SystemMessage"]
-  | components["schemas"]["UserMessage"]
-  | components["schemas"]["AssistantMessage"]
-  | components["schemas"]["ToolMessage"];
+import { MistralMessage } from "../../types/types";
 
 /**
  * Options for the streamMistral function

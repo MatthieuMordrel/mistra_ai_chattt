@@ -1,27 +1,21 @@
 import { DAL } from "@/db/dal";
-import { getSessionFromRequest } from "@/lib/auth/getSessionFromRequest";
+import { withAuth } from "@/lib/auth/withAuth";
 import { tryCatch } from "@/lib/tryCatch";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 /**
  * GET handler for fetching a specific conversation with its messages
+ * Protected by withAuth HOF
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  const { id: conversationId } = await params;
+export const GET = withAuth(async (session, request, context) => {
+  // Await the params Promise to get the actual values
+  const params = await context?.params;
+  const conversationId = params?.id;
 
-  // Get the current user session
-  const { data: session, error: sessionError } = await tryCatch(
-    getSessionFromRequest(request),
-  );
-
-  if (sessionError) {
-    console.error("Error getting session:", sessionError);
+  if (!conversationId) {
     return NextResponse.json(
-      { error: "Authentication failed" },
-      { status: 401 },
+      { error: "Conversation ID is required" },
+      { status: 400 },
     );
   }
 
@@ -39,4 +33,4 @@ export async function GET(
   }
 
   return NextResponse.json(conversation);
-}
+});
