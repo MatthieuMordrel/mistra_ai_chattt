@@ -15,12 +15,12 @@ export function withAuth<T>(
       Awaited<ReturnType<typeof cachedValidateServerSession>>["session"]
     >,
     req: NextRequest,
-    context?: { params: Promise<Record<string, string>> },
+    context: { params: Promise<Record<string, string>> },
   ) => Promise<T>,
 ) {
   return async (
     req: NextRequest,
-    context?: { params: Promise<Record<string, string>> },
+    context: { params: Promise<Record<string, string>> },
   ): Promise<T> => {
     const result = await tryCatch(cachedValidateServerSession());
 

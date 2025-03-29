@@ -9,8 +9,8 @@ import { NextResponse } from "next/server";
  */
 export const GET = withAuth(async (session, request, context) => {
   // Await the params Promise to get the actual values
-  const params = await context?.params;
-  const conversationId = params?.id;
+  const params = await context.params;
+  const conversationId = params.id;
 
   if (!conversationId) {
     return NextResponse.json(
