@@ -5,7 +5,7 @@ import { cachedValidateServerSession } from "@/lib/auth/validateSession";
  * Uses the ChatContainer component for the UI
  */
 export default async function ChatPage() {
-  await cachedValidateServerSession("/sign-in");
+  await cachedValidateServerSession(true);
   return (
     <div className="flex h-full flex-col">
       <ChatContainer />

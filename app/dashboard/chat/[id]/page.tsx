@@ -35,7 +35,7 @@ export default async function ConversationPage({
 }) {
   const [{ id: conversationId }, { session }] = await Promise.all([
     params,
-    cachedValidateServerSession(),
+    cachedValidateServerSession(true),
   ]);
   //Fetching the conversation from the server
   const conversation = await DAL.conversation.queries.getConversation(

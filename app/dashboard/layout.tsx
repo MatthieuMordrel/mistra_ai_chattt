@@ -11,7 +11,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   // Validate session and redirect if invalid for the whole dashboard
-  const { session } = await cachedValidateServerSession("/sign-in");
+  const { session } = await cachedValidateServerSession(true);
   const userId = session.session.userId;
 
   return (

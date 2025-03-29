@@ -3,7 +3,7 @@ import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 
 export default async function DashboardPage() {
   //Makes the page dynamic but needed to validate session securely
-  await cachedValidateServerSession("/sign-in");
+  await cachedValidateServerSession(true);
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="w-full max-w-4xl space-y-8 text-center">

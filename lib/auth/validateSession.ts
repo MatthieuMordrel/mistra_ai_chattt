@@ -1,7 +1,7 @@
 import "server-only";
 
 import { headers } from "next/headers";
-import { forbidden, redirect, unauthorized } from "next/navigation";
+import { forbidden, unauthorized } from "next/navigation";
 import { cache } from "react";
 import { tryCatch } from "../tryCatch";
 import { auth } from "./config/auth";
@@ -15,15 +15,15 @@ import { sessionVerificationFunction } from "./verificationFunction";
  * @throws HttpError if session is invalid and redirectPath is not provided
  */
 // Function overloads to properly type the return value
-export async function validateServerSession(redirectPath: string): Promise<{
+export async function validateServerSession(redirect?: boolean): Promise<{
   session: NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
   headers: Headers;
 }>;
-export async function validateServerSession(redirectPath?: undefined): Promise<{
+export async function validateServerSession(redirect?: undefined): Promise<{
   session: Awaited<ReturnType<typeof auth.api.getSession>>;
   headers: Headers;
 }>;
-export async function validateServerSession(redirectPath?: string) {
+export async function validateServerSession(redirect?: boolean) {
   const headersList = await headers();
 
   // Get the session from auth
@@ -32,13 +32,13 @@ export async function validateServerSession(redirectPath?: string) {
   });
 
   if (!session) {
-    if (redirectPath) {
+    if (redirect) {
       const result = await tryCatch(auth.api.signOut({ headers: headersList }));
       if (result.error) {
         //If there is an error when signing out, return a forbidden error to avoid infinite redirect
         unauthorized();
       }
-      redirect(redirectPath);
+      unauthorized();
     }
     // If there is no redirect path, return a unauthorized error
     // This should happen when calling the server actions or route handlers directly only
@@ -49,13 +49,13 @@ export async function validateServerSession(redirectPath?: string) {
   const validSession = sessionVerificationFunction(session);
 
   if (!validSession) {
-    if (redirectPath) {
+    if (redirect) {
       const result = await tryCatch(auth.api.signOut({ headers: headersList }));
       if (result.error) {
         //If there is an error when signing out, return a forbidden error to avoid infinite redirect
         forbidden();
       }
-      redirect(redirectPath);
+      forbidden();
     }
     throw new HttpError("Invalid session", 403);
   }
