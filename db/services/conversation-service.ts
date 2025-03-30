@@ -51,11 +51,21 @@ export const conversationService = {
      * Get all conversations for a user
      */
     getUserConversations: async (userId: string) => {
-      return db
-        .select()
+      const conversations = await db
+        .select({
+          id: conversation.id,
+          userId: conversation.userId,
+          title: conversation.title,
+          updatedAt: conversation.updatedAt,
+        })
         .from(conversation)
         .where(eq(conversation.userId, userId))
         .orderBy(desc(conversation.updatedAt));
+
+      return conversations.map((conv) => ({
+        ...conv,
+        updatedAt: conv.updatedAt.toISOString(),
+      }));
     },
 
     /**
