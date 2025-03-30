@@ -1,11 +1,7 @@
 "use client";
 
 import { countMessageTokens } from "@/lib/tokenizer";
-import {
-  useChatActions,
-  useIsCalculatingTokens,
-  useMessages,
-} from "@/store/chatStore";
+import { useChatActions } from "@/store/chatStore";
 import { ConversationWithMessages } from "@/types/db";
 import { ChatMessage } from "@/types/types";
 import { useEffect, useRef } from "react";
@@ -19,9 +15,6 @@ export function ConversationProvider({
 }: {
   conversation?: ConversationWithMessages;
 }) {
-  const messagesStore = useMessages();
-  const isCalculatingTokens = useIsCalculatingTokens();
-  // Use the actions hook to get all actions at once
   const {
     setConversationId,
     setConversationTitle,
