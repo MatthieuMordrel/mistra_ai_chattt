@@ -19,16 +19,16 @@ export async function ConversationsSidebar({ userId }: { userId: string }) {
     queryFn: () => conversations,
   });
 
-  const conversationsServer = conversations.map((conv) => ({
-    id: conv.id,
-    title: conv.title,
-    updatedAt: conv.updatedAt.toISOString(),
-  }));
+  // const conversationsServer = conversations.map((conv) => ({
+  //   id: conv.id,
+  //   title: conv.title,
+  //   updatedAt: conv.updatedAt.toISOString(),
+  // }));
 
   // Return the client-side wrapper with the dehydrated state
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ConversationSidebar conversationsServer={conversationsServer} />
+      <ConversationSidebar />
     </HydrationBoundary>
   );
 }

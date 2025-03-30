@@ -16,14 +16,9 @@ import {
 } from "@/components/ui/sidebar";
 import { useConversations } from "@/hooks/tanstack-query/useConversations";
 import { useChatActions } from "@/store/chatStore";
-import { Conversation } from "@/types/types";
 import NewConversation from "../chat/NewConversationButton";
 
-export function ConversationSidebar({
-  conversationsServer,
-}: {
-  conversationsServer: Conversation[];
-}) {
+export function ConversationSidebar() {
   const { conversations, isError } = useConversations();
 
   const { setConversationTitle } = useChatActions();
@@ -58,7 +53,7 @@ export function ConversationSidebar({
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {conversationList.length === 0 && conversationsServer.length === 0 ? (
+          {conversationList.length === 0 ? (
             <div className="text-muted-foreground flex h-40 flex-col items-center justify-center px-4 text-center">
               <MessageSquareIcon className="mb-2 h-8 w-8 opacity-50" />
               <p>No conversations yet</p>
@@ -67,10 +62,7 @@ export function ConversationSidebar({
               </p>
             </div>
           ) : (
-            (conversationList.length > 0
-              ? conversationList
-              : conversationsServer
-            ).map((conversation) => {
+            conversationList.map((conversation) => {
               const isActive =
                 pathname === `/dashboard/chat/${conversation.id}`;
               const shouldPrefetch = hoveredConversationId === conversation.id;
