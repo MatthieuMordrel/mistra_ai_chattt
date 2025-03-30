@@ -25,7 +25,7 @@ export const GET = withAuth(async (session, request) => {
   const formattedConversations = conversations.map((conv) => ({
     id: conv.id,
     title: conv.title,
-    updatedAt: conv.updatedAt.toISOString(),
+    updatedAt: conv.updatedAt,
   }));
 
   return NextResponse.json(formattedConversations);
