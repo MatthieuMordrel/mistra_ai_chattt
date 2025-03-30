@@ -19,16 +19,11 @@ export async function ConversationsSidebar({ userId }: { userId: string }) {
     queryFn: () => conversations,
   });
 
-  const conversationsServer = conversations.map((conv) => ({
-    id: conv.id,
-    title: conv.title,
-    updatedAt: conv.updatedAt.toISOString(),
-  }));
-
   // Return the client-side wrapper with the dehydrated state
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ConversationSidebar conversationsServer={conversationsServer} />
+      {/* We shouldn't need to pass conversationsServer here as it's already prefetched, but because we still get a hydration error, we pass it */}
+      <ConversationSidebar conversationsServer={conversations} />
     </HydrationBoundary>
   );
 }

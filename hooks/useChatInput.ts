@@ -161,7 +161,7 @@ export const useChatInput = () => {
       throw saveMessagesError;
     }
 
-    // Update sidebar conversations list
+    // Update sidebar conversations list to reorder by updatedAt
     queryClient.invalidateQueries({ queryKey: ["conversations"] });
 
     // Prepare current messages including the new user message
