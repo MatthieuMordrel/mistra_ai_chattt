@@ -17,13 +17,8 @@ import {
 import { useConversations } from "@/hooks/tanstack-query/useConversations";
 import { useChatActions } from "@/store/chatStore";
 import NewConversation from "../chat/NewConversationButton";
-import { Conversation } from "@/types/types";
 
-export function ConversationSidebar({
-  conversationsServer,
-}: {
-  conversationsServer: Conversation[];
-}) {
+export function ConversationSidebar() {
   const { conversations, isError } = useConversations();
 
   const { setConversationTitle } = useChatActions();

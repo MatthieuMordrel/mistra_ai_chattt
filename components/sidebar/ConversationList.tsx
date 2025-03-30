@@ -23,7 +23,7 @@ export async function ConversationsSidebar({ userId }: { userId: string }) {
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       {/* We shouldn't need to pass conversationsServer here as it's already prefetched, but because we still get a hydration error, we pass it */}
-      <ConversationSidebar conversationsServer={conversations} />
+      <ConversationSidebar />
     </HydrationBoundary>
   );
 }
