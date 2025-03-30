@@ -21,12 +21,5 @@ export const GET = withAuth(async (session, request) => {
     );
   }
 
-  // Format the conversations for the client
-  const formattedConversations = conversations.map((conv) => ({
-    id: conv.id,
-    title: conv.title,
-    updatedAt: conv.updatedAt.toISOString(),
-  }));
-
-  return NextResponse.json(formattedConversations);
+  return NextResponse.json(conversations);
 });
