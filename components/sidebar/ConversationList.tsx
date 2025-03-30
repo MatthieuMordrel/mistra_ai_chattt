@@ -1,6 +1,9 @@
 import { DAL } from "@/db/dal";
-import { getQueryClient } from "@/providers/QueryProvider";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
 import { ConversationSidebar } from "./ConversationSidebar";
 
 export async function ConversationsSidebar({ userId }: { userId: string }) {
@@ -8,15 +11,12 @@ export async function ConversationsSidebar({ userId }: { userId: string }) {
   if (!userId) {
     return null;
   }
-  const queryClient = getQueryClient();
+  const queryClient = new QueryClient();
 
-  // Prefetch the conversations data on the server
-  const conversations =
-    await DAL.conversation.queries.getUserConversations(userId);
-
+  //Awaiting here should suspend the component until the data is fetched
   await queryClient.prefetchQuery({
     queryKey: ["conversations"],
-    queryFn: () => conversations,
+    queryFn: () => DAL.conversation.queries.getUserConversations(userId),
   });
 
   // Return the client-side wrapper with the dehydrated state
