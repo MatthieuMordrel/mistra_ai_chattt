@@ -54,7 +54,6 @@ export const conversationService = {
       const conversations = await db
         .select({
           id: conversation.id,
-          userId: conversation.userId,
           title: conversation.title,
           updatedAt: conversation.updatedAt,
         })

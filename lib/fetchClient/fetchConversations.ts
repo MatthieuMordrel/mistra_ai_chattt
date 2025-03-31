@@ -6,5 +6,6 @@ export async function fetchConversations() {
   if (!response.ok) {
     throw new Error("Failed to fetch conversations");
   }
-  return response.json() as Promise<Conversation[]>;
+  const data: Conversation[] = await response.json();
+  return data;
 }
