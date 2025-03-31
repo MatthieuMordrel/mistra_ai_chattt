@@ -9,11 +9,12 @@ export async function ConversationsSidebar({ userId }: { userId: string }) {
     return null;
   }
   const queryClient = getQueryClient();
-  // Prefetch the conversations data on the server
+
+  // Await the conversations data on the server, to be passed to the client to avoid hydration errors
   const conversations =
     await DAL.conversation.queries.getUserConversations(userId);
 
-  // Prefetch the conversations data on the client
+  // Prefetch the conversations data on the server, this should be dehydrated and sent to the client
   await queryClient.prefetchQuery({
     queryKey: ["conversations"],
     queryFn: async () =>
