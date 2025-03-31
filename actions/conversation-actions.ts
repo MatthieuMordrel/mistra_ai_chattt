@@ -13,8 +13,7 @@ export async function createConversationAction(
   messages: ChatMessage[] = [],
 ) {
   // Get the session using cookies
-  const result = await cachedValidateServerSession();
-  const session = result.session;
+  const { session } = await cachedValidateServerSession();
 
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -56,8 +55,7 @@ export async function updateConversationTitle(
   title: string,
 ) {
   // Get the session using cookies
-  const result = await cachedValidateServerSession();
-  const session = result.session;
+  const { session } = await cachedValidateServerSession();
 
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -90,8 +88,7 @@ export async function saveMessagesAction(
   messages: ChatMessage[],
 ) {
   // Get the session using cookies
-  const result = await cachedValidateServerSession();
-  const session = result.session;
+  const { session } = await cachedValidateServerSession();
 
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -126,8 +123,7 @@ export async function saveMessagesAction(
  */
 export async function deleteConversationAction(conversationId: string) {
   // Get the session using cookies
-  const result = await cachedValidateServerSession();
-  const session = result.session;
+  const { session } = await cachedValidateServerSession();
 
   if (!session?.user) {
     throw new Error("Unauthorized");
