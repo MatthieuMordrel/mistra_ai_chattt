@@ -18,6 +18,7 @@ export function useConversations() {
     queryKey: ["conversations"],
     queryFn: fetchConversations,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   // Mutation for creating a new conversation with optimistic updates
