@@ -9,14 +9,15 @@ export async function ConversationsSidebar({ userId }: { userId: string }) {
     return null;
   }
   const queryClient = getQueryClient();
-
   // Prefetch the conversations data on the server
   const conversations =
     await DAL.conversation.queries.getUserConversations(userId);
 
+  // Prefetch the conversations data on the client
   await queryClient.prefetchQuery({
     queryKey: ["conversations"],
-    queryFn: () => conversations,
+    queryFn: async () =>
+      await DAL.conversation.queries.getUserConversations(userId),
   });
 
   // Return the client-side wrapper with the dehydrated state
