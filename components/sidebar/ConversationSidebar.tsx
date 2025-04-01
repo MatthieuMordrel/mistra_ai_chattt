@@ -40,7 +40,7 @@ export function ConversationSidebar({
   }, [pathParams.id]);
 
   // Show error state
-  if (isError || conversations === undefined) {
+  if (isError) {
     return (
       <div className="flex h-full items-center justify-center p-4 text-center text-red-500">
         Error loading conversations
@@ -55,7 +55,7 @@ export function ConversationSidebar({
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {conversations.length === 0 && conversationsServer.length === 0 ? (
+          {conversations?.length === 0 && conversationsServer.length === 0 ? (
             <div className="text-muted-foreground flex h-40 flex-col items-center justify-center px-4 text-center">
               <MessageSquareIcon className="mb-2 h-8 w-8 opacity-50" />
               <p>No conversations yet</p>
@@ -64,7 +64,7 @@ export function ConversationSidebar({
               </p>
             </div>
           ) : (
-            (conversations.length > 0
+            (conversations !== undefined && conversations.length > 0
               ? conversations
               : conversationsServer
             ).map((conversation) => {
