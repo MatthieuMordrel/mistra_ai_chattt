@@ -14,9 +14,7 @@ export default async function DashboardLayout({
 
   return (
     <DashboardLayoutClient>
-      {/* <Suspense fallback={<ConversationSidebarSkeleton />}> */}
       <ConversationsSidebar userId={userId} />
-      {/* </Suspense> */}
 
       {/* Main content area */}
       <div className="flex w-full flex-1 flex-col">
