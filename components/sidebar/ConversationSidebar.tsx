@@ -3,7 +3,7 @@
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 
 import { revalidateConversations } from "@/actions/conversation-actions";
 import {
@@ -20,11 +20,12 @@ import { Conversation } from "@/types/types";
 import NewConversation from "../chat/NewConversationButton";
 
 export function ConversationSidebar({
-  conversationsServer,
+  conversationsPromise,
 }: {
-  conversationsServer: Conversation[];
+  conversationsPromise: Promise<Conversation[]>;
 }) {
-  const { conversations, isError } = useConversations();
+  const conversationsServer = use(conversationsPromise);
+  const { conversations, isError } = useConversations(conversationsServer);
 
   const { setConversationTitle } = useChatActions();
   const pathParams = useParams();
@@ -33,9 +34,6 @@ export function ConversationSidebar({
   const [hoveredConversationId, setHoveredConversationId] = useState<
     string | null
   >(null);
-
-  // Ensure conversations is always an array to prevent hydration mismatches
-  const conversationList = Array.isArray(conversations) ? conversations : [];
 
   // Invalidate the router cache for all conversation by calling revalidatePath in a server action
   useEffect(() => {
@@ -58,7 +56,7 @@ export function ConversationSidebar({
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {conversationList.length === 0 && conversationsServer.length === 0 ? (
+          {conversations.length === 0 ? (
             <div className="text-muted-foreground flex h-40 flex-col items-center justify-center px-4 text-center">
               <MessageSquareIcon className="mb-2 h-8 w-8 opacity-50" />
               <p>No conversations yet</p>
@@ -67,10 +65,7 @@ export function ConversationSidebar({
               </p>
             </div>
           ) : (
-            (conversationList.length > 0
-              ? conversationList
-              : conversationsServer
-            ).map((conversation) => {
+            conversations.map((conversation) => {
               const isActive =
                 pathname === `/dashboard/chat/${conversation.id}`;
               const shouldPrefetch = hoveredConversationId === conversation.id;

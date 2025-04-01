@@ -11,7 +11,7 @@ interface CreateConversationResult {
   id: string;
 }
 
-export function useConversations() {
+export function useConversations(initialData: Conversation[]) {
   const queryClient = getQueryClient();
 
   const conversationsQuery = useQuery({
@@ -19,6 +19,7 @@ export function useConversations() {
     queryFn: fetchConversations,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    initialData: initialData,
   });
 
   // Mutation for creating a new conversation with optimistic updates
