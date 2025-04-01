@@ -1,7 +1,9 @@
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardLayoutClient } from "@/components/dashboard/DashboardLayoutClient";
 import { ConversationsSidebar } from "@/components/sidebar/ConversationList";
+import { ConversationSidebarSkeleton } from "@/components/skeletons/ConversationSidebarSkeleton";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
+import { Suspense } from "react";
 
 export default async function DashboardLayout({
   children,
@@ -14,7 +16,9 @@ export default async function DashboardLayout({
 
   return (
     <DashboardLayoutClient>
-      <ConversationsSidebar userId={userId} />
+      <Suspense fallback={<ConversationSidebarSkeleton />}>
+        <ConversationsSidebar userId={userId} />
+      </Suspense>
 
       {/* Main content area */}
       <div className="flex w-full flex-1 flex-col">

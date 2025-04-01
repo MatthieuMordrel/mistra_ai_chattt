@@ -3,7 +3,7 @@
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { revalidateConversations } from "@/actions/conversation-actions";
 import {
@@ -20,12 +20,11 @@ import { Conversation } from "@/types/types";
 import NewConversation from "../chat/NewConversationButton";
 
 export function ConversationSidebar({
-  conversationsPromise,
+  conversationsServer,
 }: {
-  conversationsPromise: Promise<Conversation[]>;
+  conversationsServer: Conversation[];
 }) {
-  const conversationsServer = use(conversationsPromise);
-  const { conversations, isError } = useConversations(conversationsServer);
+  const { conversations, isError } = useConversations();
 
   const { setConversationTitle } = useChatActions();
   const pathParams = useParams();
@@ -56,7 +55,7 @@ export function ConversationSidebar({
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {conversations.length === 0 ? (
+          {conversations.length === 0 && conversationsServer.length === 0 ? (
             <div className="text-muted-foreground flex h-40 flex-col items-center justify-center px-4 text-center">
               <MessageSquareIcon className="mb-2 h-8 w-8 opacity-50" />
               <p>No conversations yet</p>
@@ -65,7 +64,10 @@ export function ConversationSidebar({
               </p>
             </div>
           ) : (
-            conversations.map((conversation) => {
+            (conversations.length > 0
+              ? conversations
+              : conversationsServer
+            ).map((conversation) => {
               const isActive =
                 pathname === `/dashboard/chat/${conversation.id}`;
               const shouldPrefetch = hoveredConversationId === conversation.id;
