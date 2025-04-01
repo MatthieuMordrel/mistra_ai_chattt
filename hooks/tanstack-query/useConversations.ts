@@ -11,7 +11,7 @@ interface CreateConversationResult {
   id: string;
 }
 
-export function useConversations(initialData: Conversation[]) {
+export function useConversations(initialData?: Conversation[]) {
   const queryClient = getQueryClient();
 
   const conversationsQuery = useQuery({

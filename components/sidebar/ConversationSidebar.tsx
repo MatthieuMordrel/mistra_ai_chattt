@@ -41,7 +41,7 @@ export function ConversationSidebar({
   }, [pathParams.id]);
 
   // Show error state
-  if (isError) {
+  if (isError || conversations === undefined) {
     return (
       <div className="flex h-full items-center justify-center p-4 text-center text-red-500">
         Error loading conversations
