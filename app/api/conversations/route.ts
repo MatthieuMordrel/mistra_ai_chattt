@@ -21,5 +21,7 @@ export const GET = withAuth(async (session, request) => {
     );
   }
 
+  console.log("conversations fetched", conversations[0]);
+
   return NextResponse.json(conversations);
 });

@@ -1,26 +1,19 @@
 import { createConversationAction } from "@/actions/conversation-actions";
 import { fetchConversations } from "@/lib/fetchClient/fetchConversations";
-import { getQueryClient } from "@/providers/QueryProvider";
 import { ChatMessage, Conversation } from "@/types/types";
-import { useMutation, useQuery } from "@tanstack/react-query";
-
-/**
- * id of the created conversation
- */
-interface CreateConversationResult {
-  id: string;
-}
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 
 export function useConversations() {
-  const queryClient = getQueryClient();
-
-  const conversationsQuery = useQuery({
+  const conversationsQuery = useSuspenseQuery({
     queryKey: ["conversations"],
     queryFn: fetchConversations,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
   });
 
+  const queryClient = useQueryClient();
   // Mutation for creating a new conversation with optimistic updates
   const createConversationMutation = useMutation({
     mutationFn: async ({
@@ -29,10 +22,9 @@ export function useConversations() {
     }: {
       title: string;
       messages?: ChatMessage[];
-    }): Promise<CreateConversationResult> => {
+    }): Promise<{ id: string }> => {
       return createConversationAction(title, messages || []);
     },
-
     // Optimistically update the UI
     onMutate: async (newConversation) => {
       // Cancel any outgoing refetches
@@ -79,7 +71,7 @@ export function useConversations() {
   // Return the conversations, the createConversation mutation and the isCreatingConversation state
   return {
     conversations: conversationsQuery.data,
-    ...conversationsQuery,
+    // ...conversationsQuery,
     createConversation: createConversationMutation.mutateAsync,
     isCreatingConversation: createConversationMutation.isPending,
   };

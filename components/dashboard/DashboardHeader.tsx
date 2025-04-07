@@ -1,5 +1,3 @@
-"use client";
-
 import NavBar from "../navbar/NavBar";
 
 /**

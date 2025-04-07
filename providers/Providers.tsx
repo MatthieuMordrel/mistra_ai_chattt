@@ -1,4 +1,6 @@
+// In Next.js, this file would be called: app/providers.tsx
 "use client";
+
 import { QueryClientProvider } from "@tanstack/react-query";
 import { getQueryClient } from "./QueryProvider";
 

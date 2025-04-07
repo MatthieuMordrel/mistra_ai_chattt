@@ -1,8 +1,11 @@
+"use client";
+
 import { Home } from "lucide-react";
 import Link from "next/link";
 import SignOutButton from "../navbar/SignOut";
 import { Button } from "../ui/button";
 import { SidebarTrigger } from "../ui/sidebar";
+
 export default function NavBar({
   showHome = false,
   showDashboard = false,

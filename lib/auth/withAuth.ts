@@ -22,8 +22,8 @@ export function withAuth<T>(
     req: NextRequest,
     context: { params: Promise<Record<string, string>> },
   ): Promise<T> => {
+    console.log("withAuth");
     const result = await tryCatch(cachedValidateServerSession());
-
     if (result.error) {
       if (result.error instanceof HttpError) {
         return NextResponse.json(

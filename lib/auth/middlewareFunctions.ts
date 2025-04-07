@@ -4,10 +4,7 @@ import { tryCatchSync } from "../tryCatch";
 
 // Helper function to check if session cookie exists (lightweight)
 function hasSessionCookie(request: NextRequest): boolean {
-  const sessionCookie = getSessionCookie(request, {
-    cookieName: "session_token",
-    cookiePrefix: "better-auth",
-  });
+  const sessionCookie = getSessionCookie(request);
 
   return !!sessionCookie;
 }
@@ -16,10 +13,9 @@ function hasSessionCookie(request: NextRequest): boolean {
 // Only checks for cookie presence, actual validation happens in the route handler
 export async function handleApiRouteAuth(request: NextRequest) {
   const { data, error } = tryCatchSync(() => {
-    if (!hasSessionCookie(request)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
+    // if (!hasSessionCookie(request)) {
+    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // }
     // Let the request proceed to the route handler
     // where proper validation will happen with withAuth
     return NextResponse.next();

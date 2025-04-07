@@ -1,5 +1,5 @@
 import { ConversationWithMessages } from "@/types/db";
-import { ConversationProvider } from "../providers/ConversationProvider";
+import { ConversationProvider } from "../../providers/ConversationProvider";
 import ChatInput from "./ChatInput";
 import ChatMessageList from "./ChatMessageList";
 /**

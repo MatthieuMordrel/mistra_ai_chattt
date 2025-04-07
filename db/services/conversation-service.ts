@@ -2,6 +2,7 @@ import "server-only";
 
 import { db } from "@/db/database";
 import { conversation, message } from "@/db/schema/chat-schema";
+import { tryCatch } from "@/lib/tryCatch";
 import { ChatMessage } from "@/types/types";
 import { and, desc, eq } from "drizzle-orm";
 
@@ -50,18 +51,24 @@ export const conversationService = {
     /**
      * Get all conversations for a user
      */
-    getUserConversations: async (userId: string) => {
-      const conversations = await db
-        .select({
-          id: conversation.id,
-          title: conversation.title,
-          updatedAt: conversation.updatedAt,
-        })
-        .from(conversation)
-        .where(eq(conversation.userId, userId))
-        .orderBy(desc(conversation.updatedAt));
+    getUserConversations: (userId: string) => async () => {
+      const { data, error } = await tryCatch(
+        db
+          .select({
+            id: conversation.id,
+            title: conversation.title,
+            updatedAt: conversation.updatedAt,
+          })
+          .from(conversation)
+          .where(eq(conversation.userId, userId))
+          .orderBy(desc(conversation.updatedAt)),
+      );
 
-      return conversations.map((conv) => ({
+      if (error) {
+        throw error;
+      }
+
+      return data.map((conv) => ({
         ...conv,
         updatedAt: conv.updatedAt.toISOString(),
       }));
