@@ -10,7 +10,7 @@ import { NextResponse } from "next/server";
 export const GET = withAuth(async (session, request) => {
   // Get conversations for the user
   const { data: conversations, error: conversationsError } = await tryCatch(
-    DAL.conversation.queries.getUserConversations(session.user.id),
+    DAL.conversation.queries.getUserConversations(session.user.id)(),
   );
 
   if (conversationsError) {
@@ -20,8 +20,6 @@ export const GET = withAuth(async (session, request) => {
       { status: 500 },
     );
   }
-
-  console.log("conversations fetched", conversations[0]);
 
   return NextResponse.json(conversations);
 });
