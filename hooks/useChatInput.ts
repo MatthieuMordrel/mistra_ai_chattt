@@ -2,10 +2,10 @@
 
 import { saveMessagesAction } from "@/actions/conversation-actions";
 import { useConversations } from "@/hooks/tanstack-query/useConversations";
+import { streamAssistantMessageAndSaveToDb } from "@/lib/chatService";
 import { tryCatch } from "@/lib/tryCatch";
 import { formatConversationTitle } from "@/lib/utils";
 import { getQueryClient } from "@/providers/QueryProvider";
-import { streamAssistantMessageAndSaveToDb } from "@/services/chatService";
 import {
   useChatActions,
   useConversationId,
