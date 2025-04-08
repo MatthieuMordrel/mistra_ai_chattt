@@ -4,7 +4,7 @@ import TokenCounter from "@/components/chat/input/TokenCounter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useChatInput } from "@/hooks/useChatInput";
-import { useInputFocus } from "@/hooks/useInputFocus";
+import { useInputFocus } from "@/hooks/utils/useInputFocus";
 import { SendIcon } from "lucide-react";
 import { useRef } from "react";
 
