@@ -8,13 +8,13 @@ import {
   useSelectedModelId,
 } from "@/store/modelStore";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "../../ui/dropdown-menu";
 import { ModelHoverCard } from "./ModelHoverCard";
 
 /**

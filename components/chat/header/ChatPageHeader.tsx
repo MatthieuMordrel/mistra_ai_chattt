@@ -1,5 +1,5 @@
 import { DAL } from "@/db/dal";
-import ChatTitleLayout from "./ChatTitle copy";
+import ChatTitleLayout from "./ChatTitle";
 import { ModelSelector } from "./ModelSelector";
 /**
  * Header component for the chat page

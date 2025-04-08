@@ -1,4 +1,4 @@
-import ChatContainer from "@/components/chat/ChatContainer";
+import ChatContainer from "@/components/chat/container/ChatContainer";
 import { DAL } from "@/db/dal";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 import { Metadata } from "next";

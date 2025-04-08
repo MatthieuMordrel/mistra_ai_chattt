@@ -1,6 +1,6 @@
 import { ConversationWithMessages } from "@/types/db";
-import { ConversationProvider } from "../../providers/ConversationProvider";
-import ChatInput from "./ChatInput";
+import { ConversationProvider } from "../../../providers/ConversationProvider";
+import ChatInput from "../input/ChatInput";
 import ChatMessageList from "./ChatMessageList";
 /**
  * Container component for the chat interface

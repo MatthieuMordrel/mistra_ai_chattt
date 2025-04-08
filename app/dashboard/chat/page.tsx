@@ -1,4 +1,4 @@
-import ChatContainer from "@/components/chat/ChatContainer";
+import ChatContainer from "@/components/chat/container/ChatContainer";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 /**
  * Chat page component for new conversations

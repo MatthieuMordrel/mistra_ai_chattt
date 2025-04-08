@@ -1,4 +1,4 @@
-import NewConversation from "@/components/chat/NewConversationButton";
+import NewConversation from "@/components/sidebar/NewConversationButton";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 
 export default async function DashboardPage() {

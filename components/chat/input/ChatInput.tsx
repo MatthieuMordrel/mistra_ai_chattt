@@ -1,6 +1,6 @@
 "use client";
 
-import TokenCounter from "@/components/chat/TokenCounter";
+import TokenCounter from "@/components/chat/input/TokenCounter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useChatInput } from "@/hooks/useChatInput";

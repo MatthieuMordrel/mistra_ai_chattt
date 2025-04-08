@@ -14,7 +14,7 @@ import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import NewConversation from "../chat/NewConversationButton";
+import NewConversation from "./NewConversationButton";
 
 export function ConversationSidebar() {
   const { conversations } = useConversations();

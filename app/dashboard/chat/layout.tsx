@@ -1,4 +1,4 @@
-import { ChatPageHeader } from "@/components/chat/ChatPageHeader";
+import { ChatPageHeader } from "@/components/chat/header/ChatPageHeader";
 
 /**
  * Layout component for chat routes
