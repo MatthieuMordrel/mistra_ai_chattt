@@ -39,7 +39,6 @@ export const POST = withAuth(async (session, req) => {
     },
   };
 
-  console.log("requestBody", requestBody);
   // Makes the request to the Mistral API
   const { data: response, error: responseError } = await tryCatch(
     fetch("https://api.mistral.ai/v1/chat/completions", {
@@ -67,6 +66,8 @@ export const POST = withAuth(async (session, req) => {
       { status: response.status },
     );
   }
+
+  console.log("response", response);
 
   // Stream the response back to the client
   return new Response(response.body, {

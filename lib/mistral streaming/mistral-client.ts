@@ -3,22 +3,53 @@ import { MistralMessage } from "@/types/types";
 /**
  * Basic message interface that can be converted to Mistral API format
  */
-export interface BasicMessage {
+interface BasicMessage {
   role: string; // Accept any string for role to be compatible with database Message type
   content: string;
   [key: string]: any; // Allow for additional properties
 }
 
-// Types for the streaming response data
+// Chunk type
 type StreamChunk = components["schemas"]["CompletionChunk"];
+
+// Within chunk, usage info type
+type UsageInfo = components["schemas"]["UsageInfo"];
+
+// Within chunk, choice type
 type StreamChoice = components["schemas"]["CompletionResponseStreamChoice"];
+
+// Within choice, delta message type
 type DeltaMessage = components["schemas"]["DeltaMessage"];
+
+/**
+ * Options for the streamMistralClient function
+ */
+interface StreamMistralClientOptions {
+  /** The model ID to use (defaults to mistral-small-latest) */
+  model?: string;
+  /** Array of messages for the conversation */
+  messages: BasicMessage[];
+  /** Temperature for generation (0.0-1.0) */
+  temperature?: number;
+  /** Maximum tokens to generate */
+  maxTokens?: number;
+  /** Response format (defaults to text) */
+  responseFormat?: components["schemas"]["ResponseFormat"];
+  /** Callback for each token as it's received */
+  onToken?: (token: string) => void;
+  /** Callback when streaming is complete with the full text */
+  onComplete?: (fullText: string) => void;
+  /** Callback for error handling */
+  onError?: (error: Error) => void;
+  /** Advanced callback for raw chunk data (for debugging or advanced use cases) */
+  onChunk?: (chunk: StreamChunk) => void;
+}
 
 /**
  * Sanitize messages to ensure they conform to Mistral API requirements
  * This handles proper formatting based on message role
  */
-export function sanitizeMessages(messages: BasicMessage[]): MistralMessage[] {
+function sanitizeMessages(messages: BasicMessage[]): MistralMessage[] {
   return messages.map((message) => {
     if (message.role === "assistant") {
       return {
@@ -44,30 +75,6 @@ export function sanitizeMessages(messages: BasicMessage[]): MistralMessage[] {
       };
     }
   });
-}
-
-/**
- * Options for the streamMistralClient function
- */
-export interface StreamMistralClientOptions {
-  /** The model ID to use (defaults to mistral-small-latest) */
-  model?: string;
-  /** Array of messages for the conversation */
-  messages: BasicMessage[];
-  /** Temperature for generation (0.0-1.0) */
-  temperature?: number;
-  /** Maximum tokens to generate */
-  maxTokens?: number;
-  /** Response format (defaults to text) */
-  responseFormat?: components["schemas"]["ResponseFormat"];
-  /** Callback for each token as it's received */
-  onToken?: (token: string) => void;
-  /** Callback when streaming is complete with the full text */
-  onComplete?: (fullText: string) => void;
-  /** Callback for error handling */
-  onError?: (error: Error) => void;
-  /** Advanced callback for raw chunk data (for debugging or advanced use cases) */
-  onChunk?: (chunk: StreamChunk) => void;
 }
 
 /**

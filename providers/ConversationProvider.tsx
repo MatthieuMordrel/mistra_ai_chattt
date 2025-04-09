@@ -1,6 +1,6 @@
 "use client";
 
-import { countMessageTokens } from "@/lib/tokenizer";
+import { countMessageTokens } from "@/lib/mistral streaming/tokenizer";
 import { useChatActions } from "@/store/chatStore";
 import { ConversationWithMessages } from "@/types/db";
 import { ChatMessage } from "@/types/types";

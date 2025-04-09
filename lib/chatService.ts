@@ -1,6 +1,9 @@
 import { saveMessagesAction } from "@/actions/conversation-actions";
-import { streamMistralClient } from "@/lib/mistral-client";
-import { countMessageTokens, estimateTokenCount } from "@/lib/tokenizer";
+import { streamMistralClient } from "@/lib/mistral streaming/mistral-client";
+import {
+  countMessageTokens,
+  estimateTokenCount,
+} from "@/lib/mistral streaming/tokenizer";
 import { useChatStoreBase } from "@/store/chatStore";
 import { useModelStoreBase } from "@/store/modelStore";
 import { ChatMessage } from "@/types/types";
