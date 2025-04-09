@@ -19,7 +19,7 @@ import NewConversation from "./NewConversationButton";
 export function ConversationSidebar() {
   const { conversations } = useConversations();
 
-  const { setConversationTitle } = useChatActions();
+  const { setConversationId } = useChatActions();
   // const pathParams = useParams();
 
   const pathname = usePathname();
@@ -62,7 +62,7 @@ export function ConversationSidebar() {
                   onMouseEnter={() => setHoveredConversationId(conversation.id)}
                   onMouseLeave={() => setHoveredConversationId(null)}
                   onClick={() => {
-                    setConversationTitle(conversation.title);
+                    setConversationId(conversation.id);
                   }}
                 >
                   <SidebarMenuButton

@@ -7,10 +7,18 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 
-export function useConversations() {
+/**
+ * Main hook for conversations data with optional selector
+ * @param select Optional function to transform the conversations data
+ * @returns The conversations data and mutations
+ */
+export function useConversations<TData = Conversation[]>(
+  select?: (data: Conversation[]) => TData,
+) {
   const conversationsQuery = useSuspenseQuery({
     queryKey: ["conversations"],
     queryFn: fetchConversations,
+    select,
   });
 
   const queryClient = useQueryClient();
@@ -71,8 +79,20 @@ export function useConversations() {
   // Return the conversations, the createConversation mutation and the isCreatingConversation state
   return {
     conversations: conversationsQuery.data,
-    // ...conversationsQuery,
+    ...conversationsQuery,
     createConversation: createConversationMutation.mutateAsync,
     isCreatingConversation: createConversationMutation.isPending,
   };
+}
+
+/**
+ * Hook to retrieve a specific conversation by ID
+ * @param id The conversation ID to find
+ * @returns The query result with the found conversation or undefined
+ */
+export function useConversation(id: string | null) {
+  const { conversations } = useConversations((data) =>
+    id ? data.find((conversation) => conversation.id === id) : undefined,
+  );
+  return conversations;
 }
