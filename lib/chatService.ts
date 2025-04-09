@@ -161,11 +161,6 @@ export const streamAssistantMessageAndSaveToDb = async ({
       messages: currentMessages,
       // Token callback
       onToken: (token) => {
-        // Make sure streaming flag is set to true during token streaming
-        if (!useChatStoreBase.getState().isStreaming) {
-          useChatStoreBase.getState().actions.setStreaming(true);
-        }
-
         // Accumulate the content and update the UI with each token
         accumulatedContent += token;
         useChatStoreBase

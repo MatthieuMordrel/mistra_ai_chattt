@@ -1,4 +1,4 @@
-import { StreamChunk } from "./mistral-client";
+import { StreamChunk } from "./types";
 
 /**
  * Extracts content from a StreamChunk if available
