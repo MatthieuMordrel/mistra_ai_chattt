@@ -1,25 +1,12 @@
 import { components } from "@/types/mistral";
-import { MistralMessage } from "@/types/types";
+import { extractContentFromChunk } from "./extractFromChunk";
+import { parseSSELine } from "./parseSSELine";
+import { sanitizeMessages } from "./sanitizeMessage";
+import { BasicMessage, StreamChunk } from "./types";
+
 /**
  * Basic message interface that can be converted to Mistral API format
  */
-interface BasicMessage {
-  role: string; // Accept any string for role to be compatible with database Message type
-  content: string;
-  [key: string]: any; // Allow for additional properties
-}
-
-// Chunk type
-type StreamChunk = components["schemas"]["CompletionChunk"];
-
-// Within chunk, usage info type
-type UsageInfo = components["schemas"]["UsageInfo"];
-
-// Within chunk, choice type
-type StreamChoice = components["schemas"]["CompletionResponseStreamChoice"];
-
-// Within choice, delta message type
-type DeltaMessage = components["schemas"]["DeltaMessage"];
 
 /**
  * Options for the streamMistralClient function
@@ -43,94 +30,6 @@ interface StreamMistralClientOptions {
   onError?: (error: Error) => void;
   /** Advanced callback for raw chunk data (for debugging or advanced use cases) */
   onChunk?: (chunk: StreamChunk) => void;
-}
-
-/**
- * Sanitize messages to ensure they conform to Mistral API requirements
- * This handles proper formatting based on message role
- */
-function sanitizeMessages(messages: BasicMessage[]): MistralMessage[] {
-  return messages.map((message) => {
-    if (message.role === "assistant") {
-      return {
-        role: "assistant" as const,
-        content: message.content || "Empty response from assistant",
-        prefix: false, // Only include prefix for assistant messages
-      };
-    } else if (message.role === "user") {
-      return {
-        role: "user" as const,
-        content: message.content || "Empty response from user",
-      };
-    } else if (message.role === "system") {
-      return {
-        role: "system" as const,
-        content: message.content || "Empty response from system",
-      };
-    } else {
-      // Default to user message for any unknown roles
-      return {
-        role: "user" as const,
-        content: message.content || "Empty response from unknown role",
-      };
-    }
-  });
-}
-
-/**
- * Parses an SSE message line and extracts the StreamChunk data
- * @param line A line from the SSE stream (starting with "data: ")
- * @returns Parsed StreamChunk or null if parsing failed or it's a control message
- */
-function parseSSELine(line: string): StreamChunk | null {
-  // Skip empty lines or non-data lines
-  if (!line.trim() || !line.startsWith("data: ")) {
-    return null;
-  }
-
-  // Extract the JSON part (removing "data: " prefix)
-  const jsonStr = line.substring(6).trim();
-
-  // Handle the special "[DONE]" message
-  if (jsonStr === "[DONE]") {
-    return null;
-  }
-
-  try {
-    // Parse and cast to StreamChunk type
-    return JSON.parse(jsonStr) as StreamChunk;
-  } catch (error) {
-    console.error("Error parsing SSE line:", error);
-    return null;
-  }
-}
-
-/**
- * Extracts content from a StreamChunk if available
- * @param chunk The parsed StreamChunk
- * @returns The content string or null if no content is available
- */
-function extractContentFromChunk(chunk: StreamChunk): string | null {
-  // Check if we have choices and delta content
-  if (!chunk.choices || !chunk.choices[0] || !chunk.choices[0].delta) {
-    return null;
-  }
-
-  const delta = chunk.choices[0].delta;
-
-  // Handle string content
-  if (typeof delta.content === "string") {
-    return delta.content;
-  }
-
-  // Handle content array (for multi-modal responses)
-  if (Array.isArray(delta.content)) {
-    return delta.content
-      .map((item) => ("text" in item ? item.text : ""))
-      .join("");
-  }
-
-  return null;
 }
 
 /**
