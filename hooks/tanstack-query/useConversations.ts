@@ -90,9 +90,9 @@ export function useConversations<TData = Conversation[]>(
  * @param id The conversation ID to find
  * @returns The query result with the found conversation or undefined
  */
-export function useConversation(id: string | null) {
+export function useConversation(id: string) {
   const { conversations } = useConversations((data) =>
-    id ? data.find((conversation) => conversation.id === id) : undefined,
+    data.find((conversation) => conversation.id === id),
   );
-  return conversations;
+  return { conversation: conversations };
 }
