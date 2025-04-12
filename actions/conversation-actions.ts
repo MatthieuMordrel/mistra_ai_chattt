@@ -1,9 +1,11 @@
 "use server";
 import { DAL } from "@/db/dal";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
-import { tryCatch } from "@/lib/tryCatch";
+import { tryCatch, tryCatchSync } from "@/lib/tryCatch";
+import { messagesSchema } from "@/lib/validation/schemas";
 import { ChatMessage } from "@/types/types";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
 /**
  * Creates a new conversation in the database and returns the conversation id
@@ -92,6 +94,21 @@ export async function saveMessagesAction(
 
   if (!session?.user) {
     throw new Error("Unauthorized");
+  }
+
+  // Validate messages
+  const { error: validationError } = tryCatchSync(() =>
+    messagesSchema.parse(messages),
+  );
+
+  if (validationError) {
+    if (validationError instanceof z.ZodError) {
+      const firstError = validationError.errors[0];
+      if (firstError) {
+        throw new Error(`Invalid message format: ${firstError.message}`);
+      }
+    }
+    throw validationError;
   }
 
   // Verify the user owns the conversation

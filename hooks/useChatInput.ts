@@ -3,8 +3,9 @@
 import { saveMessagesAction } from "@/actions/conversation-actions";
 import { useConversations } from "@/hooks/tanstack-query/useConversations";
 import { streamAssistantMessageAndSaveToDb } from "@/lib/chatService";
-import { tryCatch } from "@/lib/tryCatch";
+import { tryCatch, tryCatchSync } from "@/lib/tryCatch";
 import { formatConversationTitle } from "@/lib/utils";
+import { messageSchema } from "@/lib/validation/schemas";
 import { getQueryClient } from "@/providers/QueryProvider";
 import {
   useChatActions,
@@ -16,6 +17,7 @@ import {
 } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
 import { useState } from "react";
+import { z } from "zod";
 
 /**
  * Custom hook to handle chat input logic
@@ -47,6 +49,21 @@ export const useChatInput = () => {
 
     // Validate input
     if (!input.trim() || isLoading) return;
+
+    // Validate message length
+    const { error: validationError } = tryCatchSync(() =>
+      messageSchema.parse({ role: "user", content: input.trim() }),
+    );
+
+    if (validationError) {
+      if (validationError instanceof z.ZodError) {
+        const firstError = validationError.errors[0];
+        if (firstError) {
+          throw new Error(firstError.message);
+        }
+      }
+      throw validationError;
+    }
 
     // Store user message for processing
     const userMessage: ChatMessage = { role: "user", content: input.trim() };

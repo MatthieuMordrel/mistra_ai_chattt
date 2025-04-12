@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useChatInput } from "@/hooks/useChatInput";
 import { useInputFocus } from "@/hooks/utils/useInputFocus";
+import { cn } from "@/lib/utils";
 import { SendIcon } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 /**
  * Component for the chat input form
@@ -16,24 +17,42 @@ import { useRef } from "react";
 const ChatInput = () => {
   // Reference to the input element for focus management
   const inputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Use the custom hook to separate logic from UI
   const { input, setInput, isLoading, handleSubmit } = useChatInput();
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    setError(null);
+    try {
+      await handleSubmit(e);
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      }
+    }
+  };
 
   // Handle input focus behavior
   useInputFocus(inputRef, isLoading);
 
   return (
     <div className="mt-4 px-2 sm:px-4">
-      <form onSubmit={handleSubmit} className="relative">
+      <form onSubmit={handleFormSubmit} className="relative">
         <div className="relative flex items-center">
           <Input
             ref={inputRef}
             type="text"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              setError(null);
+            }}
             placeholder="Type your message..."
-            className="border-input bg-background focus-visible:ring-primary w-full rounded-full border px-6 py-6 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none dark:bg-gray-800"
+            className={cn(
+              "border-input bg-background focus-visible:ring-primary w-full rounded-full border px-6 py-6 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none dark:bg-gray-800",
+              error && "border-red-500",
+            )}
             disabled={isLoading}
           />
 
@@ -46,6 +65,7 @@ const ChatInput = () => {
             <SendIcon className="h-5 w-5" />
           </Button>
         </div>
+        {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
       </form>
 
       {/* Token counter display */}
