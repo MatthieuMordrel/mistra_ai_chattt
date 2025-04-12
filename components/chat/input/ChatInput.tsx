@@ -24,7 +24,7 @@ const ChatInput = () => {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     setError(null);
-    try {
+    try { 
       await handleSubmit(e);
     } catch (error) {
       if (error instanceof Error) {

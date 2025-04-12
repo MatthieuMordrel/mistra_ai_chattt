@@ -1,7 +1,7 @@
 "use server";
 import { DAL } from "@/db/dal";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
-import { tryCatch, tryCatchSync } from "@/lib/tryCatch";
+import { tryCatch } from "@/lib/tryCatch";
 import { messagesSchema } from "@/lib/validation/schemas";
 import { ChatMessage } from "@/types/types";
 import { revalidatePath } from "next/cache";
@@ -97,9 +97,7 @@ export async function saveMessagesAction(
   }
 
   // Validate messages
-  const { error: validationError } = tryCatchSync(() =>
-    messagesSchema.parse(messages),
-  );
+  const { error: validationError } = messagesSchema.safeParse(messages);
 
   if (validationError) {
     if (validationError instanceof z.ZodError) {

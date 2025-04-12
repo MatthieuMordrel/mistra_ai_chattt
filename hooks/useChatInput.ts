@@ -3,7 +3,7 @@
 import { saveMessagesAction } from "@/actions/conversation-actions";
 import { useConversations } from "@/hooks/tanstack-query/useConversations";
 import { streamAssistantMessageAndSaveToDb } from "@/lib/chatService";
-import { tryCatch, tryCatchSync } from "@/lib/tryCatch";
+import { tryCatch } from "@/lib/tryCatch";
 import { formatConversationTitle } from "@/lib/utils";
 import { messageSchema } from "@/lib/validation/schemas";
 import {
@@ -51,9 +51,10 @@ export const useChatInput = () => {
     if (!input.trim() || isLoading) return;
 
     // Validate message length
-    const { error: validationError } = tryCatchSync(() =>
-      messageSchema.parse({ role: "user", content: input.trim() }),
-    );
+    const { error: validationError } = messageSchema.safeParse({
+      role: "user",
+      content: input.trim(),
+    });
 
     if (validationError) {
       if (validationError instanceof z.ZodError) {
