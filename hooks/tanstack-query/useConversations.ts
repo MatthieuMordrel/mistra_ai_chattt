@@ -1,6 +1,9 @@
 import { createConversationAction } from "@/actions/conversation-actions";
-import { fetchConversations } from "@/lib/fetchClient/fetchConversations";
-import { ChatMessage, Conversation } from "@/types/types";
+import {
+  ConversationFromSchema,
+  fetchConversations,
+} from "@/lib/fetchClient/fetchConversations";
+import { ChatMessage } from "@/types/types";
 import {
   useMutation,
   useQueryClient,
@@ -12,8 +15,8 @@ import {
  * @param select Optional function to transform the conversations data
  * @returns The conversations data and mutations
  */
-export function useConversations<TData = Conversation[]>(
-  select?: (data: Conversation[]) => TData,
+export function useConversations<TData = ConversationFromSchema[]>(
+  select?: (data: ConversationFromSchema[]) => TData,
 ) {
   const conversationsQuery = useSuspenseQuery({
     queryKey: ["conversations"],
@@ -40,17 +43,18 @@ export function useConversations<TData = Conversation[]>(
 
       // Snapshot the previous value
       const previousConversations =
-        queryClient.getQueryData<Conversation[]>(["conversations"]) || [];
+        queryClient.getQueryData<ConversationFromSchema[]>(["conversations"]) ||
+        [];
 
       // Create a temporary conversation object
-      const tempConversation: Conversation = {
+      const tempConversation: ConversationFromSchema = {
         id: `temp-${Date.now()}`,
         title: newConversation.title,
         updatedAt: new Date().toISOString(),
       };
 
       // Optimistically update the cache
-      queryClient.setQueryData<Conversation[]>(
+      queryClient.setQueryData<ConversationFromSchema[]>(
         ["conversations"],
         (old = []) => {
           return [tempConversation, ...old];
