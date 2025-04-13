@@ -1,6 +1,3 @@
-/**
- * Chat service for sending messages to the API
- */
 import { ChatMessage } from "@/types/types";
 import { create } from "zustand";
 
