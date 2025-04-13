@@ -51,7 +51,6 @@ const createMessage = (
 
 /**
  * Zustand store for managing chat UI state
- * Not exported directly to prevent subscribing to the entire store
  */
 export const useChatStoreBase = create<ChatState>((set) => ({
   messages: [],
