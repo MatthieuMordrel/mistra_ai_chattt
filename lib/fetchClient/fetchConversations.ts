@@ -10,8 +10,7 @@ export type ConversationFromSchema = z.infer<typeof conversationSchema>;
 
 // API function to fetch conversations
 export async function fetchConversations() {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  console.log("baseUrl", baseUrl);
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
   const response = await fetch(`${baseUrl}/api/conversations`, {
     cache: "no-store",
     method: "GET",
