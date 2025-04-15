@@ -87,12 +87,12 @@ export function useConversations<TData = Conversation[]>(
 
 /**
  * Hook to retrieve a specific conversation by ID
- * @param id The conversation ID to find
+ * @param id The conversation ID to find (can be undefined/null when no ID is available)
  * @returns The query result with the found conversation or undefined
  */
-export function useConversation(id: string) {
+export function useConversation(id?: string | undefined) {
   const { conversations } = useConversations((data) =>
-    data.find((conversation) => conversation.id === id),
+    id ? data.find((conversation) => conversation.id === id) : undefined,
   );
   return { conversation: conversations };
 }

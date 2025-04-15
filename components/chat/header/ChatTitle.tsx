@@ -1,18 +1,24 @@
 "use client";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useConversationTitle } from "@/store/chatStore";
+import { useConversation } from "@/hooks/tanstack-query/useConversations";
+import { useParams } from "next/navigation";
 
 export default function ChatTitleLayout() {
-  const conversationTitle = useConversationTitle();
+  const params = useParams();
+  // Handle correctly typed paramValue (string | string[] | undefined)
+  const conversationId = params?.id
+    ? Array.isArray(params.id)
+      ? params.id[0]
+      : params.id
+    : undefined;
 
-  return conversationTitle === "" ? (
-    // Show a skeleton loader while waiting for the title
+  // The hook now safely handles undefined IDs
+  const { conversation } = useConversation(conversationId);
+
+  return (
     <div className="min-h-[32px] py-1">
-      <Skeleton className="h-8 w-64" />
-    </div>
-  ) : (
-    <div className="min-h-[32px] py-1">
-      <h1 className="h-8 text-xl font-bold">{conversationTitle}</h1>
+      <h1 className="h-8 text-xl font-bold">
+        {conversation?.title ?? "New Conversation"}
+      </h1>
     </div>
   );
 }

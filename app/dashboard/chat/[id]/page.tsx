@@ -1,4 +1,5 @@
 import ChatContainer from "@/components/chat/container/ChatContainer";
+import { ChatPageHeader } from "@/components/chat/header/ChatPageHeader";
 import { DAL } from "@/db/dal";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 import { Metadata } from "next";
@@ -45,6 +46,7 @@ export default async function ConversationPage({
 
   return (
     <div className="flex h-full flex-col">
+      <ChatPageHeader />
       <ChatContainer conversation={conversation} />
     </div>
   );
