@@ -21,7 +21,13 @@ export function ConversationSidebar() {
   const { conversations } = useConversations();
 
   const { setConversationId } = useChatActions();
-  const pathParams = useParams();
+  const params = useParams();
+
+  const conversationId = params?.id
+    ? Array.isArray(params.id)
+      ? params.id[0]
+      : params.id
+    : undefined;
 
   const pathname = usePathname();
   const [hoveredConversationId, setHoveredConversationId] = useState<
@@ -30,8 +36,10 @@ export function ConversationSidebar() {
 
   // Invalidate the router cache for all conversation by calling revalidatePath in a server action
   useEffect(() => {
-    revalidateConversations(pathParams.id as string);
-  }, [pathParams.id]);
+    if (conversationId) {
+      revalidateConversations(conversationId);
+    }
+  }, [conversationId]);
 
   return (
     <Sidebar className="border-r">
