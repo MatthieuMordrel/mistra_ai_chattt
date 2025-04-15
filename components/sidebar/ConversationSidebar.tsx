@@ -1,5 +1,6 @@
 "use client";
 
+import { revalidateConversations } from "@/actions/conversation-actions";
 import {
   Sidebar,
   SidebarContent,
@@ -12,15 +13,15 @@ import { useConversations } from "@/hooks/tanstack-query/useConversations";
 import { useChatActions } from "@/store/chatStore";
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useParams, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import NewConversation from "./NewConversationButton";
 
 export function ConversationSidebar() {
   const { conversations } = useConversations();
 
   const { setConversationId } = useChatActions();
-  // const pathParams = useParams();
+  const pathParams = useParams();
 
   const pathname = usePathname();
   const [hoveredConversationId, setHoveredConversationId] = useState<
@@ -28,9 +29,9 @@ export function ConversationSidebar() {
   >(null);
 
   // Invalidate the router cache for all conversation by calling revalidatePath in a server action
-  // useEffect(() => {
-  //   revalidateConversations(pathParams.id as string);
-  // }, [pathParams.id]);
+  useEffect(() => {
+    revalidateConversations(pathParams.id as string);
+  }, [pathParams.id]);
 
   return (
     <Sidebar className="border-r">
