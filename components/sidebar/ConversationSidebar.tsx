@@ -15,6 +15,7 @@ import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { LinkLoadingIndicator } from "./LinkLoadingIndicator";
 import NewConversation from "./NewConversationButton";
 
 export function ConversationSidebar() {
@@ -76,9 +77,10 @@ export function ConversationSidebar() {
                 >
                   <SidebarMenuButton
                     isActive={isActive}
-                    className="w-full cursor-pointer justify-start"
+                    className="w-full cursor-pointer justify-between"
                   >
-                    {conversation.title}
+                    <span>{conversation.title}</span>
+                    <LinkLoadingIndicator size="sm" />
                   </SidebarMenuButton>
                 </Link>
               );
