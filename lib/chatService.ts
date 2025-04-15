@@ -135,7 +135,6 @@ const handleStreamingError = (
  */
 export const streamAssistantMessageAndSaveToDb = async ({
   currentMessages,
-  userMessage,
   conversationId,
   callbacks,
 }: SendMessageOptions): Promise<void> => {

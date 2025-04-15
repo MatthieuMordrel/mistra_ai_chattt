@@ -32,7 +32,7 @@ export default function ForbiddenPage() {
         </h1>
 
         <p className="text-lg text-gray-600 dark:text-gray-300">
-          You don't have permission to access this resource.
+          You don&apos;t have permission to access this resource.
         </p>
 
         <p className="text-sm text-gray-500 dark:text-gray-400">

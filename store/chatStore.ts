@@ -8,8 +8,6 @@ interface ChatState {
   messages: ChatMessage[];
   isLoading: boolean;
   isStreaming: boolean;
-  conversationId: string | null;
-  conversationTitle: string;
   tokenCount: number;
   isCalculatingTokens: boolean;
   actions: {
@@ -19,8 +17,6 @@ interface ChatState {
     updateAssistantMessage: (message: string) => void;
     setLoading: (isLoading: boolean) => void;
     setStreaming: (isStreaming: boolean) => void;
-    setConversationId: (id: string | null) => void;
-    setConversationTitle: (title: string) => void;
     setTokenCount: (count: number) => void;
     incrementTokenCount: (increment: number) => void;
     setCalculatingTokens: (isCalculating: boolean) => void;
@@ -57,7 +53,6 @@ export const useChatStoreBase = create<ChatState>((set) => ({
   isLoading: false,
   conversationTitle: "",
   isStreaming: false,
-  conversationId: null,
   tokenCount: 0,
   isCalculatingTokens: true, //Set to true by default because on the server we don't know the token count
   actions: {
@@ -124,14 +119,6 @@ export const useChatStoreBase = create<ChatState>((set) => ({
       }
     },
 
-    setConversationId: (id: string | null) => {
-      set({ conversationId: id });
-    },
-
-    setConversationTitle: (title: string) => {
-      set({ conversationTitle: title });
-    },
-
     setTokenCount: (count: number) => {
       set({ tokenCount: count });
     },
@@ -148,8 +135,6 @@ export const useChatStoreBase = create<ChatState>((set) => ({
 
     resetForNewConversation: () => {
       set({
-        conversationTitle: "New Chat",
-        conversationId: null,
         messages: [],
         tokenCount: 0,
         isCalculatingTokens: false,
@@ -163,10 +148,6 @@ export const useMessages = () => useChatStoreBase((state) => state.messages);
 export const useIsLoading = () => useChatStoreBase((state) => state.isLoading);
 export const useIsStreaming = () =>
   useChatStoreBase((state) => state.isStreaming);
-export const useConversationId = () =>
-  useChatStoreBase((state) => state.conversationId);
-export const useConversationTitle = () =>
-  useChatStoreBase((state) => state.conversationTitle);
 export const useTokenCount = () =>
   useChatStoreBase((state) => state.tokenCount);
 export const useIsCalculatingTokens = () =>

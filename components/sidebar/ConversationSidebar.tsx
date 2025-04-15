@@ -10,7 +10,6 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import { useConversations } from "@/hooks/tanstack-query/useConversations";
-import { useChatActions } from "@/store/chatStore";
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
@@ -21,7 +20,6 @@ import NewConversation from "./NewConversationButton";
 export function ConversationSidebar() {
   const { conversations } = useConversations();
 
-  const { setConversationId } = useChatActions();
   const params = useParams();
 
   const conversationId = params?.id
@@ -71,9 +69,6 @@ export function ConversationSidebar() {
                   prefetch={shouldPrefetch}
                   onMouseEnter={() => setHoveredConversationId(conversation.id)}
                   onMouseLeave={() => setHoveredConversationId(null)}
-                  onClick={() => {
-                    setConversationId(conversation.id);
-                  }}
                 >
                   <SidebarMenuButton
                     isActive={isActive}

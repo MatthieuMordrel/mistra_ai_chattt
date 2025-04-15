@@ -67,8 +67,6 @@ export const POST = withAuth(async (session, req) => {
     );
   }
 
-  console.log("response", response);
-
   // Stream the response back to the client
   return new Response(response.body, {
     headers: {

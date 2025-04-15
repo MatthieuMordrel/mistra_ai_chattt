@@ -36,7 +36,7 @@ export default function UnauthorizedPage() {
         </p>
 
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Your session may have expired or you haven't authenticated yet.
+          Your session may have expired or you haven&apos;t authenticated yet.
         </p>
 
         <div className="pt-4">

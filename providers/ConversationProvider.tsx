@@ -16,8 +16,6 @@ export function ConversationProvider({
   conversation?: ConversationWithMessages;
 }) {
   const {
-    setConversationId,
-    setConversationTitle,
     setMessages,
     resetForNewConversation,
     setTokenCount,
@@ -33,14 +31,6 @@ export function ConversationProvider({
 
     if (!conversation?.messages) {
       resetForNewConversation();
-    }
-
-    if (conversation?.id) {
-      setConversationId(conversation.id);
-    }
-
-    if (conversation?.title) {
-      setConversationTitle(conversation.title);
     }
 
     const messages = conversation?.messages;
@@ -70,8 +60,6 @@ export function ConversationProvider({
     hasHydrated.current = true;
   }, [
     conversation,
-    setConversationId,
-    setConversationTitle,
     setMessages,
     resetForNewConversation,
     setTokenCount,

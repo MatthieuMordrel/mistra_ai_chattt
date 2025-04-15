@@ -8,7 +8,6 @@ import { formatConversationTitle } from "@/lib/utils";
 import { messageSchema } from "@/lib/validation/schemas";
 import {
   useChatActions,
-  useConversationId,
   useIsCalculatingTokens,
   useIsLoading,
   useMessages,
@@ -16,6 +15,7 @@ import {
 } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
 import { useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 
@@ -26,16 +26,18 @@ export const useChatInput = () => {
   // State selectors
   const messages = useMessages();
   const isLoading = useIsLoading();
-  const conversationId = useConversationId();
   const tokenCount = useTokenCount();
   const isCalculatingTokens = useIsCalculatingTokens();
-  const {
-    addUserMessage,
-    setLoading,
-    setConversationId,
-    setConversationTitle,
-    setTokenCount,
-  } = useChatActions();
+
+  // Get conversationId from URL params instead of Zustand store
+  const params = useParams();
+  const conversationId = params?.id
+    ? Array.isArray(params.id)
+      ? params.id[0]
+      : params.id
+    : null;
+
+  const { addUserMessage, setLoading, setTokenCount } = useChatActions();
 
   const [input, setInput] = useState("");
   const { createConversation } = useConversations();
@@ -114,7 +116,7 @@ export const useChatInput = () => {
     const formattedTitle = formatConversationTitle(userMessage.content);
 
     // Update title in UI
-    setConversationTitle(formattedTitle);
+    // setConversationTitle(formattedTitle);
 
     // Create conversation in database
     const { data: result, error } = await tryCatch(
@@ -141,8 +143,6 @@ export const useChatInput = () => {
       );
     }
 
-    // Store the new conversation ID
-    setConversationId(result.id);
     // Stream the assistant response
     const { error: streamAssistantMessageError } = await tryCatch(
       streamAssistantMessageAndSaveToDb({
