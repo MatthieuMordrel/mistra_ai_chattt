@@ -8,6 +8,7 @@ interface ChatState {
   messages: ChatMessage[];
   isLoading: boolean;
   isStreaming: boolean;
+  conversationId: string | undefined;
   tokenCount: number;
   isCalculatingTokens: boolean;
   actions: {
@@ -18,6 +19,7 @@ interface ChatState {
     setLoading: (isLoading: boolean) => void;
     setStreaming: (isStreaming: boolean) => void;
     setTokenCount: (count: number) => void;
+    setConversationId: (id: string | undefined) => void;
     incrementTokenCount: (increment: number) => void;
     setCalculatingTokens: (isCalculating: boolean) => void;
     /**
@@ -51,7 +53,7 @@ const createMessage = (
 export const useChatStoreBase = create<ChatState>((set) => ({
   messages: [],
   isLoading: false,
-  conversationTitle: "",
+  conversationId: undefined,
   isStreaming: false,
   tokenCount: 0,
   isCalculatingTokens: true, //Set to true by default because on the server we don't know the token count
@@ -119,6 +121,10 @@ export const useChatStoreBase = create<ChatState>((set) => ({
       }
     },
 
+    setConversationId: (id: string | undefined) => {
+      set({ conversationId: id });
+    },
+
     setTokenCount: (count: number) => {
       set({ tokenCount: count });
     },
@@ -135,6 +141,7 @@ export const useChatStoreBase = create<ChatState>((set) => ({
 
     resetForNewConversation: () => {
       set({
+        conversationId: undefined,
         messages: [],
         tokenCount: 0,
         isCalculatingTokens: false,
@@ -148,6 +155,8 @@ export const useMessages = () => useChatStoreBase((state) => state.messages);
 export const useIsLoading = () => useChatStoreBase((state) => state.isLoading);
 export const useIsStreaming = () =>
   useChatStoreBase((state) => state.isStreaming);
+export const useConversationId = () =>
+  useChatStoreBase((state) => state.conversationId);
 export const useTokenCount = () =>
   useChatStoreBase((state) => state.tokenCount);
 export const useIsCalculatingTokens = () =>
