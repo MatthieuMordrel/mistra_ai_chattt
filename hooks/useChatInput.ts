@@ -5,7 +5,7 @@ import { useConversations } from "@/hooks/tanstack-query/useConversations";
 import { streamAssistantMessageAndSaveToDb } from "@/lib/chatService";
 import { tryCatch } from "@/lib/tryCatch";
 import { formatConversationTitle } from "@/lib/utils";
-import { getQueryClient } from "@/providers/QueryProvider";
+import { messageSchema } from "@/lib/validation/schemas";
 import {
   useChatActions,
   useConversationId,
@@ -15,7 +15,9 @@ import {
   useTokenCount,
 } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { z } from "zod";
 
 /**
  * Custom hook to handle chat input logic
@@ -37,7 +39,7 @@ export const useChatInput = () => {
 
   const [input, setInput] = useState("");
   const { createConversation } = useConversations();
-  const queryClient = getQueryClient();
+  const queryClient = useQueryClient();
 
   /**
    * Handle form submission
@@ -47,6 +49,22 @@ export const useChatInput = () => {
 
     // Validate input
     if (!input.trim() || isLoading) return;
+
+    // Validate message length
+    const { error: validationError } = messageSchema.safeParse({
+      role: "user",
+      content: input.trim(),
+    });
+
+    if (validationError) {
+      if (validationError instanceof z.ZodError) {
+        const firstError = validationError.errors[0];
+        if (firstError) {
+          throw new Error(firstError.message);
+        }
+      }
+      throw validationError;
+    }
 
     // Store user message for processing
     const userMessage: ChatMessage = { role: "user", content: input.trim() };

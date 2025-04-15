@@ -1,15 +1,6 @@
 import { components } from "./mistral";
 
 /**
- * Conversation interface for the UI
- */
-export interface Conversation {
-  id: string;
-  title: string;
-  updatedAt: string;
-}
-
-/**
  * Chat message interface for the UI
  */
 export interface ChatMessage {

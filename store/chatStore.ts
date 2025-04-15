@@ -1,6 +1,3 @@
-/**
- * Chat service for sending messages to the API
- */
 import { ChatMessage } from "@/types/types";
 import { create } from "zustand";
 
@@ -8,89 +5,25 @@ import { create } from "zustand";
  * Interface for the chat UI state
  */
 interface ChatState {
-  /** Array of chat messages in the current conversation */
   messages: ChatMessage[];
-  /** Flag indicating if a message is currently being processed */
   isLoading: boolean;
-  /** Flag indicating if the current message is streaming */
   isStreaming: boolean;
-  /** Current conversation ID */
   conversationId: string | null;
-  /** Current conversation title */
   conversationTitle: string;
-  /** Current token count of the conversation */
   tokenCount: number;
-  /** Flag indicating if token count is being calculated */
   isCalculatingTokens: boolean;
-  /** Actions that can be performed on the store */
   actions: {
-    /**
-     * Sets all messages at once
-     * @param messages - The messages to set
-     */
     setMessages: (messages: ChatMessage[]) => void;
-
-    /**
-     * Adds a user message to the chat
-     * @param message - The message text to add
-     */
     addUserMessage: (message: string) => void;
-
-    /**
-     * Adds an assistant message to the chat
-     * @param message - The message text to add
-     * @param isStreaming - Whether the message is still streaming
-     */
     addAssistantMessage: (message: string, isStreaming?: boolean) => void;
-
-    /**
-     * Updates the assistant's message during streaming
-     * @param message - The updated message text
-     */
     updateAssistantMessage: (message: string) => void;
-
-    /**
-     * Sets the loading state
-     * @param isLoading - The loading state to set
-     */
     setLoading: (isLoading: boolean) => void;
-
-    /**
-     * Sets the streaming state
-     * @param isStreaming - The streaming state to set
-     */
     setStreaming: (isStreaming: boolean) => void;
-
-    /**
-     * Sets the conversation ID
-     * @param id - The conversation ID to set
-     */
     setConversationId: (id: string | null) => void;
-
-    /**
-     * Sets the conversation title
-     * @param title - The title to set
-     */
     setConversationTitle: (title: string) => void;
-
-    /**
-     * Sets the token count
-     * @param count - The token count to set
-     */
     setTokenCount: (count: number) => void;
-
-    /**
-     * Increments the token count (for streaming)
-     * @param increment - The number of tokens to add
-     */
     incrementTokenCount: (increment: number) => void;
-
-    /**
-     * Sets the calculating tokens state
-     * @param isCalculating - Whether tokens are being calculated
-     */
     setCalculatingTokens: (isCalculating: boolean) => void;
-
     /**
      * Resets the store for a new conversation
      * Sets title to "New Conversation", clears ID and messages
@@ -118,7 +51,6 @@ const createMessage = (
 
 /**
  * Zustand store for managing chat UI state
- * Not exported directly to prevent subscribing to the entire store
  */
 export const useChatStoreBase = create<ChatState>((set) => ({
   messages: [],
