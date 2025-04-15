@@ -13,9 +13,6 @@ export default function ChatTitleLayout() {
       : params.id
     : undefined;
 
-  console.log("conversationId", conversationId);
-  console.log("conversationIdStore", conversationIdStore);
-
   // The hook now safely handles undefined IDs
   const { conversation } = useConversation(
     conversationId ?? conversationIdStore,
