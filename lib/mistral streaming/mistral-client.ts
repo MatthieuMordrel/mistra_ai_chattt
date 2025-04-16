@@ -55,8 +55,8 @@ export async function streamMistralClient({
   temperature,
   maxTokens,
   responseFormat = { type: "text" },
-  onToken = (token: string) => {},
-  onComplete = (fullText: string) => {},
+  onToken = () => {},
+  onComplete = () => {},
   onError = (error: Error) => console.error(error),
   onChunk,
 }: StreamMistralClientOptions): Promise<string> {

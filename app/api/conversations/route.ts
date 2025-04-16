@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
  * GET handler for fetching all conversations for the current user
  * Protected by withAuth HOF
  */
-export const GET = withAuth(async (session, request) => {
+export const GET = withAuth(async (session) => {
   // Get conversations for the user
   const { data: conversations, error: conversationsError } = await tryCatch(
     DAL.conversation.queries.getUserConversations(session.user.id)(),

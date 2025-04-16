@@ -1,11 +1,11 @@
 import { DAL } from "@/db/dal";
 import { tryCatch } from "@/lib/tryCatch";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 /**
  * GET handler for fetching all active models
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
   // Fetch active models from the database
   const { data: models, error } = await tryCatch(
     DAL.model.queries.getActiveModels(),

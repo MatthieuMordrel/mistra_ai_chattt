@@ -11,7 +11,7 @@ function hasSessionCookie(request: NextRequest): boolean {
 
 // Helper function to handle API route authentication
 // Only checks for cookie presence, actual validation happens in the route handler
-export async function handleApiRouteAuth(request: NextRequest) {
+export async function handleApiRouteAuth() {
   const { data, error } = tryCatchSync(() => {
     // if (!hasSessionCookie(request)) {
     //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
