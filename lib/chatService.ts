@@ -157,7 +157,10 @@ export const streamAssistantMessageAndSaveToDb = async ({
     // Stream the response using our protected API client
     await streamMistralClient({
       model: selectedModelId || "mistral-small-latest", // Use selected model or fall back to default
-      messages: currentMessages,
+      messages: currentMessages.map((message) => ({
+        role: message.role,
+        content: message.content,
+      })),
       // Token callback
       onToken: (token) => {
         // Accumulate the content and update the UI with each token
