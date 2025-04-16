@@ -3,7 +3,7 @@ import { components } from "@/types/mistral";
 export interface BasicMessage {
   role: string; // Accept any string for role to be compatible with database Message type
   content: string;
-  [key: string]: any; // Allow for additional properties
+  [key: string]: unknown; // Allow for additional properties
 }
 // Chunk type
 export type StreamChunk = components["schemas"]["CompletionChunk"];
