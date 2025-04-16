@@ -5,7 +5,6 @@ import { forbidden, unauthorized } from "next/navigation";
 import { cache } from "react";
 import { tryCatch } from "../tryCatch";
 import { auth } from "./config/auth";
-import { HttpError } from "./errors";
 import { sessionVerificationFunction } from "./verificationFunction";
 /**
  * Validates the user session on the server side
@@ -32,32 +31,17 @@ export async function validateServerSession(redirect?: boolean) {
   });
 
   if (!session) {
-    if (redirect) {
-      const result = await tryCatch(auth.api.signOut({ headers: headersList }));
-      if (result.error) {
-        unauthorized();
-      }
-      unauthorized();
-    }
-    // If there is no redirect path, return a unauthorized error
-    // This should happen when calling the server actions or route handlers directly only
-    throw new HttpError("Invalid session", 401);
+    await tryCatch(auth.api.signOut({ headers: headersList }));
+    unauthorized();
   }
 
   //Check if session is valid
   const validSession = sessionVerificationFunction(session);
 
   if (!validSession) {
-    if (redirect) {
-      //For some reason, the signOut function does not work on the server and doesn't delete the session cookie
-      const result = await tryCatch(auth.api.signOut({ headers: headersList }));
-      if (result.error) {
-        //If there is an error when signing out, return a forbidden error to avoid infinite redirect
-        forbidden();
-      }
-      forbidden();
-    }
-    throw new HttpError("Invalid session", 403);
+    //For some reason, the signOut function does not work on the server and doesn't delete the session cookie
+    await tryCatch(auth.api.signOut({ headers: headersList }));
+    forbidden();
   }
 
   //If session is valid, return the session and headers
