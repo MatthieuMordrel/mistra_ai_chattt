@@ -19,6 +19,7 @@ import NewConversation from "./NewConversationButton";
 
 export function ConversationSidebar() {
   const { conversations } = useConversations();
+  //We don't use useGetConversationId because otherwise it revalidatesPath too fast and the mutation is not finished
   const params = useParams();
   const pathname = usePathname();
   const [hoveredConversationId, setHoveredConversationId] = useState<
@@ -34,7 +35,6 @@ export function ConversationSidebar() {
   // Invalidate the router cache for all conversations by calling revalidatePath in a server action
   useEffect(() => {
     if (conversationId) {
-      console.log("revalidating conversations", conversationId);
       revalidateConversations(conversationId);
     }
   }, [conversationId]);
