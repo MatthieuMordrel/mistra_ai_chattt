@@ -37,8 +37,7 @@ export const useChatInput = () => {
       : params.id
     : null;
 
-  const { addUserMessage, setLoading, setTokenCount, setConversationId } =
-    useChatActions();
+  const { addUserMessage, setLoading, setTokenCount } = useChatActions();
 
   const [input, setInput] = useState("");
   const { createConversation } = useConversations();
@@ -130,9 +129,6 @@ export const useChatInput = () => {
       console.error("Error creating conversation:", error);
       throw error;
     }
-
-    // Update the conversationId in the store
-    setConversationId(result.id);
 
     // Only update the URL visually without causing any navigation or data fetching
     // Doesn't udpate the conversations sidebar though

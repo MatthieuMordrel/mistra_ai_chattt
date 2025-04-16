@@ -19,8 +19,11 @@ import NewConversation from "./NewConversationButton";
 
 export function ConversationSidebar() {
   const { conversations } = useConversations();
-
   const params = useParams();
+  const pathname = usePathname();
+  const [hoveredConversationId, setHoveredConversationId] = useState<
+    string | null
+  >(null);
 
   const conversationId = params?.id
     ? Array.isArray(params.id)
@@ -28,14 +31,10 @@ export function ConversationSidebar() {
       : params.id
     : undefined;
 
-  const pathname = usePathname();
-  const [hoveredConversationId, setHoveredConversationId] = useState<
-    string | null
-  >(null);
-
   // Invalidate the router cache for all conversations by calling revalidatePath in a server action
   useEffect(() => {
     if (conversationId) {
+      console.log("revalidating conversations", conversationId);
       revalidateConversations(conversationId);
     }
   }, [conversationId]);

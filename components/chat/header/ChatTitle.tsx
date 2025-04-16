@@ -1,22 +1,12 @@
 "use client";
 import { useConversation } from "@/hooks/tanstack-query/useConversations";
-import { useConversationId } from "@/store/chatStore";
-import { useParams } from "next/navigation";
+import { useGetConversationId } from "@/hooks/useGetConversationId";
 
 export default function ChatTitleLayout() {
-  const params = useParams();
-  const conversationIdStore = useConversationId();
-  // Handle correctly typed paramValue (string | string[] | undefined)
-  const conversationId = params?.id
-    ? Array.isArray(params.id)
-      ? params.id[0]
-      : params.id
-    : undefined;
+  const conversationId = useGetConversationId();
 
   // The hook now safely handles undefined IDs
-  const { conversation } = useConversation(
-    conversationId ?? conversationIdStore,
-  );
+  const { conversation } = useConversation(conversationId);
 
   return (
     <div className="min-h-[32px] py-1">
