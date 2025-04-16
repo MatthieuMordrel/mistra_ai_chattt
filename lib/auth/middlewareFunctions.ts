@@ -1,46 +1,28 @@
 import { getSessionCookie } from "better-auth/cookies";
+import { unauthorized } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
-import { tryCatchSync } from "../tryCatch";
 
-// Helper function to check if session cookie exists (lightweight)
-function hasSessionCookie(request: NextRequest): boolean {
-  const sessionCookie = getSessionCookie(request);
-
-  return !!sessionCookie;
-}
-
-// Helper function to handle API route authentication
 // Only checks for cookie presence, actual validation happens in the route handler
 export async function handleApiRouteAuth(request: NextRequest) {
-  const { data, error } = tryCatchSync(() => {
-    if (!hasSessionCookie(request)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    // Let the request proceed to the route handler
-    // where proper validation will happen with withAuth
-    return NextResponse.next();
-  });
-
-  if (error) {
-    console.error("API middleware authentication error:", error);
-    return NextResponse.json(
-      { error: "Authentication error" },
-      { status: 500 },
-    );
+  // If there is no session cookie, redirect to sign-in
+  if (!getSessionCookie(request)) {
+    unauthorized();
   }
 
-  return data;
+  // If there is a session cookie, let the request proceed to the route handler
+  // If the session cookie is invalid, validateSession will manage the redirect/error
+  return NextResponse.next();
 }
 
 // Helper function to handle public routes
 export async function handlePublicRoutes(request: NextRequest) {
-  // Only check for cookie existence - don't validate it yet
-  // The validation happens in the resource that is being requested
-  if (hasSessionCookie(request)) {
-    const baseUrl = process.env.BETTER_AUTH_URL || request.nextUrl.origin;
+  // If there is a session cookie, redirect to dashboard/home
+  if (!!getSessionCookie(request)) {
     // Always use absolute URLs for redirects in middleware
+    const baseUrl = process.env.BETTER_AUTH_URL || request.nextUrl.origin;
     return NextResponse.redirect(new URL("/dashboard/home", baseUrl));
   }
 
+  // If there is no session cookie, let the request proceed normally
   return NextResponse.next();
 }

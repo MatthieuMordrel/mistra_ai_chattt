@@ -10,6 +10,8 @@ export const useNavigateToSignIn = () => {
   const router = useRouter();
 
   const navigateToSignIn = async () => {
+    //This works as long as the user didn't update the session cookie
+    //If the user updated the session cookie, he will be stuck on unauthorized page
     await tryCatch(signOut());
     router.push("/sign-in");
   };
