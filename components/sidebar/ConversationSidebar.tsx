@@ -33,7 +33,7 @@ export function ConversationSidebar() {
     string | null
   >(null);
 
-  // Invalidate the router cache for all conversation by calling revalidatePath in a server action
+  // Invalidate the router cache for all conversations by calling revalidatePath in a server action
   useEffect(() => {
     if (conversationId) {
       revalidateConversations(conversationId);
