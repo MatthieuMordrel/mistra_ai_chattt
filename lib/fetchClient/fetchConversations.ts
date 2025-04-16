@@ -19,7 +19,6 @@ export async function fetchConversations() {
     },
   });
 
-  console.log("response", response);
   if (!response.ok) {
     throw new Error("Failed to fetch conversations pouet");
   }
