@@ -2,6 +2,7 @@ import ChatContainer from "@/components/chat/container/ChatContainer";
 import { DAL } from "@/db/dal";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 import { Metadata } from "next";
+
 type Props = {
   params: Promise<{ id: string }>;
 };

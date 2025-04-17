@@ -4,8 +4,6 @@ import { useGetConversationId } from "@/hooks/useGetConversationId";
 
 export default function ChatTitleLayout() {
   const conversationId = useGetConversationId();
-
-  // The hook now safely handles undefined IDs
   const { conversation } = useConversation(conversationId);
 
   return (
