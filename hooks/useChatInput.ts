@@ -131,8 +131,8 @@ export const useChatInput = () => {
     }
 
     // Only update the URL visually without causing any navigation or data fetching
-    // Doesn't udpate the conversations sidebar though
     window.history.replaceState(null, "", `/dashboard/chat/${result.id}`);
+    // router.replace(`/dashboard/chat/${result.id}`); //This doesn't work even wrapped in a startTransition
 
     // Stream the assistant response
     const { error: streamAssistantMessageError } = await tryCatch(
