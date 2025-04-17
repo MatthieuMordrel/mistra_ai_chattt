@@ -1,5 +1,4 @@
 import ChatContainer from "@/components/chat/container/ChatContainer";
-import { ChatPageHeader } from "@/components/chat/header/ChatPageHeader";
 import { DAL } from "@/db/dal";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 import { Metadata } from "next";
@@ -19,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ]);
   const conversation = await DAL.conversation.queries.getConversation(
     conversationId,
-    session?.session.userId as string,
+    session.session.userId,
   );
   return {
     title: conversation.title,
@@ -41,12 +40,11 @@ export default async function ConversationPage({
   //Fetching the conversation from the server
   const conversation = await DAL.conversation.queries.getConversation(
     conversationId,
-    session?.session.userId as string,
+    session.session.userId,
   );
 
   return (
     <div className="flex h-full flex-col">
-      <ChatPageHeader />
       <ChatContainer conversation={conversation} />
     </div>
   );
