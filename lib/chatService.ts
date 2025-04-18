@@ -12,19 +12,11 @@ import { ChatMessage } from "@/types/types";
  * Options for sending a message
  */
 interface SendMessageOptions {
-  /** The current messages in the conversation */
   currentMessages: ChatMessage[];
-  /** The new user message to send */
   userMessage: ChatMessage;
-  /** The conversation ID to save messages to (if available) */
   conversationId: string;
-  /** Optional callbacks for custom handling */
   callbacks?: {
-    /** Called before sending the message */
-    onStart?: () => void;
-    /** Called when streaming is complete */
     onComplete?: (fullContent: string) => void;
-    /** Called when an error occurs */
     onError?: (errorMessage: string) => void;
   };
 }
@@ -138,9 +130,6 @@ export const streamAssistantMessageAndSaveToDb = async ({
   conversationId,
   callbacks,
 }: SendMessageOptions): Promise<void> => {
-  // Call the onStart callback if provided
-  callbacks?.onStart?.();
-
   // Prepare UI state
   prepareUIState();
 
@@ -161,33 +150,32 @@ export const streamAssistantMessageAndSaveToDb = async ({
         role: message.role,
         content: message.content,
       })),
-      // Token callback
-      onToken: (token) => {
-        // Accumulate the content and update the UI with each token
-        accumulatedContent += token;
-        useChatStoreBase
-          .getState()
-          .actions.updateAssistantMessage(accumulatedContent);
-
-        // Estimate and increment token count for this piece
-        const tokenEstimate = estimateTokenCount(token);
-        if (tokenEstimate > 0) {
+      callbacks: {
+        onToken: (token) => {
+          // Accumulate the content and update the UI with each token
+          accumulatedContent += token;
           useChatStoreBase
             .getState()
-            .actions.incrementTokenCount(tokenEstimate);
-        }
+            .actions.updateAssistantMessage(accumulatedContent);
+
+          // Estimate and increment token count for this piece
+          const tokenEstimate = estimateTokenCount(token);
+          if (tokenEstimate > 0) {
+            useChatStoreBase
+              .getState()
+              .actions.incrementTokenCount(tokenEstimate);
+          }
+        },
+        onComplete: async (fullContent) => {
+          // Update UI state
+          updateUIAfterStreaming(fullContent);
+          // Call the completion callback if provided
+          callbacks?.onComplete?.(fullContent);
+          // Save the assistant message to the database
+          await saveAssistantMessageToDb(fullContent, conversationId);
+        },
+        onError: (error) => handleStreamingError(error, callbacks?.onError),
       },
-      // Complete callback
-      onComplete: async (fullContent) => {
-        // Update UI state
-        updateUIAfterStreaming(fullContent);
-        // Call the completion callback if provided
-        callbacks?.onComplete?.(fullContent);
-        // Save the assistant message to the database
-        await saveAssistantMessageToDb(fullContent, conversationId);
-      },
-      // Error callback
-      onError: (error) => handleStreamingError(error, callbacks?.onError),
     });
   } catch (error) {
     handleStreamingError(error, callbacks?.onError);

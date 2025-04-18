@@ -14,10 +14,7 @@ export async function streamMistralClient({
   temperature,
   maxTokens,
   responseFormat = { type: "text" },
-  onToken = () => {},
-  onComplete = () => {},
-  onError = console.error,
-  onChunk,
+  callbacks,
 }: StreamMistralClientOptions): Promise<string> {
   try {
     // Sanitize messages to meet API requirements
@@ -75,18 +72,18 @@ export async function streamMistralClient({
 
     // Iterate parsed SSE chunks
     for await (const chunk of parseStream(reader)) {
-      onChunk?.(chunk);
+      callbacks?.onChunk?.(chunk);
       const content = extractContentFromChunk(chunk);
       if (content) {
         fullText += content;
-        onToken(content);
+        callbacks?.onToken?.(content);
       }
     }
 
-    onComplete(fullText);
+    callbacks?.onComplete?.(fullText);
     return fullText;
   } catch (err) {
-    onError(err instanceof Error ? err : new Error(String(err)));
+    callbacks?.onError?.(err instanceof Error ? err : new Error(String(err)));
     throw err;
   }
 }
@@ -100,8 +97,10 @@ export interface StreamMistralClientOptions {
   temperature?: number;
   maxTokens?: number;
   responseFormat?: components["schemas"]["ResponseFormat"];
-  onToken?: (token: string) => void;
-  onComplete?: (fullText: string) => void;
-  onError?: (error: Error) => void;
-  onChunk?: (chunk: StreamChunk) => void;
+  callbacks?: {
+    onToken?: (token: string) => void;
+    onComplete?: (fullText: string) => void;
+    onError?: (error: Error) => void;
+    onChunk?: (chunk: StreamChunk) => void;
+  };
 }
