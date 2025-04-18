@@ -5,49 +5,8 @@ import { sanitizeMessages } from "./sanitizeMessage";
 import { BasicMessage, StreamChunk } from "./types";
 
 /**
- * Basic message interface that can be converted to Mistral API format
- */
-
-/**
- * Options for the streamMistralClient function
- */
-interface StreamMistralClientOptions {
-  /** The model ID to use (defaults to mistral-small-latest) */
-  model?: string;
-  /** Array of messages for the conversation */
-  messages: BasicMessage[];
-  /** Temperature for generation (0.0-1.0) */
-  temperature?: number;
-  /** Maximum tokens to generate */
-  maxTokens?: number;
-  /** Response format (defaults to text) */
-  responseFormat?: components["schemas"]["ResponseFormat"];
-  /** Callback for each token as it's received */
-  onToken?: (token: string) => void;
-  /** Callback when streaming is complete with the full text */
-  onComplete?: (fullText: string) => void;
-  /** Callback for error handling */
-  onError?: (error: Error) => void;
-  /** Advanced callback for raw chunk data (for debugging or advanced use cases) */
-  onChunk?: (chunk: StreamChunk) => void;
-}
-
-/**
- * Stream responses from the Mistral AI API through our protected API endpoint
- *
- * @example
- * ```typescript
- * await streamMistralClient({
- *   messages: [{ role: "user", content: "Tell me about Paris" }],
- *   onToken: (token) => {
- *     setPartialResponse(prev => prev + token);
- *     // Handle token count estimation here if needed
- *     const tokenEstimate = estimateTokenCount(token);
- *     incrementTokenCount(tokenEstimate);
- *   },
- *   onComplete: (fullText) => console.log("Completed!"),
- * });
- * ```
+ * Stream responses from the Mistral AI API with minimal boilerplate.
+ * Utilizes TextDecoderStream for native streaming text decoding.
  */
 export async function streamMistralClient({
   model = "mistral-small-latest",
@@ -57,103 +16,92 @@ export async function streamMistralClient({
   responseFormat = { type: "text" },
   onToken = () => {},
   onComplete = () => {},
-  onError = (error: Error) => console.error(error),
+  onError = console.error,
   onChunk,
 }: StreamMistralClientOptions): Promise<string> {
   try {
-    // Sanitize messages to ensure they conform to Mistral API requirements
-    const sanitizedMessages = sanitizeMessages(messages);
-
-    // Call our protected API endpoint
-    const response = await fetch("/api/mistral/stream", {
+    // Sanitize messages to meet API requirements
+    const sanitized = sanitizeMessages(messages);
+    const res = await fetch("/api/mistral/stream", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model,
-        messages: sanitizedMessages,
+        messages: sanitized,
         temperature,
         maxTokens,
         responseFormat,
       }),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API request failed: ${response.status} - ${errorText}`);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Request failed (${res.status}): ${text}`);
     }
+    if (!res.body) throw new Error("Empty response body");
 
-    if (!response.body) {
-      throw new Error("No response body received.");
-    }
+    // Pipe through a TextDecoderStream for automatic UTF-8 decoding
+    const textStream = res.body.pipeThrough(new TextDecoderStream());
+    const reader = textStream.getReader();
+    let fullText = "";
 
-    // Set up the stream reader and decoder
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-    let fullContent = "";
+    // Async generator: read decoded strings, split into SSE lines, parse
+    async function* parseStream(reader: ReadableStreamDefaultReader<string>) {
+      let buffer = "";
 
-    // Process the stream
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += value;
 
-      // Decode the chunk and add it to our buffer
-      buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop()!; // Keep last incomplete line
 
-      // Process complete lines from the buffer
-      const lines = buffer.split("\n");
-      // Keep the last (potentially incomplete) line in the buffer
-      buffer = lines.pop() || "";
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
 
-      for (const line of lines) {
-        // Skip empty lines
-        if (!line.trim()) continue;
-
-        // Parse the SSE line into a StreamChunk
-        const chunk = parseSSELine(line);
-
-        // Skip if parsing failed or it's a control message
-        if (!chunk) continue;
-
-        // Call onChunk callback if provided (for advanced usage)
-        if (onChunk) {
-          onChunk(chunk);
+          const chunk = parseSSELine(trimmed);
+          if (chunk) yield chunk;
         }
+      }
 
-        // Extract content from the chunk
-        const content = extractContentFromChunk(chunk);
-
-        // Process the content if available
-        if (content) {
-          fullContent += content;
-          onToken(content);
-        }
+      // Flush any remaining data
+      if (buffer.trim()) {
+        const last = parseSSELine(buffer);
+        if (last) yield last;
       }
     }
 
-    // Process any remaining content in the buffer
-    if (buffer.trim()) {
-      const chunk = parseSSELine(buffer);
-      if (chunk) {
-        const content = extractContentFromChunk(chunk);
-        if (content) {
-          fullContent += content;
-          onToken(content);
-        }
+    // Iterate parsed SSE chunks
+    for await (const chunk of parseStream(reader)) {
+      onChunk?.(chunk);
+      const content = extractContentFromChunk(chunk);
+      if (content) {
+        fullText += content;
+        onToken(content);
       }
     }
 
-    // Call the completion callback with the full content
-    onComplete(fullContent);
-    return fullContent;
-  } catch (error) {
-    if (error instanceof Error) {
-      onError(error);
-    } else {
-      onError(new Error("Unknown error occurred"));
-    }
-    throw error;
+    onComplete(fullText);
+    return fullText;
+  } catch (err) {
+    onError(err instanceof Error ? err : new Error(String(err)));
+    throw err;
   }
+}
+
+/**
+ * Options for the streamMistralClient function
+ */
+export interface StreamMistralClientOptions {
+  model?: string;
+  messages: BasicMessage[];
+  temperature?: number;
+  maxTokens?: number;
+  responseFormat?: components["schemas"]["ResponseFormat"];
+  onToken?: (token: string) => void;
+  onComplete?: (fullText: string) => void;
+  onError?: (error: Error) => void;
+  onChunk?: (chunk: StreamChunk) => void;
 }
