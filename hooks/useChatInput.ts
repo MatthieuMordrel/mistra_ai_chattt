@@ -127,10 +127,10 @@ export const useChatInput = () => {
       console.error("Error creating conversation:", error);
       throw error;
     }
-    // Only update the URL visually without causing any navigation or data fetching
-    // window.history.replaceState(null, "", `/dashboard/chat/${result.id}`);
-    router.prefetch(`/dashboard/chat/${result.id}`);
-    router.replace(`/dashboard/chat/${result.id}`); //This doesn't work even wrapped in a startTransition
+    // Only update the URL visually without causing any navigation or data fetching, allows to update navbar which integrate with usePathname
+    window.history.replaceState(null, "", `/dashboard/chat/${result.id}`);
+    // router.prefetch(`/dashboard/chat/${result.id}`);
+    // router.replace(`/dashboard/chat/${result.id}`); //This doesn't work even wrapped in a startTransition
 
     // Stream the assistant response using the store function
     const { error: streamError } = await tryCatch(

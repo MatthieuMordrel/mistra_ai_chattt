@@ -13,6 +13,7 @@ const ChatMessageList = ({
 }) => {
   const messagesFromStore = useMessages();
   const messagesEndRef = useAutoScroll();
+  console.log("messagesFromStore", messagesFromStore);
 
   return (
     <div className="relative flex-1 overflow-hidden">

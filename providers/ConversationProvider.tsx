@@ -1,7 +1,7 @@
 "use client";
 
 import { countMessageTokens } from "@/lib/mistral streaming/tokenizer";
-import { useChatActions } from "@/store/chatStore";
+import { useChatActions, useIsStreaming } from "@/store/chatStore";
 import { ConversationWithMessages } from "@/types/db";
 import { ChatMessage } from "@/types/types";
 import { useEffect, useRef } from "react";
@@ -21,6 +21,7 @@ export function ConversationProvider({
     setTokenCount,
     setCalculatingTokens,
   } = useChatActions();
+  const isStreaming = useIsStreaming();
 
   // Use a ref to track if we've hydrated the store
   const hasHydrated = useRef(false);
@@ -28,6 +29,11 @@ export function ConversationProvider({
   // Initialize store with server data
   useEffect(() => {
     if (hasHydrated.current) return;
+
+    if (isStreaming) {
+      hasHydrated.current = true;
+      return;
+    }
 
     if (!conversation?.messages) {
       resetForNewConversation();
