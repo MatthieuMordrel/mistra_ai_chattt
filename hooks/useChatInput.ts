@@ -2,7 +2,6 @@
 
 import { saveMessagesAction } from "@/actions/conversation-actions";
 import { useConversations } from "@/hooks/tanstack-query/useConversations";
-import { streamAssistantMessageAndSaveToDb } from "@/lib/chatService";
 import { tryCatch } from "@/lib/tryCatch";
 import { formatConversationTitle } from "@/lib/utils";
 import { messageSchema } from "@/lib/validation/schemas";
@@ -15,7 +14,7 @@ import {
 } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
 import { useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 
@@ -28,6 +27,7 @@ export const useChatInput = () => {
   const isLoading = useIsLoading();
   const tokenCount = useTokenCount();
   const isCalculatingTokens = useIsCalculatingTokens();
+  const router = useRouter();
 
   // Get conversationId from URL params instead of Zustand store
   const params = useParams();
@@ -37,7 +37,8 @@ export const useChatInput = () => {
       : params.id
     : null;
 
-  const { addUserMessage, setLoading, setTokenCount } = useChatActions();
+  const { addUserMessage, setLoading, setTokenCount, streamAssistantMessage } =
+    useChatActions();
 
   const [input, setInput] = useState("");
   const { createConversation } = useConversations();
@@ -115,9 +116,6 @@ export const useChatInput = () => {
     // Format title from first message
     const formattedTitle = formatConversationTitle(userMessage.content);
 
-    // Update title in UI
-    // setConversationTitle(formattedTitle);
-
     // Create conversation in database
     const { data: result, error } = await tryCatch(
       createConversation({
@@ -129,27 +127,23 @@ export const useChatInput = () => {
       console.error("Error creating conversation:", error);
       throw error;
     }
-
     // Only update the URL visually without causing any navigation or data fetching
-    window.history.replaceState(null, "", `/dashboard/chat/${result.id}`);
-    // router.replace(`/dashboard/chat/${result.id}`); //This doesn't work even wrapped in a startTransition
+    // window.history.replaceState(null, "", `/dashboard/chat/${result.id}`);
+    router.prefetch(`/dashboard/chat/${result.id}`);
+    router.replace(`/dashboard/chat/${result.id}`); //This doesn't work even wrapped in a startTransition
 
-    // Stream the assistant response
-    const { error: streamAssistantMessageError } = await tryCatch(
-      streamAssistantMessageAndSaveToDb({
+    // Stream the assistant response using the store function
+    const { error: streamError } = await tryCatch(
+      streamAssistantMessage({
         currentMessages: [userMessage],
-        userMessage: userMessage,
         conversationId: result.id,
       }),
     );
-    if (streamAssistantMessageError) {
-      console.error(
-        "Error streaming assistant message:",
-        streamAssistantMessageError,
-      );
-      throw streamAssistantMessageError;
+
+    if (streamError) {
+      console.error("Error streaming assistant message:", streamError);
+      throw streamError;
     }
-    //need to rerender my sidebar to refresh the conversation list
   };
 
   /**
@@ -176,20 +170,17 @@ export const useChatInput = () => {
     // Prepare current messages including the new user message
     const currentMessagesWithNewMessage = [...messages, userMessage];
 
-    // Stream the assistant response
-    const { error: streamAssistantMessageError } = await tryCatch(
-      streamAssistantMessageAndSaveToDb({
+    // Stream the assistant response using the store function
+    const { error: streamError } = await tryCatch(
+      streamAssistantMessage({
         currentMessages: currentMessagesWithNewMessage,
-        userMessage: userMessage,
         conversationId: conversationId,
       }),
     );
-    if (streamAssistantMessageError) {
-      console.error(
-        "Error streaming assistant message:",
-        streamAssistantMessageError,
-      );
-      throw streamAssistantMessageError;
+
+    if (streamError) {
+      console.error("Error streaming assistant message:", streamError);
+      throw streamError;
     }
   };
 
