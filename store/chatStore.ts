@@ -8,9 +8,6 @@ import { useModelStoreBase } from "@/store/modelStore";
 import { ChatMessage } from "@/types/types";
 import { create } from "zustand";
 
-/**
- * Interface for the chat UI state
- */
 interface ChatState {
   messages: ChatMessage[];
   isLoading: boolean;
