@@ -1,20 +1,20 @@
 import { z } from "zod";
 
 const conversationWithMessagesSchema = z.object({
+  createdAt: z.string(),
   id: z.string(),
-  userId: z.string(),
   title: z.string(),
   updatedAt: z.string(),
-  createdAt: z.string(),
+  userId: z.string(),
   messages: z.array(
     z.object({
-      id: z.string(),
-      conversationId: z.string(),
-      isStreaming: z.boolean(),
       content: z.string(),
+      conversationId: z.string(),
+      createdAt: z.string(),
+      id: z.string(),
+      isStreaming: z.boolean(),
       role: z.enum(["user", "assistant"]),
       tokens: z.number().nullable(),
-      createdAt: z.string(),
     }),
   ),
 });
@@ -26,7 +26,7 @@ export type ConversationWithMessagesFromSchema = z.infer<
 // API function to fetch conversations
 export async function fetchConversation(id: string) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
-  const response = await fetch(`${baseUrl}/api/conversation/${id}`, {
+  const response = await fetch(`${baseUrl}/api/conversations/${id}`, {
     cache: "no-store",
     method: "GET",
     headers: {
@@ -39,6 +39,7 @@ export async function fetchConversation(id: string) {
   }
 
   const data = await response.json();
+  console.log("data", data);
   // Parse the data with zod, if it fails, throw a ZodError
   const parsedData = conversationWithMessagesSchema.parse(data);
   return parsedData;
