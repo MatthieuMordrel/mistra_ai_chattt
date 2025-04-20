@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const conversationSchema = z.object({
+const conversationWithMessagesSchema = z.object({
   id: z.string(),
   userId: z.string(),
   title: z.string(),
@@ -19,7 +19,9 @@ const conversationSchema = z.object({
   ),
 });
 
-export type ConversationFromSchema = z.infer<typeof conversationSchema>;
+export type ConversationWithMessagesFromSchema = z.infer<
+  typeof conversationWithMessagesSchema
+>;
 
 // API function to fetch conversations
 export async function fetchConversation(id: string) {
@@ -38,6 +40,6 @@ export async function fetchConversation(id: string) {
 
   const data = await response.json();
   // Parse the data with zod, if it fails, throw a ZodError
-  const parsedData = conversationSchema.array().parse(data);
+  const parsedData = conversationWithMessagesSchema.parse(data);
   return parsedData;
 }
