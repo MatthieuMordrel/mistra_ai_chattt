@@ -21,7 +21,18 @@ export function useConversationDetails(id: string) {
   // Fetch conversation with messages
   const conversationQuery = useSuspenseQuery({
     queryKey: ["conversation", id],
-    queryFn: () => fetchConversation(id),
+    queryFn: () =>
+      id
+        ? fetchConversation(id)
+        : {
+            createdAt: "",
+            id: "",
+            title: "",
+            updatedAt: "",
+            userId: "",
+            messages: [],
+          },
+    select: (data) => data?.messages,
   });
 
   // Mutation for saving messages to a conversation with optimistic updates
