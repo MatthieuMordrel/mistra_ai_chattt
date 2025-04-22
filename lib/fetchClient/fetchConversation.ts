@@ -1,23 +1,16 @@
 import { z } from "zod";
 
-const conversationWithMessagesSchema = z.object({
-  createdAt: z.string(),
-  id: z.string(),
-  title: z.string(),
-  updatedAt: z.string(),
-  userId: z.string(),
-  messages: z.array(
-    z.object({
-      content: z.string(),
-      conversationId: z.string(),
-      createdAt: z.string(),
-      id: z.string(),
-      isStreaming: z.boolean(),
-      role: z.enum(["user", "assistant"]),
-      tokens: z.number().nullable(),
-    }),
-  ),
-});
+const conversationWithMessagesSchema = z.array(
+  z.object({
+    content: z.string(),
+    conversationId: z.string(),
+    createdAt: z.string(),
+    id: z.string(),
+    isStreaming: z.boolean(),
+    role: z.enum(["user", "assistant"]),
+    tokens: z.number().nullable(),
+  }),
+);
 
 export type ConversationWithMessagesFromSchema = z.infer<
   typeof conversationWithMessagesSchema
@@ -26,7 +19,7 @@ export type ConversationWithMessagesFromSchema = z.infer<
 // API function to fetch conversations
 export async function fetchConversation(id: string) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
-  const response = await fetch(`${baseUrl}/api/conversations/${id}`, {
+  const response = await fetch(`${baseUrl}/api/messages/${id}`, {
     cache: "no-store",
     method: "GET",
     headers: {

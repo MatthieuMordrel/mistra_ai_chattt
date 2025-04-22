@@ -3,6 +3,7 @@ import {
   ConversationWithMessagesFromSchema,
   fetchConversation,
 } from "@/lib/fetchClient/fetchConversation";
+import { streamMistralClient } from "@/lib/mistral streaming/mistral-client";
 import { ChatMessage } from "@/types/types";
 import {
   useMutation,
@@ -21,18 +22,7 @@ export function useConversationDetails(id?: string) {
   // Fetch conversation with messages
   const conversationQuery = useSuspenseQuery({
     queryKey: ["conversation", id],
-    queryFn: () =>
-      id
-        ? fetchConversation(id)
-        : {
-            createdAt: "",
-            id: "",
-            title: "",
-            updatedAt: "",
-            userId: "",
-            messages: [],
-          },
-    select: (data) => data?.messages,
+    queryFn: () => (id ? fetchConversation(id) : []),
   });
 
   // Mutation for saving messages to a conversation with optimistic updates
@@ -53,50 +43,46 @@ export function useConversationDetails(id?: string) {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ["conversation", id] });
 
-      // Snapshot the previous value
-      const previousConversation =
+      // Snapshot the previous value (now an array of messages)
+      const previousMessages =
         queryClient.getQueryData<ConversationWithMessagesFromSchema>([
           "conversation",
           id,
         ]);
 
-      if (previousConversation) {
-        // Create a copy of the conversation with the new messages added
-        const updatedConversation = {
-          ...previousConversation,
-          messages: [
-            ...previousConversation.messages,
-            ...newMessages
-              .filter((msg) => msg.role === "user" || msg.role === "assistant")
-              .map((msg) => ({
-                id: `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-                conversationId: id,
-                isStreaming: false,
-                content: msg.content,
-                role: msg.role as "user" | "assistant",
-                tokens: null,
-                createdAt: new Date().toISOString(),
-              })),
-          ],
-          updatedAt: new Date().toISOString(),
-        };
+      if (previousMessages) {
+        // Create new messages array with the new messages added
+        const updatedMessages = [
+          ...previousMessages,
+          ...newMessages
+            .filter((msg) => msg.role === "user" || msg.role === "assistant")
+            .map((msg) => ({
+              id: `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+              conversationId: id,
+              isStreaming: false,
+              content: msg.content,
+              role: msg.role as "user" | "assistant",
+              tokens: null,
+              createdAt: new Date().toISOString(),
+            })),
+        ];
 
         // Optimistically update the cache
         queryClient.setQueryData<ConversationWithMessagesFromSchema>(
           ["conversation", id],
-          updatedConversation,
+          updatedMessages,
         );
       }
 
-      return { previousConversation };
+      return { previousMessages };
     },
 
     // If the mutation fails, roll back
     onError: (err, newMessages, context) => {
-      if (context?.previousConversation) {
+      if (context?.previousMessages) {
         queryClient.setQueryData(
           ["conversation", id],
-          context.previousConversation,
+          context.previousMessages,
         );
       }
     },
@@ -109,11 +95,205 @@ export function useConversationDetails(id?: string) {
     },
   });
 
-  // Return the conversation, the saveMessages mutation and loading states
+  // Mutation for streaming assistant responses
+  const streamMessageMutation = useMutation({
+    mutationFn: async ({
+      messages,
+      modelId,
+    }: {
+      messages: ChatMessage[];
+      modelId?: string;
+    }) => {
+      if (!id) {
+        throw new Error("Conversation ID is required");
+      }
+
+      let accumulatedContent = "";
+      const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+      return streamMistralClient({
+        model: modelId || "mistral-small-latest",
+        messages: messages.map((m) => ({
+          role: m.role,
+          content: m.content,
+        })),
+        callbacks: {
+          onToken: (token) => {
+            // Accumulate content
+            accumulatedContent += token;
+
+            // Update query cache with streaming content
+            queryClient.setQueryData(
+              ["conversation", id],
+              (oldData?: ConversationWithMessagesFromSchema) => {
+                if (!oldData) return oldData;
+
+                // Find and update the streaming message
+                const updatedMessages = [...oldData];
+                const streamingMsgIndex = updatedMessages.findIndex(
+                  (msg) => msg.id === tempMessageId,
+                );
+
+                if (
+                  streamingMsgIndex >= 0 &&
+                  updatedMessages[streamingMsgIndex]
+                ) {
+                  const currentMsg = updatedMessages[streamingMsgIndex];
+                  updatedMessages[streamingMsgIndex] = {
+                    ...currentMsg,
+                    content: accumulatedContent,
+                    conversationId: currentMsg.conversationId,
+                    id: currentMsg.id,
+                    role: currentMsg.role,
+                    isStreaming: true,
+                    tokens: currentMsg.tokens,
+                    createdAt: currentMsg.createdAt,
+                  };
+                }
+
+                return updatedMessages;
+              },
+            );
+          },
+          onComplete: async (fullContent) => {
+            // Update streaming status to false
+            queryClient.setQueryData(
+              ["conversation", id],
+              (oldData?: ConversationWithMessagesFromSchema) => {
+                if (!oldData) return oldData;
+
+                const updatedMessages = [...oldData];
+                const streamingMsgIndex = updatedMessages.findIndex(
+                  (msg) => msg.id === tempMessageId,
+                );
+
+                if (
+                  streamingMsgIndex >= 0 &&
+                  updatedMessages[streamingMsgIndex]
+                ) {
+                  const currentMsg = updatedMessages[streamingMsgIndex];
+                  updatedMessages[streamingMsgIndex] = {
+                    ...currentMsg,
+                    content: fullContent,
+                    isStreaming: false,
+                    conversationId: currentMsg.conversationId,
+                    id: currentMsg.id,
+                    role: currentMsg.role,
+                    tokens: currentMsg.tokens,
+                    createdAt: currentMsg.createdAt,
+                  };
+                }
+
+                return updatedMessages;
+              },
+            );
+
+            // Persist final message to database
+            await saveMessagesAction(id, [
+              { role: "assistant", content: fullContent },
+            ]);
+
+            // Invalidate queries to get fresh data
+            queryClient.invalidateQueries({ queryKey: ["conversation", id] });
+            queryClient.invalidateQueries({ queryKey: ["conversations"] });
+          },
+          onError: (error) => {
+            console.error("Error streaming response:", error);
+            // Update message with error indicator
+            queryClient.setQueryData(
+              ["conversation", id],
+              (oldData?: ConversationWithMessagesFromSchema) => {
+                if (!oldData) return oldData;
+
+                const updatedMessages = [...oldData];
+                const streamingMsgIndex = updatedMessages.findIndex(
+                  (msg) => msg.id === tempMessageId,
+                );
+
+                if (
+                  streamingMsgIndex >= 0 &&
+                  updatedMessages[streamingMsgIndex]
+                ) {
+                  const currentMsg = updatedMessages[streamingMsgIndex];
+                  updatedMessages[streamingMsgIndex] = {
+                    ...currentMsg,
+                    content:
+                      "Sorry, there was an error generating a response. Please try again.",
+                    isStreaming: false,
+                    conversationId: currentMsg.conversationId,
+                    id: currentMsg.id,
+                    role: currentMsg.role,
+                    tokens: currentMsg.tokens,
+                    createdAt: currentMsg.createdAt,
+                  };
+                }
+
+                return updatedMessages;
+              },
+            );
+          },
+        },
+      });
+    },
+    // Optimistic update to immediately show streaming message
+    onMutate: async ({ messages }) => {
+      if (!id) {
+        throw new Error("Conversation ID is required");
+      }
+
+      const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["conversation", id] });
+
+      // Snapshot current data
+      const previousMessages =
+        queryClient.getQueryData<ConversationWithMessagesFromSchema>([
+          "conversation",
+          id,
+        ]);
+
+      // Add empty assistant message with streaming flag
+      queryClient.setQueryData(
+        ["conversation", id],
+        (oldData?: ConversationWithMessagesFromSchema) => {
+          if (!oldData) return oldData;
+
+          return [
+            ...oldData,
+            {
+              id: tempMessageId,
+              conversationId: id,
+              role: "assistant",
+              content: "",
+              isStreaming: true,
+              tokens: null,
+              createdAt: new Date().toISOString(),
+            },
+          ];
+        },
+      );
+
+      return { previousMessages, tempMessageId };
+    },
+    onError: (error, variables, context) => {
+      // If streaming fails, restore previous state
+      if (context?.previousMessages) {
+        queryClient.setQueryData(
+          ["conversation", id],
+          context.previousMessages,
+        );
+      }
+    },
+  });
+
+  // Return the conversation messages, mutations and loading states
   return {
-    conversation: conversationQuery.data,
+    messages: conversationQuery.data,
     ...conversationQuery,
     saveMessages: saveMessagesMutation.mutateAsync,
     isSavingMessages: saveMessagesMutation.isPending,
+    streamMessage: streamMessageMutation.mutateAsync,
+    isStreaming: streamMessageMutation.isPending,
   };
 }
