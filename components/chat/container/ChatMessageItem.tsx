@@ -1,13 +1,16 @@
+import { MessagesFromSchema } from "@/lib/fetchClient/fetchConversation";
 import { cn } from "@/lib/utils";
-import type { ChatMessage } from "@/types/types";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { lucario } from "react-syntax-highlighter/dist/esm/styles/prism";
 import remarkGfm from "remark-gfm";
 
-const ChatMessageItem = ({ message }: { message: ChatMessage }) => {
+const ChatMessageItem = ({
+  message,
+}: {
+  message: MessagesFromSchema[number];
+}) => {
   const isUser = message.role === "user";
-
   return (
     <div
       className={cn(

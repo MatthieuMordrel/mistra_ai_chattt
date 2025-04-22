@@ -53,11 +53,9 @@ interface ChatState {
 const createMessage = (
   role: "user" | "assistant" | "system",
   content: string,
-  isStreaming: boolean = false,
 ): ChatMessage => ({
   role,
   content,
-  isStreaming,
 });
 
 /**
@@ -76,17 +74,13 @@ export const useChatStoreBase = create<ChatState>((set, get) => ({
 
     addUserMessage: (message: string) => {
       set((state) => ({
-        messages: [...state.messages, createMessage("user", message, false)],
+        messages: [...state.messages, createMessage("user", message)],
       }));
     },
 
     addAssistantMessage: (message: string, isStreaming = false) => {
       set((state) => ({
-        messages: [
-          ...state.messages,
-          createMessage("assistant", message, isStreaming),
-        ],
-        isStreaming,
+        messages: [...state.messages, createMessage("assistant", message)],
       }));
     },
 
@@ -100,7 +94,6 @@ export const useChatStoreBase = create<ChatState>((set, get) => ({
           messages[lastIndex] = {
             ...messages[lastIndex],
             content: message,
-            isStreaming: state.isStreaming,
           };
         }
 
@@ -124,7 +117,6 @@ export const useChatStoreBase = create<ChatState>((set, get) => ({
           if (lastIndex >= 0 && messages[lastIndex]?.role === "assistant") {
             messages[lastIndex] = {
               ...messages[lastIndex],
-              isStreaming: false,
             };
           }
 

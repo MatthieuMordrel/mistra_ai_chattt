@@ -1,44 +1,27 @@
 "use client";
 
-import { saveMessagesAction } from "@/actions/conversation-actions";
+import { useConversationDetails } from "@/hooks/tanstack-query/useConversationDetails";
 import { useConversations } from "@/hooks/tanstack-query/useConversations";
 import { tryCatch } from "@/lib/tryCatch";
 import { formatConversationTitle } from "@/lib/utils";
 import { messageSchema } from "@/lib/validation/schemas";
-import {
-  useChatActions,
-  useIsCalculatingTokens,
-  useIsLoading,
-  useMessages,
-  useTokenCount,
-} from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
-import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
 import { useGetConversationIdFromParams } from "./useGetConversationIdFromParams";
 
 export const useChatInput = () => {
-  // State selectors
-  const messages = useMessages();
-  const isLoading = useIsLoading();
-  const tokenCount = useTokenCount();
-  const isCalculatingTokens = useIsCalculatingTokens();
   const conversationId = useGetConversationIdFromParams();
-  const { addUserMessage, setLoading, setTokenCount, streamAssistantMessage } =
-    useChatActions();
+  const { messages, streamAndSaveMessage, saveMessages, isSavingMessages } =
+    useConversationDetails(conversationId);
   const [input, setInput] = useState("");
   const { createConversation } = useConversations();
-  const queryClient = useQueryClient();
 
-  /**
-   * Handle form submission
-   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validate input
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isSavingMessages) return;
 
     // Validate message length
     const { error: validationError } = messageSchema.safeParse({
@@ -62,17 +45,6 @@ export const useChatInput = () => {
     // Clear input field immediately for better UX
     setInput("");
 
-    // Add user message to UI
-    addUserMessage(userMessage.content);
-
-    // Reset token count for new conversation
-    if (!conversationId) {
-      setTokenCount(0);
-    }
-
-    // Set loading state
-    setLoading(true);
-
     // Determine if this is a new conversation
     const isNewConversation = !conversationId;
 
@@ -93,12 +65,8 @@ export const useChatInput = () => {
         console.error("Error in chat submission:", existingConversationError);
       }
     }
-    setLoading(false);
   };
 
-  /**
-   * Handle creation of a new conversation
-   */
   const handleNewConversation = async (userMessage: ChatMessage) => {
     // Format title from first message
     const formattedTitle = formatConversationTitle(userMessage.content);
@@ -114,15 +82,14 @@ export const useChatInput = () => {
       console.error("Error creating conversation:", error);
       throw error;
     }
-    // Only update the URL visually without causing any navigation or data fetching, allows to update navbar which integrate with usePathname
-    window.history.replaceState(null, "", `/dashboard/chat/${result.id}`);
-    // router.prefetch(`/dashboard/chat/${result.id}`);
-    // router.replace(`/dashboard/chat/${result.id}`); //This doesn't work even wrapped in a startTransition
 
-    // Stream the assistant response using the store function
+    // Only update the URL visually without causing any navigation or data fetching
+    window.history.replaceState(null, "", `/dashboard/chat/${result.id}`);
+
+    // Stream the assistant response
     const { error: streamError } = await tryCatch(
-      streamAssistantMessage({
-        currentMessages: [userMessage],
+      streamAndSaveMessage({
+        messages: [userMessage],
         conversationId: result.id,
       }),
     );
@@ -133,35 +100,20 @@ export const useChatInput = () => {
     }
   };
 
-  /**
-   * Handle adding message to existing conversation
-   */
   const handleExistingConversation = async (userMessage: ChatMessage) => {
     if (!conversationId) {
       console.error("No conversation ID found");
       return;
     }
 
-    // Save user message to database
-    const { error: saveMessagesError } = await tryCatch(
-      saveMessagesAction(conversationId, [userMessage]),
-    );
-    if (saveMessagesError) {
-      console.error("Error saving messages:", saveMessagesError);
-      throw saveMessagesError;
-    }
+    // Save user message and get response
+    await saveMessages([userMessage]);
 
-    // Update sidebar conversations list to reorder by updatedAt
-    queryClient.invalidateQueries({ queryKey: ["conversations"] });
-
-    // Prepare current messages including the new user message
-    const currentMessagesWithNewMessage = [...messages, userMessage];
-
-    // Stream the assistant response using the store function
+    // Stream the assistant response
     const { error: streamError } = await tryCatch(
-      streamAssistantMessage({
-        currentMessages: currentMessagesWithNewMessage,
-        conversationId: conversationId,
+      streamAndSaveMessage({
+        messages: [...messages, userMessage],
+        conversationId,
       }),
     );
 
@@ -174,9 +126,7 @@ export const useChatInput = () => {
   return {
     input,
     setInput,
-    isLoading,
-    tokenCount,
-    isCalculatingTokens,
+    isLoading: isSavingMessages,
     handleSubmit,
   };
 };

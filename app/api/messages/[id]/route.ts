@@ -11,6 +11,9 @@ export const GET = withAuth(async (session, request, context) => {
   // Await the params Promise to get the actual values
   const params = await context.params;
   const conversationId = params.id;
+  console.log("params", params);
+  console.log("conversationId", conversationId);
+
 
   if (!conversationId) {
     return NextResponse.json(
@@ -23,10 +26,7 @@ export const GET = withAuth(async (session, request, context) => {
   const { data: conversation, error: conversationError } = await tryCatch(
     DAL.conversation.queries.getConversation(conversationId, session.user.id),
   );
-  const messages = conversation?.messages?.map(msg => {
-    const { isStreaming, ...messageWithoutStreaming } = msg;
-    return messageWithoutStreaming;
-  });
+  const messages = conversation?.messages;
 
   if (conversationError) {
     console.error("Error fetching messages:", conversationError);

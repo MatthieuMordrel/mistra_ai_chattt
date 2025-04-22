@@ -4,7 +4,6 @@ import {
   fetchConversation,
 } from "@/lib/fetchClient/fetchConversation";
 import { streamMistralClient } from "@/lib/mistral streaming/mistral-client";
-import { useChatActions } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
 import {
   useMutation,
@@ -19,7 +18,6 @@ import {
  */
 export function useConversationDetails(id?: string) {
   const queryClient = useQueryClient();
-  const chatActions = useChatActions();
 
   // Fetch conversation with messages
   const conversationQuery = useSuspenseQuery({
@@ -97,23 +95,21 @@ export function useConversationDetails(id?: string) {
   });
 
   // Mutation for streaming assistant responses
-  const streamMessageMutation = useMutation({
+  const streamAndSaveMessageMutation = useMutation({
     mutationFn: async ({
       messages,
       modelId,
+      conversationId = id,
     }: {
       messages: ChatMessage[];
       modelId?: string;
+      conversationId?: string;
     }) => {
-      if (!id) {
+      if (!conversationId) {
         throw new Error("Conversation ID is required");
       }
 
       let accumulatedContent = "";
-      const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-
-      // Set streaming state to true at the start
-      chatActions.setStreaming(true);
 
       return streamMistralClient({
         model: modelId || "mistral-small-latest",
@@ -135,7 +131,7 @@ export function useConversationDetails(id?: string) {
                 // Find and update the streaming message
                 const updatedMessages = [...oldData];
                 const streamingMsgIndex = updatedMessages.findIndex(
-                  (msg) => msg.id === tempMessageId,
+                  (msg) => msg.id === conversationId,
                 );
 
                 if (
@@ -151,6 +147,7 @@ export function useConversationDetails(id?: string) {
                     role: currentMsg.role,
                     tokens: currentMsg.tokens,
                     createdAt: currentMsg.createdAt,
+                    isStreaming: true,
                   };
                 }
 
@@ -159,9 +156,6 @@ export function useConversationDetails(id?: string) {
             );
           },
           onComplete: async (fullContent) => {
-            // Set streaming state to false on completion
-            chatActions.setStreaming(false);
-
             // Update query cache with final content
             queryClient.setQueryData(
               ["conversation", id],
@@ -170,7 +164,7 @@ export function useConversationDetails(id?: string) {
 
                 const updatedMessages = [...oldData];
                 const streamingMsgIndex = updatedMessages.findIndex(
-                  (msg) => msg.id === tempMessageId,
+                  (msg) => msg.id === conversationId,
                 );
 
                 if (
@@ -186,6 +180,7 @@ export function useConversationDetails(id?: string) {
                     role: currentMsg.role,
                     tokens: currentMsg.tokens,
                     createdAt: currentMsg.createdAt,
+                    isStreaming: false,
                   };
                 }
 
@@ -194,7 +189,7 @@ export function useConversationDetails(id?: string) {
             );
 
             // Persist final message to database
-            await saveMessagesAction(id, [
+            await saveMessagesAction(conversationId, [
               { role: "assistant", content: fullContent },
             ]);
 
@@ -204,8 +199,6 @@ export function useConversationDetails(id?: string) {
           },
           onError: (error) => {
             console.error("Error streaming response:", error);
-            // Set streaming state to false on error
-            chatActions.setStreaming(false);
 
             // Update message with error indicator
             queryClient.setQueryData(
@@ -215,7 +208,7 @@ export function useConversationDetails(id?: string) {
 
                 const updatedMessages = [...oldData];
                 const streamingMsgIndex = updatedMessages.findIndex(
-                  (msg) => msg.id === tempMessageId,
+                  (msg) => msg.id === conversationId,
                 );
 
                 if (
@@ -248,7 +241,7 @@ export function useConversationDetails(id?: string) {
         throw new Error("Conversation ID is required");
       }
 
-      const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      const tempMessageId = "";
 
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: ["conversation", id] });
@@ -282,9 +275,6 @@ export function useConversationDetails(id?: string) {
       return { previousMessages, tempMessageId };
     },
     onError: (error, variables, context) => {
-      // Set streaming state to false on error
-      chatActions.setStreaming(false);
-
       // If streaming fails, restore previous state
       if (context?.previousMessages) {
         queryClient.setQueryData(
@@ -301,6 +291,6 @@ export function useConversationDetails(id?: string) {
     ...conversationQuery,
     saveMessages: saveMessagesMutation.mutateAsync,
     isSavingMessages: saveMessagesMutation.isPending,
-    streamMessage: streamMessageMutation.mutateAsync,
+    streamAndSaveMessage: streamAndSaveMessageMutation.mutateAsync,
   };
 }

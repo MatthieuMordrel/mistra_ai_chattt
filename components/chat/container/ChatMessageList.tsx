@@ -1,17 +1,16 @@
 "use client";
 
+import { useConversationDetails } from "@/hooks/tanstack-query/useConversationDetails";
+import { useGetConversationIdFromParams } from "@/hooks/useGetConversationIdFromParams";
 import { useAutoScroll } from "@/hooks/utils/useAutoScroll";
 import { cn } from "@/lib/utils";
-import { useMessages } from "@/store/chatStore";
-import type { ChatMessage } from "@/types/types";
 import ChatMessageItem from "./ChatMessageItem";
 
-const ChatMessageList = ({
-  messagesServer = [],
-}: {
-  messagesServer?: ChatMessage[];
-}) => {
-  const messagesFromStore = useMessages();
+const ChatMessageList = () => {
+  const conversationId = useGetConversationIdFromParams();
+  console.log("conversationId", conversationId);
+  const { messages: messagesFromStore } =
+    useConversationDetails(conversationId);
   const messagesEndRef = useAutoScroll();
 
   return (
@@ -20,7 +19,7 @@ const ChatMessageList = ({
         className="bg-card dark:bg-card scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent absolute inset-0 overflow-y-auto rounded-lg p-5 shadow-sm"
         data-slot="messages-container"
       >
-        {messagesFromStore.length === 0 && messagesServer.length === 0 ? (
+        {messagesFromStore.length === 0 ? (
           <div className="flex h-full items-center justify-center text-center">
             <div className="max-w-md space-y-4 px-4">
               <h2 className="text-foreground text-2xl font-semibold">
@@ -35,14 +34,10 @@ const ChatMessageList = ({
           <div
             className={cn(
               "mx-12 space-y-4 pb-4",
-              (messagesFromStore.length > 0 || messagesServer.length > 0) &&
-                "pt-2",
+              messagesFromStore.length > 0 && "pt-2",
             )}
           >
-            {(messagesFromStore.length > 0
-              ? messagesFromStore
-              : messagesServer
-            ).map((message, index) => (
+            {messagesFromStore.map((message, index) => (
               <ChatMessageItem key={index} message={message} />
             ))}
             <div ref={messagesEndRef} />

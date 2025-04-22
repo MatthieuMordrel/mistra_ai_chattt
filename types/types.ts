@@ -6,7 +6,6 @@ import { components } from "./mistral";
 export interface ChatMessage {
   role: "user" | "assistant" | "system";
   content: string;
-  isStreaming?: boolean;
 }
 
 /**

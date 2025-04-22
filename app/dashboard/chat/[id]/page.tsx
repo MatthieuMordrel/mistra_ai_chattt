@@ -29,24 +29,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  * Chat page component for existing conversations
  * Uses the ChatContainer component for the UI
  */
-export default async function ConversationPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const [{ id: conversationId }, { session }] = await Promise.all([
-    params,
-    cachedValidateServerSession(true),
-  ]);
-  //Fetching the conversation from the server
-  const conversation = await DAL.conversation.queries.getConversation(
-    conversationId,
-    session.session.userId,
-  );
+export default async function ConversationPage() {
+  await cachedValidateServerSession(true);
 
   return (
     <div className="flex h-full flex-col">
-      <ChatContainer conversation={conversation} />
+      <ChatContainer />
     </div>
   );
 }

@@ -8,6 +8,7 @@ const MessagesSchema = z.array(
     id: z.string(),
     role: z.enum(["user", "assistant"]),
     tokens: z.number().nullable(),
+    isStreaming: z.boolean(),
   }),
 );
 
@@ -16,6 +17,7 @@ export type MessagesFromSchema = z.infer<typeof MessagesSchema>;
 // API function to fetch conversations
 export async function fetchConversation(id: string) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+  console.log("fetchConversation", `${baseUrl}/api/messages/${id}`);
   const response = await fetch(`${baseUrl}/api/messages/${id}`, {
     cache: "no-store",
     method: "GET",
@@ -24,8 +26,9 @@ export async function fetchConversation(id: string) {
     },
   });
 
+  console.log("fetchConversation", response);
   if (!response.ok) {
-    throw new Error("Failed to fetch conversations pouet");
+    throw new Error("Failed to fetch messages pouet");
   }
 
   const data = await response.json();
