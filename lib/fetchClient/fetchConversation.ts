@@ -6,7 +6,6 @@ const conversationWithMessagesSchema = z.array(
     conversationId: z.string(),
     createdAt: z.string(),
     id: z.string(),
-    isStreaming: z.boolean(),
     role: z.enum(["user", "assistant"]),
     tokens: z.number().nullable(),
   }),
@@ -32,7 +31,6 @@ export async function fetchConversation(id: string) {
   }
 
   const data = await response.json();
-  console.log("data", data);
   // Parse the data with zod, if it fails, throw a ZodError
   const parsedData = conversationWithMessagesSchema.parse(data);
   return parsedData;

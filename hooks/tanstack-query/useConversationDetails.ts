@@ -145,7 +145,6 @@ export function useConversationDetails(id?: string) {
                     conversationId: currentMsg.conversationId,
                     id: currentMsg.id,
                     role: currentMsg.role,
-                    isStreaming: true,
                     tokens: currentMsg.tokens,
                     createdAt: currentMsg.createdAt,
                   };
@@ -175,7 +174,6 @@ export function useConversationDetails(id?: string) {
                   updatedMessages[streamingMsgIndex] = {
                     ...currentMsg,
                     content: fullContent,
-                    isStreaming: false,
                     conversationId: currentMsg.conversationId,
                     id: currentMsg.id,
                     role: currentMsg.role,
@@ -219,7 +217,6 @@ export function useConversationDetails(id?: string) {
                     ...currentMsg,
                     content:
                       "Sorry, there was an error generating a response. Please try again.",
-                    isStreaming: false,
                     conversationId: currentMsg.conversationId,
                     id: currentMsg.id,
                     role: currentMsg.role,

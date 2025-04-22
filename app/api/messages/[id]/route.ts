@@ -23,7 +23,10 @@ export const GET = withAuth(async (session, request, context) => {
   const { data: conversation, error: conversationError } = await tryCatch(
     DAL.conversation.queries.getConversation(conversationId, session.user.id),
   );
-  const messages = conversation?.messages;
+  const messages = conversation?.messages?.map(msg => {
+    const { isStreaming, ...messageWithoutStreaming } = msg;
+    return messageWithoutStreaming;
+  });
 
   if (conversationError) {
     console.error("Error fetching messages:", conversationError);
