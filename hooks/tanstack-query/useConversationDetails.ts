@@ -15,7 +15,7 @@ import {
  * @param id The conversation ID
  * @returns The conversation data with messages and mutations
  */
-export function useConversationDetails(id: string) {
+export function useConversationDetails(id?: string) {
   const queryClient = useQueryClient();
 
   // Fetch conversation with messages
@@ -40,10 +40,16 @@ export function useConversationDetails(id: string) {
     mutationFn: async (
       messages: ChatMessage[],
     ): Promise<{ success: boolean }> => {
+      if (!id) {
+        throw new Error("Conversation ID is required");
+      }
       return saveMessagesAction(id, messages);
     },
     // Optimistically update the UI
     onMutate: async (newMessages) => {
+      if (!id) {
+        throw new Error("Conversation ID is required");
+      }
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ["conversation", id] });
 
