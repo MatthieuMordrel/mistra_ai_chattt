@@ -14,32 +14,19 @@ import {
 } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
 import { useQueryClient } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
+import { useGetConversationIdFromParams } from "./useGetConversationIdFromParams";
 
-/**
- * Custom hook to handle chat input logic
- */
 export const useChatInput = () => {
   // State selectors
   const messages = useMessages();
   const isLoading = useIsLoading();
   const tokenCount = useTokenCount();
   const isCalculatingTokens = useIsCalculatingTokens();
-  const router = useRouter();
-
-  // Get conversationId from URL params instead of Zustand store
-  const params = useParams();
-  const conversationId = params?.id
-    ? Array.isArray(params.id)
-      ? params.id[0]
-      : params.id
-    : null;
-
+  const conversationId = useGetConversationIdFromParams();
   const { addUserMessage, setLoading, setTokenCount, streamAssistantMessage } =
     useChatActions();
-
   const [input, setInput] = useState("");
   const { createConversation } = useConversations();
   const queryClient = useQueryClient();

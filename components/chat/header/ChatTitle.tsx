@@ -1,9 +1,9 @@
 "use client";
 import { useConversation } from "@/hooks/tanstack-query/useConversations";
-import { useGetConversationId } from "@/hooks/useGetConversationId";
+import { useGetConversationIdFromPathname } from "@/hooks/useGetConversationIdFromPathname";
 
 export default function ChatTitleLayout() {
-  const conversationId = useGetConversationId();
+  const conversationId = useGetConversationIdFromPathname();
   const { conversation } = useConversation(conversationId);
 
   return (
