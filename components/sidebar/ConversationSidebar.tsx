@@ -1,6 +1,5 @@
 "use client";
 
-import { revalidateConversations } from "@/actions/conversation-actions";
 import {
   Sidebar,
   SidebarContent,
@@ -12,32 +11,32 @@ import {
 import { useConversations } from "@/hooks/tanstack-query/useConversations";
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { LinkLoadingIndicator } from "./LinkLoadingIndicator";
 import NewConversation from "./NewConversationButton";
 
 export function ConversationSidebar() {
   const { conversations } = useConversations();
   //We don't use useGetConversationId because otherwise it revalidatesPath too fast and the mutation is not finished
-  const params = useParams();
+  // const params = useParams();
   const pathname = usePathname();
   const [hoveredConversationId, setHoveredConversationId] = useState<
     string | null
   >(null);
 
-  const conversationId = params?.id
-    ? Array.isArray(params.id)
-      ? params.id[0]
-      : params.id
-    : undefined;
+  // const conversationId = params?.id
+  //   ? Array.isArray(params.id)
+  //     ? params.id[0]
+  //     : params.id
+  //   : undefined;
 
-  // Invalidate the router cache for all conversations by calling revalidatePath in a server action
-  useEffect(() => {
-    if (conversationId) {
-      revalidateConversations(conversationId);
-    }
-  }, [conversationId]);
+  // // Invalidate the router cache for all conversations by calling revalidatePath in a server action
+  // useEffect(() => {
+  //   if (conversationId) {
+  //     revalidateConversations(conversationId);
+  //   }
+  // }, [conversationId]);
 
   return (
     <Sidebar className="border-r">

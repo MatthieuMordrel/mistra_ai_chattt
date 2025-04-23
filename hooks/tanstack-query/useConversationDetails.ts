@@ -34,7 +34,8 @@ export function useConversationDetails(id?: string) {
       if (!id) {
         throw new Error("Conversation ID is required");
       }
-      return saveMessagesAction(id, messages);
+      const result = await saveMessagesAction(id, messages);
+      return result;
     },
     // Optimistically update the UI
     onMutate: async (newMessages) => {
@@ -82,6 +83,7 @@ export function useConversationDetails(id?: string) {
 
     // If the mutation fails, roll back
     onError: (err, newMessages, context) => {
+      console.log("saveMessagesMutation: onError", err);
       if (context?.previousMessages) {
         queryClient.setQueryData(
           ["conversation", id],
@@ -94,6 +96,7 @@ export function useConversationDetails(id?: string) {
 
     // After success or error, invalidate the queries to refetch
     onSettled: () => {
+      console.log("saveMessagesMutation: onSettled");
       queryClient.invalidateQueries({ queryKey: ["conversation", id] });
       // Also invalidate the conversations list since updatedAt might have changed
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
@@ -118,8 +121,10 @@ export function useConversationDetails(id?: string) {
       }
 
       let accumulatedContent = "";
+      let finalContent = "";
 
-      return streamMistralClient({
+      // First, stream the content with callbacks
+      await streamMistralClient({
         model: modelId || "mistral-small-latest",
         messages: messages.map((m) => ({
           role: m.role,
@@ -166,46 +171,9 @@ export function useConversationDetails(id?: string) {
               },
             );
           },
-          onComplete: async (fullContent) => {
-            // Update query cache with final content
-            queryClient.setQueryData(
-              ["conversation", conversationId],
-              (oldData?: MessagesFromSchema) => {
-                if (!oldData) return [];
-
-                // Ensure oldData is an array
-                const safeOldData = Array.isArray(oldData) ? oldData : [];
-
-                const updatedMessages = [...safeOldData];
-                const streamingMsgIndex = updatedMessages.findIndex(
-                  (msg) => msg.id === tempMessageId,
-                );
-
-                if (
-                  streamingMsgIndex >= 0 &&
-                  updatedMessages[streamingMsgIndex]
-                ) {
-                  const currentMsg = updatedMessages[streamingMsgIndex];
-                  updatedMessages[streamingMsgIndex] = {
-                    ...currentMsg,
-                    content: fullContent,
-                    conversationId: currentMsg.conversationId,
-                    id: currentMsg.id,
-                    role: currentMsg.role,
-                    tokens: currentMsg.tokens,
-                    createdAt: currentMsg.createdAt,
-                    isStreaming: false,
-                  };
-                }
-
-                return updatedMessages;
-              },
-            );
-
-            // Persist final message to database
-            await saveMessagesAction(conversationId, [
-              { role: "assistant", content: fullContent },
-            ]);
+          onComplete: async (content) => {
+            // Store final content to use later
+            finalContent = content;
           },
           onError: (error) => {
             console.error("Error streaming response:", error);
@@ -247,16 +215,33 @@ export function useConversationDetails(id?: string) {
           },
         },
       });
+
+      // After streaming completes successfully, save to database
+      if (!finalContent) {
+        throw new Error("No content generated");
+      }
+
+      // This will be executed BEFORE onSuccess is called
+      const { success } = await saveMessagesAction(conversationId, [
+        { role: "assistant", content: finalContent },
+      ]);
+
+      if (!success) {
+        throw new Error("Failed to save messages");
+      }
+      console.log("success?", success);
+
+      return { success, finalContent };
     },
-    onSuccess: (data) => {
-      // Invalidate queries to get fresh data
+    onSuccess: () => {
+      console.log("streamAndSaveMessageMutation: onSuccess");
+      // Now we can safely invalidate the queries after the mutation is complete
       queryClient.invalidateQueries({
         queryKey: ["conversation", id],
       });
       // Invalidate the conversation list to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
-    // We don't need the onMutate function anymore since we handle it in the wrapper
     onError: (error, variables, context) => {
       console.error("Error in streaming mutation:", error);
     },

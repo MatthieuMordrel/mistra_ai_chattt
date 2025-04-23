@@ -11,6 +11,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { startTransition } from "react";
 
 /**
  * Main hook for conversations data with optional selector
@@ -98,7 +99,9 @@ export function useConversations<TData = ConversationFromSchema[]>(
       queryClient.setQueryData(["conversation", data.id], updatedMessages);
 
       // Navigate to the new conversation
-      router.replace(`/dashboard/chat/${data.id}`);
+      startTransition(() => {
+        router.replace(`/dashboard/chat/${data.id}`);
+      });
     },
     // After success or error, invalidate the query to refetch
     onSettled: () => {

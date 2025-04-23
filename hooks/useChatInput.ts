@@ -102,13 +102,10 @@ export const useChatInput = () => {
 
     if (error) {
       console.error("Error creating conversation:", error);
-      // Add more detailed error logging
-      if (error instanceof Error) {
-        console.error("Error message:", error.message);
-        console.error("Error stack:", error.stack);
-      }
       throw error;
     }
+
+    await tryCatch(saveMessages([userMessage]));
 
     // Stream the assistant response
     const { error: streamError } = await tryCatch(
