@@ -97,6 +97,7 @@ export function useConversations<TData = ConversationFromSchema[]>(
 
       // Set the query data for the new conversation with all messages
       queryClient.setQueryData(["conversation", data.id], updatedMessages);
+      router.prefetch(`/dashboard/chat/${data.id}`);
 
       // Navigate to the new conversation
       startTransition(() => {

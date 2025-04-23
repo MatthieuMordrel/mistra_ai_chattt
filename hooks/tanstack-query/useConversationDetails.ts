@@ -157,12 +157,6 @@ export function useConversationDetails(id?: string) {
                   updatedMessages[streamingMsgIndex] = {
                     ...currentMsg,
                     content: accumulatedContent,
-                    conversationId: currentMsg.conversationId,
-                    id: currentMsg.id,
-                    role: currentMsg.role,
-                    tokens: currentMsg.tokens,
-                    createdAt: currentMsg.createdAt,
-                    isStreaming: true,
                   };
                 }
 
@@ -200,11 +194,6 @@ export function useConversationDetails(id?: string) {
                     ...currentMsg,
                     content:
                       "Sorry, there was an error generating a response. Please try again.",
-                    conversationId: currentMsg.conversationId,
-                    id: currentMsg.id,
-                    role: currentMsg.role,
-                    tokens: currentMsg.tokens,
-                    createdAt: currentMsg.createdAt,
                   };
                 }
 
@@ -231,15 +220,57 @@ export function useConversationDetails(id?: string) {
 
       return { success, finalContent, conversationId };
     },
+    onMutate: async ({ conversationId = id, tempMessageId }) => {
+      if (!conversationId) {
+        throw new Error("Conversation ID is required");
+      }
+
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: ["conversation", conversationId],
+      });
+
+      // Get current messages
+      const previousMessages = queryClient.getQueryData<MessagesFromSchema>([
+        "conversation",
+        conversationId,
+      ]);
+
+      // Ensure we're working with an array
+      const safeOldData = Array.isArray(previousMessages)
+        ? previousMessages
+        : [];
+
+      // Add streaming message to cache
+      const updatedMessages = [
+        ...safeOldData,
+        {
+          id: tempMessageId,
+          conversationId,
+          role: "assistant" as const,
+          content: "",
+          tokens: null,
+          createdAt: new Date().toISOString(),
+          isStreaming: true,
+        },
+      ];
+
+      // Update query data
+      queryClient.setQueryData(
+        ["conversation", conversationId],
+        updatedMessages,
+      );
+
+      return { previousMessages: safeOldData };
+    },
     onSuccess: (data) => {
-      // Now we can safely invalidate the queries after the mutation is complete
+      // Invalidate queries to refetch from server
       queryClient.invalidateQueries({
         queryKey: ["conversation", data.conversationId],
       });
-      // Invalidate the conversation list to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
-    onError: (error, variables, context) => {
+    onError: (error) => {
       console.error("Error in streaming mutation:", error);
     },
   });
@@ -258,53 +289,8 @@ export function useConversationDetails(id?: string) {
       // Generate a unique ID for the streaming message
       const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-      const targetId = params.conversationId || id;
-      if (targetId) {
-        await queryClient.cancelQueries({
-          queryKey: ["conversation", targetId],
-        });
-
-        // Always ensure we're working with an array when setting the query data
-        queryClient.setQueryData(
-          ["conversation", targetId],
-          (oldData?: MessagesFromSchema) => {
-            // Ensure oldData is an array
-            const safeOldData = Array.isArray(oldData) ? oldData : [];
-
-            // If we have no data, return a new array with just the assistant message
-            if (safeOldData.length === 0) {
-              return [
-                {
-                  id: tempMessageId,
-                  conversationId: targetId,
-                  role: "assistant",
-                  content: "",
-                  tokens: null,
-                  createdAt: new Date().toISOString(),
-                  isStreaming: true,
-                },
-              ];
-            }
-
-            // Otherwise append the new message to the existing array
-            return [
-              ...safeOldData,
-              {
-                id: tempMessageId,
-                conversationId: targetId,
-                role: "assistant",
-                content: "",
-                tokens: null,
-                createdAt: new Date().toISOString(),
-                isStreaming: true,
-              },
-            ];
-          },
-        );
-      }
-
-      // Then run the mutation with the tempMessageId
-      return await streamAndSaveMessageMutation.mutateAsync({
+      // Run the mutation with the tempMessageId
+      return streamAndSaveMessageMutation.mutateAsync({
         ...params,
         tempMessageId,
       });
