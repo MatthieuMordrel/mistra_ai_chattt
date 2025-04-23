@@ -6,8 +6,6 @@ export default function ChatContainer() {
   return (
     <div className="flex h-full flex-col gap-2">
       <ChatMessageList />
-
-      {/* Chat input for sending messages */}
       <ChatInput />
     </div>
   );
