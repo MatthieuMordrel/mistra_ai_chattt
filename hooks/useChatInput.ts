@@ -92,7 +92,7 @@ export const useChatInput = () => {
       ],
     );
 
-    // Create conversation in database
+    // Create conversation in database and save user message
     const { data: result, error } = await tryCatch(
       createConversation({
         title: formattedTitle,
@@ -104,8 +104,6 @@ export const useChatInput = () => {
       console.error("Error creating conversation:", error);
       throw error;
     }
-
-    await tryCatch(saveMessages([userMessage]));
 
     // Stream the assistant response
     const { error: streamError } = await tryCatch(

@@ -96,7 +96,6 @@ export function useConversationDetails(id?: string) {
 
     // After success or error, invalidate the queries to refetch
     onSettled: () => {
-      console.log("saveMessagesMutation: onSettled");
       queryClient.invalidateQueries({ queryKey: ["conversation", id] });
       // Also invalidate the conversations list since updatedAt might have changed
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
@@ -229,15 +228,13 @@ export function useConversationDetails(id?: string) {
       if (!success) {
         throw new Error("Failed to save messages");
       }
-      console.log("success?", success);
 
-      return { success, finalContent };
+      return { success, finalContent, conversationId };
     },
-    onSuccess: () => {
-      console.log("streamAndSaveMessageMutation: onSuccess");
+    onSuccess: (data) => {
       // Now we can safely invalidate the queries after the mutation is complete
       queryClient.invalidateQueries({
-        queryKey: ["conversation", id],
+        queryKey: ["conversation", data.conversationId],
       });
       // Invalidate the conversation list to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["conversations"] });

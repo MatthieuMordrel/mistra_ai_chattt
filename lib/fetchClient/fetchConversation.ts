@@ -17,7 +17,6 @@ export type MessagesFromSchema = z.infer<typeof MessagesSchema>;
 // API function to fetch conversations
 export async function fetchConversation(id: string) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
-  console.log("fetchConversation", `${baseUrl}/api/messages/${id}`);
   const response = await fetch(`${baseUrl}/api/messages/${id}`, {
     cache: "no-store",
     method: "GET",
