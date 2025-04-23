@@ -6,6 +6,7 @@ import { tryCatch } from "@/lib/tryCatch";
 import { formatConversationTitle } from "@/lib/utils";
 import { messageSchema } from "@/lib/validation/schemas";
 import { ChatMessage } from "@/types/types";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
 import { useGetConversationIdFromParams } from "./useGetConversationIdFromParams";
@@ -16,6 +17,7 @@ export const useChatInput = () => {
     useConversationDetails(conversationId);
   const [input, setInput] = useState("");
   const { createConversation } = useConversations();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +72,8 @@ export const useChatInput = () => {
   const handleNewConversation = async (userMessage: ChatMessage) => {
     // Format title from first message
     const formattedTitle = formatConversationTitle(userMessage.content);
+
+    queryClient.setQueryData(["conversation", null], [userMessage]);
 
     // Create conversation in database
     const { data: result, error } = await tryCatch(

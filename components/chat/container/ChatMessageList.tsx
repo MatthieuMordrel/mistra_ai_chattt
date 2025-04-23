@@ -11,7 +11,6 @@ const ChatMessageList = () => {
   const { messages: messagesFromStore } =
     useConversationDetails(conversationId);
   const messagesEndRef = useAutoScroll();
-  console.log("messagesFromStore", messagesFromStore);
 
   // Ensure messagesFromStore is an array before using map
   const messages = Array.isArray(messagesFromStore) ? messagesFromStore : [];
