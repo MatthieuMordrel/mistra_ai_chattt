@@ -8,7 +8,12 @@ import { modelService } from "./services/model-service";
 export const DAL = {
   conversation: {
     queries: {
-      getConversation: cache(conversationService.queries.getConversation),
+      getConversationMessages: cache(
+        conversationService.queries.getConversationMessages,
+      ),
+      getConversationTitle: cache(
+        conversationService.queries.getConversationTitle,
+      ),
       getUserConversations: cache(conversationService.queries.getUserConversations),
     },
     mutations: {

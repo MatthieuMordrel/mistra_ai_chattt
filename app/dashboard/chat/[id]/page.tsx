@@ -1,4 +1,4 @@
-import ChatContainer from "@/components/chat/container/ChatContainer";
+import { MessagesLoader } from "@/components/chat/container/ChatLoader";
 import { DAL } from "@/db/dal";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 import { Metadata } from "next";
@@ -17,24 +17,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     params,
     cachedValidateServerSession(),
   ]);
-  const conversation = await DAL.conversation.queries.getConversation(
+  const conversationTitle = await DAL.conversation.queries.getConversationTitle(
     conversationId,
     session.session.userId,
-  );
+  )();
   return {
-    title: conversation.title,
+    title: conversationTitle,
   };
 }
 /**
  * Chat page component for existing conversations
  * Uses the ChatContainer component for the UI
  */
-export default async function ConversationPage() {
-  await cachedValidateServerSession(true);
+export default async function ConversationPage({ params }: Props) {
+  const [{ id: conversationId }, { session }] = await Promise.all([
+    params,
+    cachedValidateServerSession(),
+  ]);
 
   return (
     <div className="flex h-full flex-col">
-      <ChatContainer />
+      <MessagesLoader conversationId={conversationId} />
     </div>
   );
 }

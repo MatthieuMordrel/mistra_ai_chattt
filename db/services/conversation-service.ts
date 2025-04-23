@@ -14,39 +14,54 @@ export const conversationService = {
     /**
      * Get a conversation by ID including messages and set isStreaming to false
      */
-    getConversation: async (conversationId: string, userId: string) => {
-      // Fetch conversation and messages in parallel
-      const [conversationResult, messages] = await Promise.all([
-        db
-          .select()
-          .from(conversation)
-          .where(
-            and(
-              eq(conversation.id, conversationId),
-              eq(conversation.userId, userId),
-            ),
-          ),
-        db
-          .select()
-          .from(message)
-          .where(eq(message.conversationId, conversationId))
-          .orderBy(message.createdAt),
-      ]);
+    getConversationMessages:
+      (conversationId: string, userId: string) => async () => {
+        // Fetch conversation and messages in parallel
+        const { data: messages, error } = await tryCatch(
+          db
+            .select()
+            .from(message)
+            .where(eq(message.conversationId, conversationId))
+            .orderBy(message.createdAt),
+        );
 
-      const [conversationData] = conversationResult;
+        if (error) {
+          throw error;
+        }
 
-      if (!conversationData) {
-        throw new Error("Conversation not found");
-      }
+        if (!messages) {
+          throw new Error("No messages found");
+        }
 
-      return {
-        ...conversationData,
-        messages: messages.map((msg) => ({
+        return messages.map((msg) => ({
           ...msg,
           isStreaming: false,
-        })),
-      };
-    },
+        }));
+      },
+
+    /**
+     * Get the conversation title by conversationId and userId
+     */
+    getConversationTitle:
+      (conversationId: string, userId: string) => async () => {
+        const { data, error } = await tryCatch(
+          db
+            .select({ title: conversation.title })
+            .from(conversation)
+            .where(
+              and(
+                eq(conversation.id, conversationId),
+                eq(conversation.userId, userId),
+              ),
+            ),
+        );
+
+        if (error) {
+          throw error;
+        }
+
+        return data[0]?.title;
+      },
 
     /**
      * Get all conversations for a user

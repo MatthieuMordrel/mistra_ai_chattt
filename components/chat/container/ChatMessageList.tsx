@@ -8,10 +8,13 @@ import ChatMessageItem from "./ChatMessageItem";
 
 const ChatMessageList = () => {
   const conversationId = useGetConversationIdFromParams();
-  console.log("conversationId", conversationId);
   const { messages: messagesFromStore } =
     useConversationDetails(conversationId);
   const messagesEndRef = useAutoScroll();
+  console.log("messagesFromStore", messagesFromStore);
+
+  // Ensure messagesFromStore is an array before using map
+  const messages = Array.isArray(messagesFromStore) ? messagesFromStore : [];
 
   return (
     <div className="relative flex-1 overflow-hidden">
@@ -19,7 +22,7 @@ const ChatMessageList = () => {
         className="bg-card dark:bg-card scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent absolute inset-0 overflow-y-auto rounded-lg p-5 shadow-sm"
         data-slot="messages-container"
       >
-        {messagesFromStore.length === 0 ? (
+        {messages.length === 0 ? (
           <div className="flex h-full items-center justify-center text-center">
             <div className="max-w-md space-y-4 px-4">
               <h2 className="text-foreground text-2xl font-semibold">
@@ -34,10 +37,10 @@ const ChatMessageList = () => {
           <div
             className={cn(
               "mx-12 space-y-4 pb-4",
-              messagesFromStore.length > 0 && "pt-2",
+              messages.length > 0 && "pt-2",
             )}
           >
-            {messagesFromStore.map((message, index) => (
+            {messages.map((message, index) => (
               <ChatMessageItem key={index} message={message} />
             ))}
             <div ref={messagesEndRef} />

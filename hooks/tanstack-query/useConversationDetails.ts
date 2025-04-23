@@ -23,6 +23,7 @@ export function useConversationDetails(id?: string) {
   const conversationQuery = useSuspenseQuery({
     queryKey: ["conversation", id],
     queryFn: () => (id ? fetchConversation(id) : []),
+    refetchOnMount: false,
   });
 
   // Mutation for saving messages to a conversation with optimistic updates

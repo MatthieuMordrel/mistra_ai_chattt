@@ -14,7 +14,6 @@ export const GET = withAuth(async (session, request, context) => {
   console.log("params", params);
   console.log("conversationId", conversationId);
 
-
   if (!conversationId) {
     return NextResponse.json(
       { error: "Conversation ID is required" },
@@ -23,10 +22,12 @@ export const GET = withAuth(async (session, request, context) => {
   }
 
   // Get the conversation with its messages
-  const { data: conversation, error: conversationError } = await tryCatch(
-    DAL.conversation.queries.getConversation(conversationId, session.user.id),
+  const { data: messages, error: conversationError } = await tryCatch(
+    DAL.conversation.queries.getConversationMessages(
+      conversationId,
+      session.user.id,
+    )(),
   );
-  const messages = conversation?.messages;
 
   if (conversationError) {
     console.error("Error fetching messages:", conversationError);
