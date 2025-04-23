@@ -111,7 +111,10 @@ export async function saveMessagesAction(
 
   // Verify the user owns the conversation
   const { data: conversationData, error: conversationError } = await tryCatch(
-    DAL.conversation.queries.getConversation(conversationId, session.user.id),
+    DAL.conversation.queries.getConversationMessages(
+      conversationId,
+      session.user.id,
+    )(),
   );
 
   if (conversationError) {

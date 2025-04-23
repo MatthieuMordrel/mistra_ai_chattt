@@ -5,7 +5,7 @@ export const messageSchema = z.object({
   content: z
     .string()
     .min(1, "Message cannot be empty")
-    .max(4000, "Message cannot exceed 4000 characters"),
+    .max(30000, "Message cannot exceed 30000 characters"),
   isStreaming: z.boolean().optional(),
 });
 

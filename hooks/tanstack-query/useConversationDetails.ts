@@ -101,10 +101,12 @@ export function useConversationDetails(id?: string) {
       messages,
       modelId,
       conversationId = id,
+      tempMessageId,
     }: {
       messages: ChatMessage[];
       modelId?: string;
       conversationId?: string;
+      tempMessageId: string;
     }) => {
       if (!conversationId) {
         throw new Error("Conversation ID is required");
@@ -125,14 +127,14 @@ export function useConversationDetails(id?: string) {
 
             // Update query cache with streaming content
             queryClient.setQueryData(
-              ["conversation", id],
+              ["conversation", conversationId],
               (oldData?: MessagesFromSchema) => {
                 if (!oldData) return oldData;
 
                 // Find and update the streaming message
                 const updatedMessages = [...oldData];
                 const streamingMsgIndex = updatedMessages.findIndex(
-                  (msg) => msg.id === conversationId,
+                  (msg) => msg.id === tempMessageId,
                 );
 
                 if (
@@ -159,13 +161,13 @@ export function useConversationDetails(id?: string) {
           onComplete: async (fullContent) => {
             // Update query cache with final content
             queryClient.setQueryData(
-              ["conversation", id],
+              ["conversation", conversationId],
               (oldData?: MessagesFromSchema) => {
                 if (!oldData) return oldData;
 
                 const updatedMessages = [...oldData];
                 const streamingMsgIndex = updatedMessages.findIndex(
-                  (msg) => msg.id === conversationId,
+                  (msg) => msg.id === tempMessageId,
                 );
 
                 if (
@@ -195,7 +197,9 @@ export function useConversationDetails(id?: string) {
             ]);
 
             // Invalidate queries to get fresh data
-            queryClient.invalidateQueries({ queryKey: ["conversation", id] });
+            queryClient.invalidateQueries({
+              queryKey: ["conversation", conversationId],
+            });
             queryClient.invalidateQueries({ queryKey: ["conversations"] });
           },
           onError: (error) => {
@@ -203,13 +207,13 @@ export function useConversationDetails(id?: string) {
 
             // Update message with error indicator
             queryClient.setQueryData(
-              ["conversation", id],
+              ["conversation", conversationId],
               (oldData?: MessagesFromSchema) => {
                 if (!oldData) return oldData;
 
                 const updatedMessages = [...oldData];
                 const streamingMsgIndex = updatedMessages.findIndex(
-                  (msg) => msg.id === conversationId,
+                  (msg) => msg.id === tempMessageId,
                 );
 
                 if (
@@ -236,53 +240,9 @@ export function useConversationDetails(id?: string) {
         },
       });
     },
-    // Optimistic update to immediately show empty streaming message
-    onMutate: async ({ messages }) => {
-      if (!id) {
-        throw new Error("Conversation ID is required");
-      }
-
-      const tempMessageId = "";
-
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ["conversation", id] });
-
-      // Snapshot current data
-      const previousMessages = queryClient.getQueryData<MessagesFromSchema>([
-        "conversation",
-        id,
-      ]);
-
-      // Add empty assistant message
-      queryClient.setQueryData(
-        ["conversation", id],
-        (oldData?: MessagesFromSchema) => {
-          if (!oldData) return oldData;
-
-          return [
-            ...oldData,
-            {
-              id: tempMessageId,
-              conversationId: id,
-              role: "assistant",
-              content: "",
-              tokens: null,
-              createdAt: new Date().toISOString(),
-            },
-          ];
-        },
-      );
-
-      return { previousMessages, tempMessageId };
-    },
+    // We don't need the onMutate function anymore since we handle it in the wrapper
     onError: (error, variables, context) => {
-      // If streaming fails, restore previous state
-      if (context?.previousMessages) {
-        queryClient.setQueryData(
-          ["conversation", id],
-          context.previousMessages,
-        );
-      }
+      console.error("Error in streaming mutation:", error);
     },
   });
 
@@ -292,6 +252,47 @@ export function useConversationDetails(id?: string) {
     ...conversationQuery,
     saveMessages: saveMessagesMutation.mutateAsync,
     isSavingMessages: saveMessagesMutation.isPending,
-    streamAndSaveMessage: streamAndSaveMessageMutation.mutateAsync,
+    streamAndSaveMessage: async (params: {
+      messages: ChatMessage[];
+      modelId?: string;
+      conversationId?: string;
+    }) => {
+      // Generate a unique ID for the streaming message
+      const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+      // Add the tempMessageId to the query data first (optimistic update)
+      const targetId = params.conversationId || id;
+      if (targetId) {
+        await queryClient.cancelQueries({
+          queryKey: ["conversation", targetId],
+        });
+
+        queryClient.setQueryData(
+          ["conversation", targetId],
+          (oldData?: MessagesFromSchema) => {
+            if (!oldData) return oldData;
+
+            return [
+              ...oldData,
+              {
+                id: tempMessageId,
+                conversationId: targetId,
+                role: "assistant",
+                content: "",
+                tokens: null,
+                createdAt: new Date().toISOString(),
+                isStreaming: true,
+              },
+            ];
+          },
+        );
+      }
+
+      // Then run the mutation with the tempMessageId
+      return await streamAndSaveMessageMutation.mutateAsync({
+        ...params,
+        tempMessageId,
+      });
+    },
   };
 }

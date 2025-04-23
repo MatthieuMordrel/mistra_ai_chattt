@@ -12,7 +12,7 @@ import { and, desc, eq } from "drizzle-orm";
 export const conversationService = {
   queries: {
     /**
-     * Get a conversation by ID including messages and set isStreaming to false
+     * Get a conversation messages by ID and set isStreaming to false
      */
     getConversationMessages:
       (conversationId: string, userId: string) => async () => {
