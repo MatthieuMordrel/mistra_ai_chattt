@@ -1,4 +1,5 @@
 import { createConversationAction } from "@/actions/conversation-actions";
+import { MessagesFromSchema } from "@/lib/fetchClient/fetchConversation";
 import {
   ConversationFromSchema,
   fetchConversations,
@@ -9,6 +10,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 /**
  * Main hook for conversations data with optional selector
@@ -18,13 +20,14 @@ import {
 export function useConversations<TData = ConversationFromSchema[]>(
   select?: (data: ConversationFromSchema[]) => TData,
 ) {
+  const queryClient = useQueryClient();
+  const router = useRouter();
   const conversationsQuery = useSuspenseQuery({
     queryKey: ["conversations"],
     queryFn: fetchConversations,
     select,
   });
 
-  const queryClient = useQueryClient();
   // Mutation for creating a new conversation with optimistic updates
   const createConversationMutation = useMutation({
     mutationFn: async ({
@@ -73,7 +76,30 @@ export function useConversations<TData = ConversationFromSchema[]>(
         );
       }
     },
+    //onSuccess receives by default the return value of the mutation
+    onSuccess: (data) => {
+      // Get the existing messages (including optimistic updates)
+      const existingMessages =
+        queryClient.getQueryData<MessagesFromSchema>(["conversation", null]) ||
+        [];
 
+      // Preserve the structure format that matches MessagesFromSchema
+      const safeExistingMessages = Array.isArray(existingMessages)
+        ? existingMessages
+        : [];
+
+      // Update the conversationId for all existing messages
+      const updatedMessages = safeExistingMessages.map((msg) => ({
+        ...msg,
+        conversationId: data.id,
+      }));
+
+      // Set the query data for the new conversation with all messages
+      queryClient.setQueryData(["conversation", data.id], updatedMessages);
+
+      // Navigate to the new conversation
+      router.replace(`/dashboard/chat/${data.id}`);
+    },
     // After success or error, invalidate the query to refetch
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["conversations"] });

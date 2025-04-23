@@ -16,6 +16,7 @@ export default function NewConversation({
   const queryClient = useQueryClient();
   const resetNewConversation = () => {
     queryClient.setQueryData(["conversation", null], []);
+    queryClient.invalidateQueries({ queryKey: ["conversation", null] });
   };
   return (
     <Button

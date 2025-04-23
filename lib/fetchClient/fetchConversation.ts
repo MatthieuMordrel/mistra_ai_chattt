@@ -26,7 +26,6 @@ export async function fetchConversation(id: string) {
     },
   });
 
-  console.log("fetchConversation", response);
   if (!response.ok) {
     throw new Error("Failed to fetch messages pouet");
   }

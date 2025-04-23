@@ -50,31 +50,34 @@ export function useConversationDetails(id?: string) {
         id,
       ]);
 
-      if (previousMessages) {
-        // Create new messages array with the new messages added
-        const updatedMessages = [
-          ...previousMessages,
-          ...newMessages
-            .filter((msg) => msg.role === "user" || msg.role === "assistant")
-            .map((msg) => ({
-              id: `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-              conversationId: id,
-              isStreaming: false,
-              content: msg.content,
-              role: msg.role as "user" | "assistant",
-              tokens: null,
-              createdAt: new Date().toISOString(),
-            })),
-        ];
+      // Ensure previousMessages is an array
+      const safePreviousMessages = Array.isArray(previousMessages)
+        ? previousMessages
+        : [];
 
-        // Optimistically update the cache
-        queryClient.setQueryData<MessagesFromSchema>(
-          ["conversation", id],
-          updatedMessages,
-        );
-      }
+      // Create new messages array with the new messages added
+      const updatedMessages = [
+        ...safePreviousMessages,
+        ...newMessages
+          .filter((msg) => msg.role === "user" || msg.role === "assistant")
+          .map((msg) => ({
+            id: `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+            conversationId: id,
+            isStreaming: false,
+            content: msg.content,
+            role: msg.role as "user" | "assistant",
+            tokens: null,
+            createdAt: new Date().toISOString(),
+          })),
+      ];
 
-      return { previousMessages };
+      // Optimistically update the cache
+      queryClient.setQueryData<MessagesFromSchema>(
+        ["conversation", id],
+        updatedMessages,
+      );
+
+      return { previousMessages: safePreviousMessages };
     },
 
     // If the mutation fails, roll back
@@ -82,7 +85,9 @@ export function useConversationDetails(id?: string) {
       if (context?.previousMessages) {
         queryClient.setQueryData(
           ["conversation", id],
-          context.previousMessages,
+          Array.isArray(context.previousMessages)
+            ? context.previousMessages
+            : [],
         );
       }
     },
@@ -129,10 +134,13 @@ export function useConversationDetails(id?: string) {
             queryClient.setQueryData(
               ["conversation", conversationId],
               (oldData?: MessagesFromSchema) => {
-                if (!oldData) return oldData;
+                if (!oldData) return [];
+
+                // Ensure oldData is an array
+                const safeOldData = Array.isArray(oldData) ? oldData : [];
 
                 // Find and update the streaming message
-                const updatedMessages = [...oldData];
+                const updatedMessages = [...safeOldData];
                 const streamingMsgIndex = updatedMessages.findIndex(
                   (msg) => msg.id === tempMessageId,
                 );
@@ -163,9 +171,12 @@ export function useConversationDetails(id?: string) {
             queryClient.setQueryData(
               ["conversation", conversationId],
               (oldData?: MessagesFromSchema) => {
-                if (!oldData) return oldData;
+                if (!oldData) return [];
 
-                const updatedMessages = [...oldData];
+                // Ensure oldData is an array
+                const safeOldData = Array.isArray(oldData) ? oldData : [];
+
+                const updatedMessages = [...safeOldData];
                 const streamingMsgIndex = updatedMessages.findIndex(
                   (msg) => msg.id === tempMessageId,
                 );
@@ -195,12 +206,6 @@ export function useConversationDetails(id?: string) {
             await saveMessagesAction(conversationId, [
               { role: "assistant", content: fullContent },
             ]);
-
-            // Invalidate queries to get fresh data
-            queryClient.invalidateQueries({
-              queryKey: ["conversation", conversationId],
-            });
-            queryClient.invalidateQueries({ queryKey: ["conversations"] });
           },
           onError: (error) => {
             console.error("Error streaming response:", error);
@@ -209,9 +214,12 @@ export function useConversationDetails(id?: string) {
             queryClient.setQueryData(
               ["conversation", conversationId],
               (oldData?: MessagesFromSchema) => {
-                if (!oldData) return oldData;
+                if (!oldData) return [];
 
-                const updatedMessages = [...oldData];
+                // Ensure oldData is an array
+                const safeOldData = Array.isArray(oldData) ? oldData : [];
+
+                const updatedMessages = [...safeOldData];
                 const streamingMsgIndex = updatedMessages.findIndex(
                   (msg) => msg.id === tempMessageId,
                 );
@@ -240,6 +248,14 @@ export function useConversationDetails(id?: string) {
         },
       });
     },
+    onSuccess: (data) => {
+      // Invalidate queries to get fresh data
+      queryClient.invalidateQueries({
+        queryKey: ["conversation", id],
+      });
+      // Invalidate the conversation list to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    },
     // We don't need the onMutate function anymore since we handle it in the wrapper
     onError: (error, variables, context) => {
       console.error("Error in streaming mutation:", error);
@@ -260,20 +276,37 @@ export function useConversationDetails(id?: string) {
       // Generate a unique ID for the streaming message
       const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-      // Add the tempMessageId to the query data first (optimistic update)
       const targetId = params.conversationId || id;
       if (targetId) {
         await queryClient.cancelQueries({
           queryKey: ["conversation", targetId],
         });
 
+        // Always ensure we're working with an array when setting the query data
         queryClient.setQueryData(
           ["conversation", targetId],
           (oldData?: MessagesFromSchema) => {
-            if (!oldData) return oldData;
+            // Ensure oldData is an array
+            const safeOldData = Array.isArray(oldData) ? oldData : [];
 
+            // If we have no data, return a new array with just the assistant message
+            if (safeOldData.length === 0) {
+              return [
+                {
+                  id: tempMessageId,
+                  conversationId: targetId,
+                  role: "assistant",
+                  content: "",
+                  tokens: null,
+                  createdAt: new Date().toISOString(),
+                  isStreaming: true,
+                },
+              ];
+            }
+
+            // Otherwise append the new message to the existing array
             return [
-              ...oldData,
+              ...safeOldData,
               {
                 id: tempMessageId,
                 conversationId: targetId,

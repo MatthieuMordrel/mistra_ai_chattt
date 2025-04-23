@@ -35,6 +35,7 @@ export async function streamMistralClient({
       const text = await res.text();
       throw new Error(`Request failed (${res.status}): ${text}`);
     }
+
     if (!res.body) throw new Error("Empty response body");
 
     // Pipe through a TextDecoderStream for automatic UTF-8 decoding

@@ -73,7 +73,24 @@ export const useChatInput = () => {
     // Format title from first message
     const formattedTitle = formatConversationTitle(userMessage.content);
 
-    queryClient.setQueryData(["conversation", null], [userMessage]);
+    // Generate a temporary ID for the user message
+    const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+    // Set the query data as an array instead of just the message
+    queryClient.setQueryData(
+      ["conversation", null],
+      [
+        {
+          id: tempMessageId,
+          conversationId: null,
+          role: "user",
+          content: userMessage.content,
+          tokens: null,
+          createdAt: new Date().toISOString(),
+          isStreaming: false,
+        },
+      ],
+    );
 
     // Create conversation in database
     const { data: result, error } = await tryCatch(
@@ -82,13 +99,16 @@ export const useChatInput = () => {
         messages: [userMessage],
       }),
     );
+
     if (error) {
       console.error("Error creating conversation:", error);
+      // Add more detailed error logging
+      if (error instanceof Error) {
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+      }
       throw error;
     }
-
-    // Only update the URL visually without causing any navigation or data fetching
-    window.history.replaceState(null, "", `/dashboard/chat/${result.id}`);
 
     // Stream the assistant response
     const { error: streamError } = await tryCatch(
@@ -100,6 +120,11 @@ export const useChatInput = () => {
 
     if (streamError) {
       console.error("Error streaming assistant message:", streamError);
+      // Add more detailed error logging
+      if (streamError instanceof Error) {
+        console.error("Error message:", streamError.message);
+        console.error("Error stack:", streamError.stack);
+      }
       throw streamError;
     }
   };
@@ -123,6 +148,11 @@ export const useChatInput = () => {
 
     if (streamError) {
       console.error("Error streaming assistant message:", streamError);
+      // Add more detailed error logging
+      if (streamError instanceof Error) {
+        console.error("Error message:", streamError.message);
+        console.error("Error stack:", streamError.stack);
+      }
       throw streamError;
     }
   };
