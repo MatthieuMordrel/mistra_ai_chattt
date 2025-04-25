@@ -10,7 +10,7 @@ import ChatContainer from "./ChatContainer";
 export async function MessagesLoader({
   conversationId,
 }: {
-  conversationId: string;
+  conversationId?: string;
 }) {
   const { data: session, error: sessionError } = await tryCatch(
     cachedValidateServerSession(),
@@ -29,10 +29,12 @@ export async function MessagesLoader({
   // Prefetch the conversations
   queryClient.prefetchQuery({
     queryKey: ["conversation", conversationId],
-    queryFn: DAL.conversation.queries.getConversationMessages(
-      conversationId,
-      session.session.user.id,
-    ),
+    queryFn: conversationId
+      ? DAL.conversation.queries.getConversationMessages(
+          conversationId,
+          session.session.user.id,
+        )
+      : () => [],
   });
 
   // Return the client-side wrapper with the dehydrated state

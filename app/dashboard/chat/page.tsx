@@ -1,4 +1,3 @@
-import ChatContainer from "@/components/chat/container/ChatContainer";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 /**
  * Chat page component for new conversations
@@ -6,9 +5,5 @@ import { cachedValidateServerSession } from "@/lib/auth/validateSession";
  */
 export default async function ChatPage() {
   await cachedValidateServerSession(true);
-  return (
-    <div className="flex h-full flex-col">
-      <ChatContainer />
-    </div>
-  );
+  return <></>;
 }
