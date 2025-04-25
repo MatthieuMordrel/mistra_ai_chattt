@@ -1,4 +1,3 @@
-import { isServer } from "@tanstack/react-query";
 import { z } from "zod";
 
 const conversationSchema = z.object({
@@ -11,7 +10,6 @@ export type ConversationFromSchema = z.infer<typeof conversationSchema>;
 
 // API function to fetch conversations
 export const fetchConversations = async () => {
-  console.log("nav bar conversations", isServer);
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
   const response = await fetch(`${baseUrl}/api/conversations`, {
     cache: "no-store",

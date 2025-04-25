@@ -1,7 +1,9 @@
 import { saveMessagesAction } from "@/actions/conversation-actions";
-import { MessagesFromSchema } from "@/lib/fetchClient/fetchConversation";
+import {
+  fetchConversation,
+  MessagesFromSchema,
+} from "@/lib/fetchClient/fetchConversation";
 import { streamMistralClient } from "@/lib/mistral streaming/mistral-client";
-import { queryOptionsConversation } from "@/lib/tanstack/queryOptions";
 import { useTokenActions } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
 import {
@@ -23,7 +25,9 @@ export function useConversationDetails() {
 
   // Fetch conversation with messages
   const conversationQuery = useSuspenseQuery({
-    ...queryOptionsConversation({ conversationId }),
+    queryKey: ["conversation", conversationId ?? "null"],
+    queryFn: fetchConversation,
+    refetchOnMount: false,
   });
 
   // Add an effect to update token count whenever messages change
