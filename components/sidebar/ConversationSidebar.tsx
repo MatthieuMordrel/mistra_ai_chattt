@@ -1,5 +1,6 @@
 "use client";
 
+import { revalidateConversations } from "@/actions/conversation-actions";
 import {
   Sidebar,
   SidebarContent,
@@ -9,19 +10,27 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import { useConversations } from "@/hooks/tanstack-query/useConversations";
+import { useGetConversationIdFromParams } from "@/hooks/useGetConversationIdFromParams";
 import { MessageSquareIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LinkLoadingIndicator } from "./LinkLoadingIndicator";
 import NewConversation from "./NewConversationButton";
 
 export function ConversationSidebar() {
   const { conversations } = useConversations();
+  const conversationId = useGetConversationIdFromParams();
   const pathname = usePathname();
   const [hoveredConversationId, setHoveredConversationId] = useState<
     string | null
   >(null);
+
+  useEffect(() => {
+    if (conversationId) {
+      revalidateConversations(conversationId);
+    }
+  }, [conversationId]);
 
   return (
     <Sidebar className="border-r">
