@@ -16,6 +16,14 @@ export const conversationService = {
      */
     getConversationMessages:
       (conversationId: string, userId: string) => async () => {
+        if (
+          !conversationId ||
+          conversationId === "null" ||
+          conversationId === "" ||
+          conversationId === null
+        ) {
+          return [];
+        }
         // Fetch conversation and messages in parallel
         const { data: messages, error } = await tryCatch(
           db
