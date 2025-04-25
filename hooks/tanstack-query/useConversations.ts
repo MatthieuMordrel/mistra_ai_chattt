@@ -11,7 +11,6 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { startTransition } from "react";
 
 /**
  * Main hook for conversations data with optional selector
@@ -99,10 +98,10 @@ export function useConversations<TData = ConversationFromSchema[]>(
       queryClient.setQueryData(["conversation", data.id], updatedMessages);
       router.prefetch(`/dashboard/chat/${data.id}`);
 
-      // Navigate to the new conversation
-      startTransition(() => {
+      // Navigate to the new conversation, adding a small delay to make it work, tbh not exactly sure how it solves the issue of the suspense boundary showing the skeleton
+      setTimeout(() => {
         router.replace(`/dashboard/chat/${data.id}`);
-      });
+      }, 100);
     },
     // After success or error, invalidate the query to refetch
     onSettled: () => {
