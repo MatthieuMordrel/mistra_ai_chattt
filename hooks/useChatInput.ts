@@ -109,6 +109,7 @@ export const useChatInput = () => {
     const { error: streamError } = await tryCatch(
       streamAndSaveMessage({
         messages: [userMessage],
+        conversationIdMutation: result.id,
       }),
     );
 
@@ -130,12 +131,13 @@ export const useChatInput = () => {
     }
 
     // Save user message and get response
-    await saveMessages([userMessage]);
+    await saveMessages([userMessage], conversationId);
 
     // Stream the assistant response
     const { error: streamError } = await tryCatch(
       streamAndSaveMessage({
         messages: [...messages, userMessage],
+        conversationIdMutation: conversationId,
       }),
     );
 

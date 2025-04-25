@@ -96,11 +96,11 @@ export function useConversations<TData = ConversationFromSchema[]>(
 
       // Set the query data for the new conversation with all messages
       queryClient.setQueryData(["conversation", data.id], updatedMessages);
-      router.prefetch(`/dashboard/chat/${data.id}`);
+      router.prefetch(`/dashboard/chat?id=${data.id}`);
 
       // Navigate to the new conversation, adding a small delay to make it work, tbh not exactly sure how it solves the issue of the suspense boundary showing the skeleton
       setTimeout(() => {
-        router.replace(`/dashboard/chat/${data.id}`);
+        router.replace(`/dashboard/chat?id=${data.id}`);
       }, 100);
     },
     // After success or error, invalidate the query to refetch

@@ -41,7 +41,7 @@ export function ConversationSidebar() {
           ) : (
             conversations.map((conversation) => {
               const isActive =
-                pathname === `/dashboard/chat/${conversation.id}`;
+                pathname === `/dashboard/chat?id=${conversation.id}`;
               const shouldPrefetch = hoveredConversationId === conversation.id;
 
               return (

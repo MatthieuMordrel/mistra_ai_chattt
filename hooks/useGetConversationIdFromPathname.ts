@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
  * Get the conversation id from the pathname
  * Integrate with the history.replaceState as it's using usePathname and not useParams
  * @returns The conversation id
+ * @deprecated use useGetConversationIdFromParams instead
  */
 export function useGetConversationIdFromPathname() {
   const pathname = usePathname();

@@ -36,29 +36,36 @@ export function useConversationDetails() {
 
   // Mutation for saving messages to a conversation with optimistic updates
   const saveMessagesMutation = useMutation({
-    mutationFn: async (
-      messages: ChatMessage[],
-    ): Promise<{ success: boolean }> => {
-      if (!conversationId) {
+    mutationFn: async (params: {
+      messages: ChatMessage[];
+      conversationIdMutation?: string;
+    }): Promise<{ success: boolean }> => {
+      if (!params.conversationIdMutation) {
         throw new Error("Conversation ID is required");
       }
-      const result = await saveMessagesAction(conversationId, messages);
+      const result = await saveMessagesAction(
+        params.conversationIdMutation,
+        params.messages,
+      );
       return result;
     },
     // Optimistically update the UI
-    onMutate: async (newMessages) => {
-      if (!conversationId) {
+    onMutate: async (params: {
+      messages: ChatMessage[];
+      conversationIdMutation?: string;
+    }) => {
+      if (!params.conversationIdMutation) {
         throw new Error("Conversation ID is required");
       }
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({
-        queryKey: ["conversation", conversationId],
+        queryKey: ["conversation", params.conversationIdMutation],
       });
 
       // Snapshot the previous value (now an array of messages)
       const previousMessages = queryClient.getQueryData<MessagesFromSchema>([
         "conversation",
-        conversationId,
+        params.conversationIdMutation,
       ]);
 
       // Ensure previousMessages is an array
@@ -69,11 +76,14 @@ export function useConversationDetails() {
       // Create new messages array with the new messages added
       const updatedMessages = [
         ...safePreviousMessages,
-        ...newMessages
-          .filter((msg) => msg.role === "user" || msg.role === "assistant")
-          .map((msg) => ({
+        ...params.messages
+          .filter(
+            (msg: ChatMessage) =>
+              msg.role === "user" || msg.role === "assistant",
+          )
+          .map((msg: ChatMessage) => ({
             id: `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-            conversationId: conversationId,
+            conversationId: params.conversationIdMutation as string,
             isStreaming: false,
             content: msg.content,
             role: msg.role as "user" | "assistant",
@@ -84,7 +94,7 @@ export function useConversationDetails() {
 
       // Optimistically update the cache
       queryClient.setQueryData<MessagesFromSchema>(
-        ["conversation", conversationId],
+        ["conversation", params.conversationIdMutation],
         updatedMessages,
       );
 
@@ -92,11 +102,11 @@ export function useConversationDetails() {
     },
 
     // If the mutation fails, roll back
-    onError: (err, newMessages, context) => {
+    onError: (err, newParams, context) => {
       console.log("saveMessagesMutation: onError", err);
-      if (context?.previousMessages) {
+      if (context?.previousMessages && newParams.conversationIdMutation) {
         queryClient.setQueryData(
-          ["conversation", conversationId],
+          ["conversation", newParams.conversationIdMutation],
           Array.isArray(context.previousMessages)
             ? context.previousMessages
             : [],
@@ -105,12 +115,14 @@ export function useConversationDetails() {
     },
 
     // After success or error, invalidate the queries to refetch
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["conversation", conversationId],
-      });
-      // Also invalidate the conversations list since updatedAt might have changed
-      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+    onSettled: (_, __, params) => {
+      if (params?.conversationIdMutation) {
+        queryClient.invalidateQueries({
+          queryKey: ["conversation", params.conversationIdMutation],
+        });
+        // Also invalidate the conversations list since updatedAt might have changed
+        queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      }
     },
   });
 
@@ -120,13 +132,14 @@ export function useConversationDetails() {
       messages,
       modelId,
       tempMessageId,
+      conversationIdMutation,
     }: {
       messages: ChatMessage[];
       modelId?: string;
-      conversationId?: string;
+      conversationIdMutation: string;
       tempMessageId: string;
     }) => {
-      if (!conversationId) {
+      if (!conversationIdMutation) {
         throw new Error("Conversation ID is required");
       }
 
@@ -219,7 +232,7 @@ export function useConversationDetails() {
       }
 
       // This will be executed BEFORE onSuccess is called
-      const { success } = await saveMessagesAction(conversationId, [
+      const { success } = await saveMessagesAction(conversationIdMutation, [
         { role: "assistant", content: finalContent },
       ]);
 
@@ -227,22 +240,22 @@ export function useConversationDetails() {
         throw new Error("Failed to save messages");
       }
 
-      return { success, finalContent, conversationId };
+      return { success, finalContent, conversationIdMutation };
     },
-    onMutate: async ({ tempMessageId }) => {
-      if (!conversationId) {
+    onMutate: async ({ tempMessageId, conversationIdMutation }) => {
+      if (!conversationIdMutation) {
         throw new Error("Conversation ID is required");
       }
 
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({
-        queryKey: ["conversation", conversationId],
+        queryKey: ["conversation", conversationIdMutation],
       });
 
       // Get current messages
       const previousMessages = queryClient.getQueryData<MessagesFromSchema>([
         "conversation",
-        conversationId,
+        conversationIdMutation,
       ]);
 
       // Ensure we're working with an array
@@ -255,7 +268,7 @@ export function useConversationDetails() {
         ...safeOldData,
         {
           id: tempMessageId,
-          conversationId,
+          conversationId: conversationIdMutation,
           role: "assistant" as const,
           content: "",
           tokens: null,
@@ -266,7 +279,7 @@ export function useConversationDetails() {
 
       // Update query data
       queryClient.setQueryData(
-        ["conversation", conversationId],
+        ["conversation", conversationIdMutation],
         updatedMessages,
       );
 
@@ -275,7 +288,7 @@ export function useConversationDetails() {
     onSuccess: (data) => {
       // Invalidate queries to refetch from server
       queryClient.invalidateQueries({
-        queryKey: ["conversation", data.conversationId],
+        queryKey: ["conversation", data.conversationIdMutation],
       });
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
@@ -288,11 +301,26 @@ export function useConversationDetails() {
   return {
     messages: conversationQuery.data,
     ...conversationQuery,
-    saveMessages: saveMessagesMutation.mutateAsync,
+    saveMessages: async (
+      messages: ChatMessage[],
+      conversationIdMutation?: string,
+    ) => {
+      const targetConversationId = conversationIdMutation || conversationId;
+
+      if (!targetConversationId) {
+        throw new Error("Conversation ID is required");
+      }
+
+      return saveMessagesMutation.mutateAsync({
+        messages,
+        conversationIdMutation: targetConversationId,
+      });
+    },
     isSavingMessages: saveMessagesMutation.isPending,
     streamAndSaveMessage: async (params: {
       messages: ChatMessage[];
       modelId?: string;
+      conversationIdMutation: string;
     }) => {
       // Generate a unique ID for the streaming message
       const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
@@ -301,6 +329,7 @@ export function useConversationDetails() {
       return streamAndSaveMessageMutation.mutateAsync({
         ...params,
         tempMessageId,
+        conversationIdMutation: params.conversationIdMutation,
       });
     },
   };
