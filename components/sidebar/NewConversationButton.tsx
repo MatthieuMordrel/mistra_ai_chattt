@@ -26,7 +26,7 @@ export default function NewConversation({
       asChild
     >
       <Link
-        href="/dashboard/chat"
+        href="/dashboard/chat?id="
         prefetch={true}
         onNavigate={resetNewConversation}
       >

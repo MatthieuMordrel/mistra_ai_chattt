@@ -18,25 +18,10 @@ import NewConversation from "./NewConversationButton";
 
 export function ConversationSidebar() {
   const { conversations } = useConversations();
-  //We don't use useGetConversationId because otherwise it revalidatesPath too fast and the mutation is not finished
-  // const params = useParams();
   const pathname = usePathname();
   const [hoveredConversationId, setHoveredConversationId] = useState<
     string | null
   >(null);
-
-  // const conversationId = params?.id
-  //   ? Array.isArray(params.id)
-  //     ? params.id[0]
-  //     : params.id
-  //   : undefined;
-
-  // // Invalidate the router cache for all conversations by calling revalidatePath in a server action
-  // useEffect(() => {
-  //   if (conversationId) {
-  //     revalidateConversations(conversationId);
-  //   }
-  // }, [conversationId]);
 
   return (
     <Sidebar className="border-r">
@@ -62,7 +47,7 @@ export function ConversationSidebar() {
               return (
                 <Link
                   key={conversation.id}
-                  href={`/dashboard/chat/${conversation.id}`}
+                  href={`/dashboard/chat?id=${conversation.id}`}
                   className="w-full"
                   prefetch={shouldPrefetch}
                   onMouseEnter={() => setHoveredConversationId(conversation.id)}

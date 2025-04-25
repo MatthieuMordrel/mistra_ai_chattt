@@ -1,3 +1,4 @@
+import { isServer } from "@tanstack/react-query";
 import { z } from "zod";
 
 const MessagesSchema = z.array(
@@ -15,8 +16,16 @@ const MessagesSchema = z.array(
 export type MessagesFromSchema = z.infer<typeof MessagesSchema>;
 
 // API function to fetch conversations
-export async function fetchConversation(id: string) {
+export async function fetchConversation(id?: string | null) {
+  console.log(isServer);
+
+  if (!id || id === null || id === "") {
+    console.log("no id");
+    return [];
+  }
+
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+
   const response = await fetch(`${baseUrl}/api/messages/${id}`, {
     cache: "no-store",
     method: "GET",

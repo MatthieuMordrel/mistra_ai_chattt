@@ -24,7 +24,6 @@ export async function validateServerSession(redirect?: undefined): Promise<{
 }>;
 export async function validateServerSession(redirect?: boolean) {
   const headersList = await headers();
-
   // Get the session from auth
   const session = await auth.api.getSession({
     headers: headersList,
@@ -32,6 +31,7 @@ export async function validateServerSession(redirect?: boolean) {
 
   if (!session) {
     await tryCatch(auth.api.signOut({ headers: headersList }));
+    console.log("user couldn't be authenticated");
     unauthorized();
   }
 
@@ -41,8 +41,11 @@ export async function validateServerSession(redirect?: boolean) {
   if (!validSession) {
     //For some reason, the signOut function does not work on the server and doesn't delete the session cookie
     await tryCatch(auth.api.signOut({ headers: headersList }));
+    console.log("user doesn't have access to this resource");
     forbidden();
   }
+
+  console.log("session is valid");
 
   //If session is valid, return the session and headers
   return { session, headers: headersList };

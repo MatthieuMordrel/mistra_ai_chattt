@@ -1,6 +1,9 @@
-import { MessagesLoader } from "@/components/chat/container/ChatLoader";
 import { ChatPageHeader } from "@/components/chat/header/ChatPageHeader";
-import { headers } from "next/headers";
+
+type Props = {
+  children: React.ReactNode;
+  params: Promise<{ conversationId: string }>;
+};
 
 /**
  * Layout component for chat routes
@@ -8,22 +11,11 @@ import { headers } from "next/headers";
  * It includes the ChatPageHeader which contains the conversation title and model selector
  * This ensures the ModelSelector is shared across all chat routes
  */
-export default async function ChatLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const headersList = await headers();
-  const pathname = headersList.get("referer");
-  const conversationId = pathname?.split("/").pop();
-
+export default async function ChatLayout({ children, params }: Props) {
   return (
     <div className="mx-auto flex h-[calc(100vh-6rem)] flex-col p-4">
       <ChatPageHeader />
-      <div className="flex h-full flex-col">
-        <MessagesLoader conversationId={conversationId} />
-        {children}
-      </div>
+      <div className="flex h-full flex-col">{children}</div>
     </div>
   );
 }

@@ -18,14 +18,14 @@ import { useEffect } from "react";
  * @param id The conversation ID
  * @returns The conversation data with messages and mutations
  */
-export function useConversationDetails(id?: string) {
+export function useConversationDetails(id?: string | null) {
   const queryClient = useQueryClient();
   const { calculateTokenCount } = useTokenActions();
 
   // Fetch conversation with messages
   const conversationQuery = useSuspenseQuery({
     queryKey: ["conversation", id],
-    queryFn: () => (id ? fetchConversation(id) : []),
+    queryFn: () => fetchConversation(id),
     refetchOnMount: false,
   });
 
@@ -118,7 +118,7 @@ export function useConversationDetails(id?: string) {
     mutationFn: async ({
       messages,
       modelId,
-      conversationId = id,
+      conversationId = id || "",
       tempMessageId,
     }: {
       messages: ChatMessage[];

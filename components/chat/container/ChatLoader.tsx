@@ -1,12 +1,11 @@
 import SkeletonChat from "@/components/skeletons/SkeletonChat";
-import { DAL } from "@/db/dal";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 import { tryCatch } from "@/lib/tryCatch";
 import { getQueryClient } from "@/providers/QueryProvider";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
 import ChatContainer from "./ChatContainer";
-
+import { fetchConversation } from "@/lib/fetchClient/fetchConversation";
 export async function MessagesLoader({
   conversationId,
 }: {
@@ -29,12 +28,7 @@ export async function MessagesLoader({
   // Prefetch the conversations
   queryClient.prefetchQuery({
     queryKey: ["conversation", conversationId],
-    queryFn: conversationId
-      ? DAL.conversation.queries.getConversationMessages(
-          conversationId,
-          session.session.user.id,
-        )
-      : () => [],
+    queryFn: () => fetchConversation(conversationId),
   });
 
   // console.log(JSON.stringify(dehydrate(queryClient)));
