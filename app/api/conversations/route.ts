@@ -8,7 +8,6 @@ import { NextResponse } from "next/server";
  * Protected by withAuth HOF
  */
 export const GET = withAuth(async (session) => {
-  console.log("conversations are being fetched");
   // Get conversations for the user
   const { data: conversations, error: conversationsError } = await tryCatch(
     DAL.conversation.queries.getUserConversations(session.user.id)(),

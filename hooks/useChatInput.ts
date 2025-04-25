@@ -14,7 +14,7 @@ import { useGetConversationIdFromParams } from "./useGetConversationIdFromParams
 export const useChatInput = () => {
   const conversationId = useGetConversationIdFromParams();
   const { messages, streamAndSaveMessage, saveMessages, isSavingMessages } =
-    useConversationDetails(conversationId);
+    useConversationDetails();
   const [input, setInput] = useState("");
   const { createConversation } = useConversations();
   const queryClient = useQueryClient();
@@ -109,7 +109,6 @@ export const useChatInput = () => {
     const { error: streamError } = await tryCatch(
       streamAndSaveMessage({
         messages: [userMessage],
-        conversationId: result.id,
       }),
     );
 
@@ -137,7 +136,6 @@ export const useChatInput = () => {
     const { error: streamError } = await tryCatch(
       streamAndSaveMessage({
         messages: [...messages, userMessage],
-        conversationId,
       }),
     );
 

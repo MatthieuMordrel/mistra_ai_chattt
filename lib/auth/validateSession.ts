@@ -24,7 +24,7 @@ export async function validateServerSession(redirect?: undefined): Promise<{
 }>;
 export async function validateServerSession(redirect?: boolean) {
   const headersList = await headers();
-  console.log("headersList", Object.fromEntries(headersList.entries()));
+  // console.log("headersList", Object.fromEntries(headersList.entries()));
   // Get the session from auth
   const session = await auth.api.getSession({
     headers: headersList,
@@ -45,8 +45,6 @@ export async function validateServerSession(redirect?: boolean) {
     console.log("user doesn't have access to this resource");
     forbidden();
   }
-
-  console.log("session is valid");
 
   //If session is valid, return the session and headers
   return { session, headers: headersList };

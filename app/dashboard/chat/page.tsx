@@ -38,6 +38,5 @@ export default async function ChatPage({
 }) {
   await cachedValidateServerSession(true);
   const { id: conversationId } = await searchParams;
-  console.log("chat page", conversationId);
   return <MessagesLoader conversationId={conversationId} />;
 }
