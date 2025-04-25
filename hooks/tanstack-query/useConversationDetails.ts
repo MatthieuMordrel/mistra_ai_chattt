@@ -4,12 +4,14 @@ import {
   fetchConversation,
 } from "@/lib/fetchClient/fetchConversation";
 import { streamMistralClient } from "@/lib/mistral streaming/mistral-client";
+import { useTokenActions } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
 import {
   useMutation,
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 /**
  * Hook to fetch and manage a specific conversation with its messages
@@ -18,6 +20,7 @@ import {
  */
 export function useConversationDetails(id?: string) {
   const queryClient = useQueryClient();
+  const { calculateTokenCount } = useTokenActions();
 
   // Fetch conversation with messages
   const conversationQuery = useSuspenseQuery({
@@ -25,6 +28,14 @@ export function useConversationDetails(id?: string) {
     queryFn: () => (id ? fetchConversation(id) : []),
     refetchOnMount: false,
   });
+
+  // Add an effect to update token count whenever messages change
+  useEffect(() => {
+    if (conversationQuery.data) {
+      // Update token count for all current messages
+      calculateTokenCount(conversationQuery.data);
+    }
+  }, [conversationQuery.data, calculateTokenCount]);
 
   // Mutation for saving messages to a conversation with optimistic updates
   const saveMessagesMutation = useMutation({
@@ -139,11 +150,7 @@ export function useConversationDetails(id?: string) {
               ["conversation", conversationId],
               (oldData?: MessagesFromSchema) => {
                 if (!oldData) return [];
-
-                // Ensure oldData is an array
                 const safeOldData = Array.isArray(oldData) ? oldData : [];
-
-                // Find and update the streaming message
                 const updatedMessages = [...safeOldData];
                 const streamingMsgIndex = updatedMessages.findIndex(
                   (msg) => msg.id === tempMessageId,
@@ -160,6 +167,8 @@ export function useConversationDetails(id?: string) {
                   };
                 }
 
+                // Update token count for all messages including the streaming one
+                calculateTokenCount(updatedMessages);
                 return updatedMessages;
               },
             );

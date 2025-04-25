@@ -24,7 +24,6 @@ export async function fetchConversation(id: string) {
       "Content-Type": "application/json",
     },
   });
-
   if (!response.ok) {
     throw new Error("Failed to fetch messages pouet");
   }

@@ -11,8 +11,6 @@ export const GET = withAuth(async (session, request, context) => {
   // Await the params Promise to get the actual values
   const params = await context.params;
   const conversationId = params.id;
-  console.log("params", params);
-  console.log("conversationId", conversationId);
 
   if (!conversationId) {
     return NextResponse.json(

@@ -1,5 +1,6 @@
 import { MessagesLoader } from "@/components/chat/container/ChatLoader";
 import { ChatPageHeader } from "@/components/chat/header/ChatPageHeader";
+import { headers } from "next/headers";
 
 /**
  * Layout component for chat routes
@@ -9,12 +10,12 @@ import { ChatPageHeader } from "@/components/chat/header/ChatPageHeader";
  */
 export default async function ChatLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ id: string | undefined }>;
 }) {
-  const { id: conversationId } = await params;
+  const headersList = await headers();
+  const pathname = headersList.get("referer");
+  const conversationId = pathname?.split("/").pop();
 
   return (
     <div className="mx-auto flex h-[calc(100vh-6rem)] flex-col p-4">

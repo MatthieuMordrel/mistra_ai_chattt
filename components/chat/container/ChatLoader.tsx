@@ -37,6 +37,7 @@ export async function MessagesLoader({
       : () => [],
   });
 
+  // console.log(JSON.stringify(dehydrate(queryClient)));
   // Return the client-side wrapper with the dehydrated state
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

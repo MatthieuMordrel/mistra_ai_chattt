@@ -9,11 +9,7 @@ import {
 import { useIsCalculatingTokens, useTokenCount } from "@/store/chatStore";
 import { Loader2 } from "lucide-react";
 
-interface TokenCounterProps {
-  className?: string;
-}
-
-export default function TokenCounter({ className = "" }: TokenCounterProps) {
+export default function TokenCounter() {
   const tokenCount = useTokenCount();
   const isCalculatingTokens = useIsCalculatingTokens();
 
@@ -21,9 +17,7 @@ export default function TokenCounter({ className = "" }: TokenCounterProps) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div
-            className={`text-muted-foreground flex items-center text-sm ${className}`}
-          >
+          <div className={`text-muted-foreground flex items-center text-sm`}>
             <span className="mr-1">Tokens:</span>
             {isCalculatingTokens ? (
               <div className="flex items-center">

@@ -1,4 +1,5 @@
 "use client";
+import { useTokenActions } from "@/store/chatStore";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { Button } from "../ui/button";
@@ -14,9 +15,10 @@ export default function NewConversation({
   children: React.ReactNode;
 }) {
   const queryClient = useQueryClient();
+  const { resetTokenCount } = useTokenActions();
   const resetNewConversation = () => {
     queryClient.setQueryData(["conversation", null], []);
-    queryClient.invalidateQueries({ queryKey: ["conversation", null] });
+    resetTokenCount();
   };
   return (
     <Button

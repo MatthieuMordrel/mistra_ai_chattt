@@ -7,7 +7,6 @@ interface TokenState {
   isCalculatingTokens: boolean;
   actions: {
     setTokenCount: (count: number) => void;
-    incrementTokenCount: (increment: number) => void;
     setCalculatingTokens: (isCalculating: boolean) => void;
     resetTokenCount: () => void;
     calculateTokenCount: (messages: ChatMessage[]) => Promise<void>;
@@ -25,12 +24,6 @@ export const useTokenStoreBase = create<TokenState>((set, get) => ({
       set({ tokenCount: count });
     },
 
-    incrementTokenCount: (increment: number) => {
-      set((state) => ({
-        tokenCount: state.tokenCount + increment,
-      }));
-    },
-
     setCalculatingTokens: (isCalculating: boolean) => {
       set({ isCalculatingTokens: isCalculating });
     },
@@ -43,16 +36,16 @@ export const useTokenStoreBase = create<TokenState>((set, get) => ({
     },
 
     calculateTokenCount: async (messages: ChatMessage[]) => {
-      const actions = get().actions;
+      const { setCalculatingTokens, setTokenCount } = get().actions;
 
       try {
-        actions.setCalculatingTokens(true);
+        setCalculatingTokens(true);
         const count = await countMessageTokens(messages);
-        actions.setTokenCount(count);
+        setTokenCount(count);
       } catch (error) {
         console.error("Error calculating token count:", error);
       } finally {
-        actions.setCalculatingTokens(false);
+        setCalculatingTokens(false);
       }
     },
   },
