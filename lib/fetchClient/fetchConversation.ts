@@ -16,7 +16,12 @@ const MessagesSchema = z.array(
 export type MessagesFromSchema = z.infer<typeof MessagesSchema>;
 
 // API function to fetch conversations
-export async function fetchConversation(id?: string | null) {
+export const fetchConversation = async ({
+  //no typesafety here
+  queryKey: [, id],
+}: {
+  queryKey: string[];
+}) => {
   console.log(isServer);
 
   if (!id || id === null || id === "") {
@@ -41,4 +46,4 @@ export async function fetchConversation(id?: string | null) {
   // Parse the data with zod, if it fails, throw a ZodError
   const parsedData = MessagesSchema.parse(data);
   return parsedData;
-}
+};

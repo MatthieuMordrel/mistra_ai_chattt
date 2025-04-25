@@ -5,7 +5,8 @@ import { getQueryClient } from "@/providers/QueryProvider";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Suspense } from "react";
 import ChatContainer from "./ChatContainer";
-import { fetchConversation } from "@/lib/fetchClient/fetchConversation";
+import { queryOptionsConversation } from "@/lib/tanstack/queryOptions";
+
 export async function MessagesLoader({
   conversationId,
 }: {
@@ -27,8 +28,7 @@ export async function MessagesLoader({
 
   // Prefetch the conversations
   queryClient.prefetchQuery({
-    queryKey: ["conversation", conversationId],
-    queryFn: () => fetchConversation(conversationId),
+    ...queryOptionsConversation({ conversationId }),
   });
 
   // console.log(JSON.stringify(dehydrate(queryClient)));

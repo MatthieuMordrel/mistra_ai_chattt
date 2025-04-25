@@ -1,9 +1,7 @@
 import { saveMessagesAction } from "@/actions/conversation-actions";
-import {
-  MessagesFromSchema,
-  fetchConversation,
-} from "@/lib/fetchClient/fetchConversation";
+import { MessagesFromSchema } from "@/lib/fetchClient/fetchConversation";
 import { streamMistralClient } from "@/lib/mistral streaming/mistral-client";
+import { queryOptionsConversation } from "@/lib/tanstack/queryOptions";
 import { useTokenActions } from "@/store/chatStore";
 import { ChatMessage } from "@/types/types";
 import {
@@ -12,21 +10,20 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { useEffect } from "react";
-
+import { useGetConversationIdFromParams } from "../useGetConversationIdFromParams";
 /**
  * Hook to fetch and manage a specific conversation with its messages
  * @param id The conversation ID
  * @returns The conversation data with messages and mutations
  */
-export function useConversationDetails(id?: string | null) {
+export function useConversationDetails() {
+  const conversationId = useGetConversationIdFromParams();
   const queryClient = useQueryClient();
   const { calculateTokenCount } = useTokenActions();
 
   // Fetch conversation with messages
   const conversationQuery = useSuspenseQuery({
-    queryKey: ["conversation", id],
-    queryFn: () => fetchConversation(id),
-    refetchOnMount: false,
+    ...queryOptionsConversation({ conversationId }),
   });
 
   // Add an effect to update token count whenever messages change
@@ -42,24 +39,26 @@ export function useConversationDetails(id?: string | null) {
     mutationFn: async (
       messages: ChatMessage[],
     ): Promise<{ success: boolean }> => {
-      if (!id) {
+      if (!conversationId) {
         throw new Error("Conversation ID is required");
       }
-      const result = await saveMessagesAction(id, messages);
+      const result = await saveMessagesAction(conversationId, messages);
       return result;
     },
     // Optimistically update the UI
     onMutate: async (newMessages) => {
-      if (!id) {
+      if (!conversationId) {
         throw new Error("Conversation ID is required");
       }
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ["conversation", id] });
+      await queryClient.cancelQueries({
+        queryKey: ["conversation", conversationId],
+      });
 
       // Snapshot the previous value (now an array of messages)
       const previousMessages = queryClient.getQueryData<MessagesFromSchema>([
         "conversation",
-        id,
+        conversationId,
       ]);
 
       // Ensure previousMessages is an array
@@ -74,7 +73,7 @@ export function useConversationDetails(id?: string | null) {
           .filter((msg) => msg.role === "user" || msg.role === "assistant")
           .map((msg) => ({
             id: `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-            conversationId: id,
+            conversationId: conversationId,
             isStreaming: false,
             content: msg.content,
             role: msg.role as "user" | "assistant",
@@ -85,7 +84,7 @@ export function useConversationDetails(id?: string | null) {
 
       // Optimistically update the cache
       queryClient.setQueryData<MessagesFromSchema>(
-        ["conversation", id],
+        ["conversation", conversationId],
         updatedMessages,
       );
 
@@ -97,7 +96,7 @@ export function useConversationDetails(id?: string | null) {
       console.log("saveMessagesMutation: onError", err);
       if (context?.previousMessages) {
         queryClient.setQueryData(
-          ["conversation", id],
+          ["conversation", conversationId],
           Array.isArray(context.previousMessages)
             ? context.previousMessages
             : [],
@@ -107,7 +106,9 @@ export function useConversationDetails(id?: string | null) {
 
     // After success or error, invalidate the queries to refetch
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["conversation", id] });
+      queryClient.invalidateQueries({
+        queryKey: ["conversation", conversationId],
+      });
       // Also invalidate the conversations list since updatedAt might have changed
       queryClient.invalidateQueries({ queryKey: ["conversations"] });
     },
@@ -118,7 +119,6 @@ export function useConversationDetails(id?: string | null) {
     mutationFn: async ({
       messages,
       modelId,
-      conversationId = id || "",
       tempMessageId,
     }: {
       messages: ChatMessage[];
@@ -229,7 +229,7 @@ export function useConversationDetails(id?: string | null) {
 
       return { success, finalContent, conversationId };
     },
-    onMutate: async ({ conversationId = id, tempMessageId }) => {
+    onMutate: async ({ tempMessageId }) => {
       if (!conversationId) {
         throw new Error("Conversation ID is required");
       }
@@ -293,7 +293,6 @@ export function useConversationDetails(id?: string | null) {
     streamAndSaveMessage: async (params: {
       messages: ChatMessage[];
       modelId?: string;
-      conversationId?: string;
     }) => {
       // Generate a unique ID for the streaming message
       const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;

@@ -1,15 +1,12 @@
 "use client";
 
 import { useConversationDetails } from "@/hooks/tanstack-query/useConversationDetails";
-import { useGetConversationIdFromParams } from "@/hooks/useGetConversationIdFromParams";
 import { useAutoScroll } from "@/hooks/utils/useAutoScroll";
 import { cn } from "@/lib/utils";
 import ChatMessageItem from "./ChatMessageItem";
 
 const ChatMessageList = () => {
-  const conversationId = useGetConversationIdFromParams();
-  const { messages: messagesFromStore } =
-    useConversationDetails(conversationId);
+  const { messages: messagesFromStore } = useConversationDetails();
   const messagesEndRef = useAutoScroll();
 
   // Ensure messagesFromStore is an array before using map

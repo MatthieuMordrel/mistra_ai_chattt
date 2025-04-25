@@ -10,7 +10,7 @@ const conversationSchema = z.object({
 export type ConversationFromSchema = z.infer<typeof conversationSchema>;
 
 // API function to fetch conversations
-export async function fetchConversations() {
+export const fetchConversations = async () => {
   console.log("nav bar conversations", isServer);
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
   const response = await fetch(`${baseUrl}/api/conversations`, {
@@ -29,4 +29,4 @@ export async function fetchConversations() {
   // Parse the data with zod, if it fails, throw a ZodError
   const parsedData = conversationSchema.array().parse(data);
   return parsedData;
-}
+};

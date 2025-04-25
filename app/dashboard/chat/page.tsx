@@ -1,4 +1,4 @@
-import ChatContainer from "@/components/chat/container/ChatContainer";
+import { MessagesLoader } from "@/components/chat/container/ChatLoader";
 import { DAL } from "@/db/dal";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
 import { Metadata } from "next";
@@ -39,5 +39,5 @@ export default async function ChatPage({
   await cachedValidateServerSession(true);
   const { id: conversationId } = await searchParams;
   console.log("chat page", conversationId);
-  return <ChatContainer />;
+  return <MessagesLoader conversationId={conversationId} />;
 }
