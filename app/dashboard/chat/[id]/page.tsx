@@ -24,12 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: conversationTitle,
   };
 }
-/**
- * Chat page component for existing conversations
- * Uses the ChatContainer component for the UI
- */
+
 export default async function ConversationPage() {
-  await cachedValidateServerSession();
+  await cachedValidateServerSession(true);
 
   return <></>;
 }
