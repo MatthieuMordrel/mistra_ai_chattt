@@ -23,9 +23,12 @@ export function useConversationDetails() {
   const queryClient = useQueryClient();
   const { calculateTokenCount } = useTokenActions();
 
+  // Normalize the conversationId to always use "null" string for consistency
+  const normalizedId = conversationId || "null";
+
   // Fetch conversation with messages
   const conversationQuery = useSuspenseQuery({
-    queryKey: ["conversation", conversationId ?? "null"],
+    queryKey: ["conversation", normalizedId],
     queryFn: fetchConversation,
     refetchOnMount: false,
   });
@@ -47,6 +50,10 @@ export function useConversationDetails() {
       if (!params.conversationIdMutation) {
         throw new Error("Conversation ID is required");
       }
+      console.log(
+        "params.conversationIdMutation",
+        params.conversationIdMutation,
+      );
       const result = await saveMessagesAction(
         params.conversationIdMutation,
         params.messages,
@@ -143,6 +150,7 @@ export function useConversationDetails() {
       conversationIdMutation: string;
       tempMessageId: string;
     }) => {
+      console.log("conversationIdMutation", conversationIdMutation);
       if (!conversationIdMutation) {
         throw new Error("Conversation ID is required");
       }

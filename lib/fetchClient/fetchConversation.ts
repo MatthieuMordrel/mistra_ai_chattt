@@ -24,7 +24,7 @@ export const fetchConversation = async ({
 }) => {
   console.log(isServer);
 
-  if (!id || id === null || id === "") {
+  if (!id || id === null || id === "" || id === "null") {
     console.log("no id");
     return [];
   }

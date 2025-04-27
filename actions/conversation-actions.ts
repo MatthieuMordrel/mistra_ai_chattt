@@ -121,6 +121,7 @@ export async function saveMessagesAction(
     throw new Error("Conversation not found");
   }
 
+  console.log("conversationId", conversationId);
   // Save the messages
   const { error: saveMessagesError } = await tryCatch(
     DAL.conversation.mutations.saveMessages(conversationId, messages),

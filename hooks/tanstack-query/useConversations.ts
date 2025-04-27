@@ -80,8 +80,11 @@ export function useConversations<TData = ConversationFromSchema[]>(
     onSuccess: (data) => {
       // Get the existing messages (including optimistic updates)
       const existingMessages =
-        queryClient.getQueryData<MessagesFromSchema>(["conversation", null]) ||
-        [];
+        queryClient.getQueryData<MessagesFromSchema>([
+          "conversation",
+          "null",
+        ]) || [];
+      console.log("data.id", data.id);
 
       // Preserve the structure format that matches MessagesFromSchema
       const safeExistingMessages = Array.isArray(existingMessages)

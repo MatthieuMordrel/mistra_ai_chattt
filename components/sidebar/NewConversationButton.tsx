@@ -17,7 +17,7 @@ export default function NewConversation({
   const queryClient = useQueryClient();
   const { resetTokenCount } = useTokenActions();
   const resetNewConversation = () => {
-    queryClient.setQueryData(["conversation", null], []);
+    queryClient.setQueryData(["conversation", "null"], []);
     resetTokenCount();
   };
   return (

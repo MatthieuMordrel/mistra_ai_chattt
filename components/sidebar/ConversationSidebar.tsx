@@ -27,7 +27,7 @@ export function ConversationSidebar() {
   >(null);
 
   useEffect(() => {
-    if (conversationId) {
+    if (conversationId && conversationId !== "null") {
       revalidateConversations(conversationId);
     }
   }, [conversationId]);

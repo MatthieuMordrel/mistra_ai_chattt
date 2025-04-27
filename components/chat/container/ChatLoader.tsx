@@ -25,12 +25,11 @@ export async function MessagesLoader({
   }
 
   const queryClient = getQueryClient();
-
   // Prefetch the conversations
   queryClient.prefetchQuery({
-    queryKey: ["conversation", conversationId ?? "null"],
+    queryKey: ["conversation", conversationId || "null"],
     queryFn: DAL.conversation.queries.getConversationMessages(
-      conversationId ?? "null",
+      conversationId || "null",
       session.session.user.id,
     ),
   });

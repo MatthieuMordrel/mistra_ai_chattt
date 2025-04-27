@@ -19,6 +19,9 @@ export const useChatInput = () => {
   const { createConversation } = useConversations();
   const queryClient = useQueryClient();
 
+  // Normalize the conversationId to always use "null" string for consistency
+  const normalizedId = conversationId || "null";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -78,11 +81,11 @@ export const useChatInput = () => {
 
     // Set the query data as an array instead of just the message
     queryClient.setQueryData(
-      ["conversation", null],
+      ["conversation", normalizedId],
       [
         {
           id: tempMessageId,
-          conversationId: null,
+          conversationId: normalizedId,
           role: "user",
           content: userMessage.content,
           tokens: null,
@@ -105,6 +108,7 @@ export const useChatInput = () => {
       throw error;
     }
 
+    console.log("result", result);
     // Stream the assistant response
     const { error: streamError } = await tryCatch(
       streamAndSaveMessage({
