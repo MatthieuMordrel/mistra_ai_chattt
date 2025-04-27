@@ -172,7 +172,7 @@ export function useConversationDetails() {
 
             // Update query cache with streaming content
             queryClient.setQueryData(
-              ["conversation", conversationId],
+              ["conversation", conversationIdMutation],
               (oldData?: MessagesFromSchema) => {
                 if (!oldData) return [];
                 const safeOldData = Array.isArray(oldData) ? oldData : [];
@@ -207,7 +207,7 @@ export function useConversationDetails() {
 
             // Update message with error indicator
             queryClient.setQueryData(
-              ["conversation", conversationId],
+              ["conversation", conversationIdMutation],
               (oldData?: MessagesFromSchema) => {
                 if (!oldData) return [];
 
