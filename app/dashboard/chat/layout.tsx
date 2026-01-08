@@ -2,7 +2,6 @@ import { ChatPageHeader } from "@/components/chat/header/ChatPageHeader";
 
 type Props = {
   children: React.ReactNode;
-  params: Promise<{ conversationId: string }>;
 };
 
 /**
@@ -11,7 +10,7 @@ type Props = {
  * It includes the ChatPageHeader which contains the conversation title and model selector
  * This ensures the ModelSelector is shared across all chat routes
  */
-export default async function ChatLayout({ children, params }: Props) {
+export default async function ChatLayout({ children }: Props) {
   return (
     <div className="mx-auto flex h-[calc(100vh-6rem)] flex-col p-4">
       <ChatPageHeader />
