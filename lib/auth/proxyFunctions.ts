@@ -18,7 +18,7 @@ export async function handleApiRouteAuth(request: NextRequest) {
 export async function handlePublicRoutes(request: NextRequest) {
   // If there is a session cookie, redirect to dashboard/home
   if (!!getSessionCookie(request)) {
-    // Always use absolute URLs for redirects in middleware
+    // Always use absolute URLs for redirects in proxy
     const baseUrl = process.env.BETTER_AUTH_URL || request.nextUrl.origin;
     return NextResponse.redirect(new URL("/dashboard/home", baseUrl));
   }

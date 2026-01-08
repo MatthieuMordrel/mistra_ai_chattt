@@ -36,8 +36,8 @@ export default function ForbiddenPage() {
         </p>
 
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Your email address may not be on the whitelist, or your session may
-          have expired.
+          Your session may have expired or you don&apos;t have the required
+          permissions.
         </p>
 
         <div className="pt-4">

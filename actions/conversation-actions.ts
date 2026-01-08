@@ -1,11 +1,37 @@
 "use server";
 import { DAL } from "@/db/dal";
 import { cachedValidateServerSession } from "@/lib/auth/validateSession";
+import { MAX_USER_MESSAGES } from "@/lib/auth/verificationFunction";
 import { tryCatch } from "@/lib/tryCatch";
 import { messagesSchema } from "@/lib/validation/schemas";
 import { ChatMessage } from "@/types/types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+
+/**
+ * Checks if the user has reached their message limit
+ * @param userId - The user's ID
+ * @param newUserMessagesCount - Number of new user messages to be added
+ * @returns Object with hasReachedLimit boolean and current message count
+ */
+async function checkMessageLimit(
+  userId: string,
+  newUserMessagesCount: number = 0,
+) {
+  const { data: currentCount, error } = await tryCatch(
+    DAL.conversation.queries.getUserMessageCount(userId),
+  );
+
+  if (error) {
+    throw new Error("Failed to check message limit");
+  }
+
+  return {
+    hasReachedLimit: currentCount + newUserMessagesCount > MAX_USER_MESSAGES,
+    currentCount,
+    remainingMessages: Math.max(0, MAX_USER_MESSAGES - currentCount),
+  };
+}
 
 /**
  * Creates a new conversation in the database and returns the conversation id
@@ -19,6 +45,23 @@ export async function createConversationAction(
 
   if (!session?.user) {
     throw new Error("Unauthorized");
+  }
+
+  // Count user messages in the new messages
+  const newUserMessagesCount = messages.filter(
+    (msg) => msg.role === "user",
+  ).length;
+
+  // Check message limit before creating conversation
+  const { hasReachedLimit, remainingMessages } = await checkMessageLimit(
+    session.user.id,
+    newUserMessagesCount,
+  );
+
+  if (hasReachedLimit) {
+    throw new Error(
+      `Message limit reached. You have ${remainingMessages} messages remaining out of ${MAX_USER_MESSAGES}.`,
+    );
   }
 
   // Create a new conversation
@@ -109,6 +152,23 @@ export async function saveMessagesAction(
     throw validationError;
   }
 
+  // Count user messages in the new messages
+  const newUserMessagesCount = messages.filter(
+    (msg) => msg.role === "user",
+  ).length;
+
+  // Check message limit before saving
+  const { hasReachedLimit, remainingMessages } = await checkMessageLimit(
+    session.user.id,
+    newUserMessagesCount,
+  );
+
+  if (hasReachedLimit) {
+    throw new Error(
+      `Message limit reached. You have ${remainingMessages} messages remaining out of ${MAX_USER_MESSAGES}.`,
+    );
+  }
+
   // Verify the user owns the conversation
   const { data: conversationData, error: conversationError } = await tryCatch(
     DAL.conversation.queries.getConversationMessages(
@@ -121,7 +181,6 @@ export async function saveMessagesAction(
     throw new Error("Conversation not found");
   }
 
-  console.log("conversationId", conversationId);
   // Save the messages
   const { error: saveMessagesError } = await tryCatch(
     DAL.conversation.mutations.saveMessages(conversationId, messages),

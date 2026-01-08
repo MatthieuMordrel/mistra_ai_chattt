@@ -1,3 +1,4 @@
+import DevDashboardButton from "@/components/dev/DevDashboardButton";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -44,6 +45,7 @@ const Hero = () => {
             GitHub
           </a>
         </Button>
+        <DevDashboardButton />
       </div>
     </div>
   );

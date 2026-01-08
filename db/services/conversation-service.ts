@@ -4,7 +4,7 @@ import { db } from "@/db/database";
 import { conversation, message } from "@/db/schema/chat-schema";
 import { tryCatch } from "@/lib/tryCatch";
 import { ChatMessage } from "@/types/types";
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 
 /**
  * Service for handling database operations related to conversations and messages
@@ -108,6 +108,23 @@ export const conversationService = {
 
       // Sum might be null if there are no messages or no token counts
       return result[0]?.sum || 0;
+    },
+
+    /**
+     * Count the total number of messages sent by a user (role = 'user')
+     * @param userId - The user's ID
+     * @returns The total count of user messages
+     */
+    getUserMessageCount: async (userId: string) => {
+      const result = await db
+        .select({ count: count() })
+        .from(message)
+        .innerJoin(conversation, eq(message.conversationId, conversation.id))
+        .where(
+          and(eq(conversation.userId, userId), eq(message.role, "user")),
+        );
+
+      return result[0]?.count || 0;
     },
   },
 

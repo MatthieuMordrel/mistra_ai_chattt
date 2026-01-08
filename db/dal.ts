@@ -15,6 +15,7 @@ export const DAL = {
         conversationService.queries.getConversationTitle,
       ),
       getUserConversations: cache(conversationService.queries.getUserConversations),
+      getUserMessageCount: conversationService.queries.getUserMessageCount,
     },
     mutations: {
       createConversation: conversationService.mutations.createConversation,

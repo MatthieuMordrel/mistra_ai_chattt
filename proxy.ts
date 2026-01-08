@@ -2,14 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   handleApiRouteAuth,
   handlePublicRoutes,
-} from "./lib/auth/middlewareFunctions";
+} from "./lib/auth/proxyFunctions";
+
+/** Whether to skip authentication in development mode */
+const SKIP_AUTH_IN_DEV = process.env.NODE_ENV === "development";
 
 /**
- * Middleware for handling authentication in Next.js
+ * Proxy for handling authentication in Next.js
  */
 
-// Main middleware function
-export async function middleware(request: NextRequest) {
+// Main proxy function
+export async function proxy(request: NextRequest) {
+  // Skip all auth checks in development mode
+  if (SKIP_AUTH_IN_DEV) {
+    return NextResponse.next();
+  }
+
   // Check if the request is for an API route that needs authentication
   if (
     request.nextUrl.pathname.startsWith("/api/conversations") ||
